@@ -5,6 +5,7 @@ import React, { useRef, useEffect } from "react";
 // add more genres later if needed or pull from the api if it has them?
 const GENRES = [
   "Action",
+  "Adventure",
   "Comedy",
   "Drama",
   "Horror",
