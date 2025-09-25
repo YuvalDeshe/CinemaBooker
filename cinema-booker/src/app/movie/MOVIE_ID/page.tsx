@@ -57,28 +57,33 @@ export default function MoviePage() {
   //Turns array of actors in castList into a single comma-separated string.
   let actorsList: string = "";
   movie.castList.forEach((actor: String, index: number) => {
-  if (index == movie.castList.length - 1) {
-    actorsList = actorsList + actor;
-  } else {
-    actorsList += actor + ", ";
-  }
-  })
+    if (index == movie.castList.length - 1) {
+      actorsList = actorsList + actor;
+    } else {
+      actorsList += actor + ", ";
+    }
+  });
 
   //Makes the movies trailer youtube link embeddable.
   let embedLink: string = "https://www.youtube.com/embed/" + 
-    movie.trailerLink.
-    substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
+    movie.trailerLink.substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
 
+  // ✅ Hooks must be inside the component
   const router = useRouter();
 
   const returnHandler = () => {
     router.push('/');
   };
 
-  const bookMovieHandler = () => {
-    router.push('/') //EDIT THIS PART TO NAVIGATE TO THE BOOKING PAGE
+  // ✅ Define goToBooking inside the component (after router)
+  const goToBooking = (timeLabel: string) => {
+    router.push(`/movie/MOVIE_ID/booking?time=${encodeURIComponent(timeLabel)}`);
   };
 
+  // (kept but unused) If you later want a generic booking handler:
+  const bookMovieHandler = () => {
+    router.push('/'); //EDIT THIS PART TO NAVIGATE TO THE BOOKING PAGE
+  };
 
   return (
     <div className={styles.mainDiv}>
@@ -97,7 +102,7 @@ export default function MoviePage() {
       <div className={styles.primaryMovieDiv}>
         <img className={styles.moviePoster} src={movie.posterImgUrl}></img>
         <iframe className={styles.trailer}
-          src= {embedLink}
+          src={embedLink}
           title="YouTube video player"
           //style{{border: "none" }} 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -122,7 +127,13 @@ export default function MoviePage() {
       <h3 className={styles.subSectionHeading}>Showtimes:</h3>
       <div className={styles.buttonsContainer}>
         {SHOWTIMES.map((value, index) =>(
-          <button className={styles.showTimeButtons} onClick={bookMovieHandler} key={index}>{value}</button>
+          <button
+            className={styles.showTimeButtons}
+            onClick={() => goToBooking(value)}
+            key={index}
+          >
+            {value}
+          </button>
         ))}
       </div>
     </div>
