@@ -1,24 +1,46 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchBar from "./components/SearchBar";
 import GenreDropdown from "./components/GenreDropdown";
 import MovieList from "./components/MovieList";
 
 // temporary hard-coded movies. will replace later when the database is up and running
-const MOVIES = [
-  { title: "Inception", genre: ["Sci-Fi", "Thriller"], posterUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmaTHAbTa2MTEGM_PwqBU61jEzjEcQfx-Zb39fyctMdZheq2Uj" },
-  { title: "Titanic", genre: ["Romance", "Drama"], posterUrl: "https://upload.wikimedia.org/wikipedia/en/1/18/Titanic_%281997_film%29_poster.png" },
-  { title: "Get Out", genre: ["Horror", "Thriller"], posterUrl: "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR1wQ2BpfiaW0uOpXSEUmgg-Ea42e1L9PvIJHaoxE_BEawBUaaO"},
-  { title: "Superbad", genre: ["Comedy"], posterUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFIB8fMeJPVNx_aqLjJvTxNa4xpJjE9u_fyLMRV7y8se-HtOC_" },
-];
+// const MOVIES = [
+//   { title: "Inception", genre: ["Sci-Fi", "Thriller"], posterUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmaTHAbTa2MTEGM_PwqBU61jEzjEcQfx-Zb39fyctMdZheq2Uj" },
+//   { title: "Titanic", genre: ["Romance", "Drama"], posterUrl: "https://upload.wikimedia.org/wikipedia/en/1/18/Titanic_%281997_film%29_poster.png" },
+//   { title: "Get Out", genre: ["Horror", "Thriller"], posterUrl: "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR1wQ2BpfiaW0uOpXSEUmgg-Ea42e1L9PvIJHaoxE_BEawBUaaO"},
+//   { title: "Superbad", genre: ["Comedy"], posterUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFIB8fMeJPVNx_aqLjJvTxNa4xpJjE9u_fyLMRV7y8se-HtOC_" },
+// ];
+type MovieData = {
+    title: string;
+    genre: string[];
+    posterUrl: string;
+};
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [movies, setMovies] = useState<MovieData[]>([]);
+
+  useEffect(() => {
+      const fetchMovies = async () =>   {
+          try {
+              const response = await fetch("/api/movies");
+              if (!response.ok) {
+                  throw new Error("Failed to fetch movies.");
+              }
+              const data = await response.json();
+              setMovies(data);
+          } catch (err) {
+              console.error(err);
+          }
+      };
+      fetchMovies();
+  }, []);
 
   // temporary filtering as a proof of concept. will replace later when the database is up and running
-  const filteredMovies = MOVIES.filter(movie =>
+  const filteredMovies = movies.filter(movie =>
     movie.title.toLowerCase().includes(search.toLowerCase()) &&
     (selectedGenres.length === 0 ||
       selectedGenres.some(genre => movie.genre.includes(genre)))
