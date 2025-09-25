@@ -1,0 +1,135 @@
+.mainDiv {
+  font-family: sans-serif;      /* font-sans */
+  min-height: 100vh;            /* min-h-screen */
+  background-color: #111827;    /* bg-gray-900 */
+}
+
+.hr {
+    margin: 16px 0px;
+    border-width: 2px;
+    color: #2B3E63;
+}
+
+.topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #2B3E63;
+    margin-bottom: 18px;
+}
+
+.icon {
+    font-size: 48px;
+    color: white;
+    padding-bottom: 5px;
+}
+
+.buttonText {
+    color: white;
+    font-size: 20px;
+}
+
+.homeButton {
+    margin: 10px;
+    padding-top: 4px;
+    padding-left:  20px;
+    padding-right:  20px;
+    transition: 0.1s;
+    border-radius: 10px;
+}
+
+.homeButton:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.mainHeading {
+    font-size: 72px;
+    -webkit-text-stroke: 2px black;
+    color: white;
+}
+
+.tempButtonCSS {
+    margin: 10px;
+    padding-top: 4px;
+    padding-left:  20px;
+    padding-right:  20px;
+    opacity: 0;
+}
+
+.primaryMovieDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.movieTitle {
+    font-size: 100px;
+    text-align: center;
+    color: white;
+}
+
+.moviePoster {
+    height: 750px;
+    width: 500px;
+}
+
+.trailer {
+    width: 854px;
+    height: 480px;
+    padding: 18px;
+}
+
+.movieInfo {
+    display: flex;
+    justify-content: center;
+}
+
+.movieInfoItems {
+    font-size: 36px;
+    padding: 10px;
+    color: white;
+}
+
+.description {
+    margin: 0px 12px;
+    font-size: 20px;
+    line-height: 25px;
+    text-align: center;
+    color: #8F8F8F;
+}
+
+.subSectionHeading {
+    font-size: 48px;
+    margin-left: 12px;
+    color: white;
+}
+
+.subSectionItems {
+    color: #8F8F8F;
+    font-size: 20px;
+    margin-left: 20px;
+}
+
+.buttonsContainer {
+    padding-bottom: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.showTimeButtons {
+    color:white;
+    border-color: white;
+    border-width: 2px;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 24px;
+    transition: 0.1s;
+}
+
+.showTimeButtons:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.2);
+}
