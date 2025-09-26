@@ -57,7 +57,7 @@ export default function GenreDropdown({ selected, setSelected }: GenreDropdownPr
   return (
     <div ref={dropdownRef} className="relative w-full sm:w-64">
       <button
-        className="border rounded px-4 py-2 w-full text-center bg-blue-700 text-white hover:bg-blue-800 transition"
+        className="border rounded px-4 py-2 w-full text-left bg-white text-black"
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
