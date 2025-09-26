@@ -17,6 +17,7 @@ type MovieData = {
     title: string;
     genre: string[];
     posterUrl: string;
+    isCurrentlyRunning: boolean;
 };
 
 export default function Home() {
@@ -32,7 +33,14 @@ export default function Home() {
                   throw new Error("Failed to fetch movies.");
               }
               const data = await response.json();
-              setMovies(data);
+              // Normalize isCurrentlyRunning to boolean
+              const normalized = data.map((movie: any) => ({
+                ...movie,
+                isCurrentlyRunning:
+                  movie.isCurrentlyRunning === true ||
+                  movie.isCurrentlyRunning === "True"
+              }));
+              setMovies(normalized);
           } catch (err) {
               console.error(err);
           }
@@ -47,6 +55,9 @@ export default function Home() {
       selectedGenres.some(genre => movie.genre.includes(genre)))
   );
 
+  const currentlyRunning = filteredMovies.filter(m => m.isCurrentlyRunning);
+  const comingSoon = filteredMovies.filter(m => !m.isCurrentlyRunning);
+
   return (
     <div className="font-sans min-h-screen bg-gray-900">
       <header className="mb-12 flex flex-col sm:flex-row items-center justify-center gap-4 px-8 sm:px-32">
@@ -58,7 +69,14 @@ export default function Home() {
         </div>
       </header>
       <main className="px-8 sm:px-32 pb-20">
-        <MovieList movies={filteredMovies} />
+        <section>
+          <h2 className="text-white text-2xl font-bold mb-4">Currently Running</h2>
+          <MovieList movies={currentlyRunning} />
+        </section>
+        <section className="mt-12">
+          <h2 className="text-white text-2xl font-bold mb-4">Coming Soon</h2>
+          <MovieList movies={comingSoon} />
+        </section>
       </main>
     </div>
   );

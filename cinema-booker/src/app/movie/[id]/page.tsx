@@ -5,7 +5,7 @@ import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from "./styles.module.css"
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 /** 
   NOTE: This page is located under the URL of movie/MOVIE_ID
@@ -35,7 +35,7 @@ type Movie = {
   Feel free to replace if you want, but currently, the webpage reads the info directly from
   this object called "movie".
 */
-const movie: Movie = {
+ const movie: Movie = {
   title: "Movie Title",
   genre: "GENRE",
   description: "This is the description for the movie. Lorem ipsum dolor sit amet, \
@@ -49,10 +49,22 @@ const movie: Movie = {
   director: "Director Information",
   castList: ["Actor1", "Actor2", "Actor3", "Actor4", "Actor5"],
   rating: "RATING",
-  runtime: "RUNTIME"
+  runtime: "RUNTIME" 
 } 
 
 export default function MoviePage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const [movie, setMovie] = React.useState<Movie | null>(null);
+
+  React.useEffect(() => {
+    if (!id) return;
+    fetch(`/api/movies/${id}`)
+      .then(res => res.json())
+      .then(data => setMovie(data));
+  }, [id]);
+
+  if (!movie) return <div className={styles.mainDiv}>Loading...</div>;
 
   //Turns array of actors in castList into a single comma-separated string.
   let actorsList: string = "";
@@ -69,14 +81,19 @@ export default function MoviePage() {
     movie.trailerLink.
     substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
 
-  const router = useRouter();
 
   const returnHandler = () => {
     router.push('/');
   };
 
+<<<<<<< Updated upstream:cinema-booker/src/app/movie/MOVIE_ID/page.tsx
   const bookMovieHandler = () => {
     router.push('/') //EDIT THIS PART TO NAVIGATE TO THE BOOKING PAGE
+=======
+  const goToBooking = (timeLabel: string) => {
+    // Use the dynamic id from the URL
+    router.push(`/movie/${id}/booking?time=${encodeURIComponent(timeLabel)}`);
+>>>>>>> Stashed changes:cinema-booker/src/app/movie/[id]/page.tsx
   };
 
 
