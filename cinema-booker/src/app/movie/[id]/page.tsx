@@ -28,7 +28,7 @@ type Movie = {
   director: string;
   castList: string[]; //Idk what this data type will be, but Im assuming a String array for now.
   rating: string; //also could be an enum
-  runtime: string;
+  runTime: string;
   isCurrentlyRunning: boolean;
   _id: string;
 }
@@ -124,7 +124,7 @@ export default function MoviePage() {
         </iframe>
       </div>
       <div className={styles.movieInfo}>
-        <p className={styles.movieInfoItems}>{movie.runtime}</p>
+        <p className={styles.movieInfoItems}>{movie.runTime}</p>
         <p className={styles.movieInfoItems}>|</p>
         <p className={styles.movieInfoItems}>{movie.genre}</p>
         <p className={styles.movieInfoItems}>|</p>
