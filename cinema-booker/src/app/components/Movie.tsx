@@ -1,12 +1,13 @@
-import react from "react";
+import React from "react";
 
 type MovieProps = {
   title: string;
   genre: string[];
   posterUrl?: string;
+  isCurrentlyRunning?: boolean;
 };
 
-export default function Movie({ title, genre, posterUrl }: MovieProps) {
+export default function Movie({ title, genre, posterUrl, isCurrentlyRunning}: MovieProps) {
   return (
     <div className="border rounded shadow p-4 bg-gray-600 flex flex-col items-center w-48">
       <div className="w-32 h-48 bg-gray-200 flex items-center justify-center mb-2">

@@ -1,0 +1,138 @@
+/* [project]/src/app/movie/MOVIE_ID/styles.module.css [app-client] (css) */
+.styles-module___N1Ozq__mainDiv {
+  background-color: #111827;
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.styles-module___N1Ozq__hr {
+  color: #2b3e63;
+  border-width: 2px;
+  margin: 16px 0;
+}
+
+.styles-module___N1Ozq__topBar {
+  background-color: #2b3e63;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  display: flex;
+}
+
+.styles-module___N1Ozq__icon {
+  color: #fff;
+  padding-bottom: 5px;
+  font-size: 48px;
+}
+
+.styles-module___N1Ozq__buttonText {
+  color: #fff;
+  font-size: 20px;
+}
+
+.styles-module___N1Ozq__homeButton {
+  border-radius: 10px;
+  margin: 10px;
+  padding-top: 4px;
+  padding-left: 20px;
+  padding-right: 20px;
+  transition: all .1s;
+}
+
+.styles-module___N1Ozq__homeButton:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+.styles-module___N1Ozq__mainHeading {
+  -webkit-text-stroke: 2px black;
+  color: #fff;
+  font-size: 72px;
+}
+
+.styles-module___N1Ozq__tempButtonCSS {
+  opacity: 0;
+  margin: 10px;
+  padding-top: 4px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.styles-module___N1Ozq__primaryMovieDiv {
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  display: flex;
+}
+
+.styles-module___N1Ozq__movieTitle {
+  text-align: center;
+  color: #fff;
+  font-size: 100px;
+}
+
+.styles-module___N1Ozq__moviePoster {
+  width: 500px;
+  height: 750px;
+}
+
+.styles-module___N1Ozq__trailer {
+  width: 854px;
+  height: 480px;
+  padding: 18px;
+}
+
+.styles-module___N1Ozq__movieInfo {
+  justify-content: center;
+  display: flex;
+}
+
+.styles-module___N1Ozq__movieInfoItems {
+  color: #fff;
+  padding: 10px;
+  font-size: 36px;
+}
+
+.styles-module___N1Ozq__description {
+  text-align: center;
+  color: #8f8f8f;
+  margin: 0 12px;
+  font-size: 20px;
+  line-height: 25px;
+}
+
+.styles-module___N1Ozq__subSectionHeading {
+  color: #fff;
+  margin-left: 12px;
+  font-size: 48px;
+}
+
+.styles-module___N1Ozq__subSectionItems {
+  color: #8f8f8f;
+  margin-left: 20px;
+  font-size: 20px;
+}
+
+.styles-module___N1Ozq__buttonsContainer {
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding-bottom: 50px;
+  display: flex;
+}
+
+.styles-module___N1Ozq__showTimeButtons {
+  color: #fff;
+  border-width: 2px;
+  border-color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 24px;
+  transition: all .1s;
+}
+
+.styles-module___N1Ozq__showTimeButtons:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+/*# sourceMappingURL=src_app_movie_MOVIE_ID_styles_module_e2944736.css.map*/
