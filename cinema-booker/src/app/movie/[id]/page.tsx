@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from "./styles.module.css"
 import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 
 /** 
   NOTE: This page is located under the URL of movie/MOVIE_ID
@@ -22,12 +23,14 @@ type Movie = {
   title: string;
   genre: string; //Maybe we could make this an enum or something, but not required.
   description: string;
-  posterImgUrl: string;
+  posterUrl: string;
   trailerLink: string;
   director: string;
   castList: string[]; //Idk what this data type will be, but Im assuming a String array for now.
   rating: string; //also could be an enum
   runtime: string;
+  isCurrentlyRunning: boolean;
+  _id: string;
 }
 
 /**
@@ -35,7 +38,7 @@ type Movie = {
   Feel free to replace if you want, but currently, the webpage reads the info directly from
   this object called "movie".
 */
- const movie: Movie = {
+ /**  const movie: Movie = {
   title: "Movie Title",
   genre: "GENRE",
   description: "This is the description for the movie. Lorem ipsum dolor sit amet, \
@@ -51,7 +54,7 @@ type Movie = {
   rating: "RATING",
   runtime: "RUNTIME" 
 } 
-
+*/
 export default function MoviePage() {
   const { id } = useParams();
   const router = useRouter();
@@ -66,34 +69,33 @@ export default function MoviePage() {
 
   if (!movie) return <div className={styles.mainDiv}>Loading...</div>;
 
-  //Turns array of actors in castList into a single comma-separated string.
+  //array of cast members to string
   let actorsList: string = "";
-  movie.castList.forEach((actor: String, index: number) => {
-  if (index == movie.castList.length - 1) {
-    actorsList = actorsList + actor;
-  } else {
-    actorsList += actor + ", ";
+  if (Array.isArray(movie.castList)) {
+    actorsList = movie.castList.join(", ");
+  } else if (typeof movie.castList === "string") {
+    actorsList = movie.castList;
   }
-  })
 
-  //Makes the movies trailer youtube link embeddable.
-  let embedLink: string = "https://www.youtube.com/embed/" + 
-    movie.trailerLink.
-    substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
+  // embedded links # fixed error issue with db
+  let embedLink: string = "";
+  if (movie.trailerLink && typeof movie.trailerLink === "string") {
+    const lastEq = movie.trailerLink.lastIndexOf("=");
+    embedLink =
+      "https://www.youtube.com/embed/" +
+      (lastEq !== -1
+        ? movie.trailerLink.substring(lastEq + 1)
+        : movie.trailerLink);
+  }
 
 
   const returnHandler = () => {
     router.push('/');
   };
 
-<<<<<<< Updated upstream:cinema-booker/src/app/movie/MOVIE_ID/page.tsx
-  const bookMovieHandler = () => {
-    router.push('/') //EDIT THIS PART TO NAVIGATE TO THE BOOKING PAGE
-=======
   const goToBooking = (timeLabel: string) => {
-    // Use the dynamic id from the URL
+    // use the dynamic id from the URL
     router.push(`/movie/${id}/booking?time=${encodeURIComponent(timeLabel)}`);
->>>>>>> Stashed changes:cinema-booker/src/app/movie/[id]/page.tsx
   };
 
 
@@ -112,11 +114,11 @@ export default function MoviePage() {
       </div>
       <h1 className={styles.movieTitle}>{movie.title}</h1>
       <div className={styles.primaryMovieDiv}>
-        <img className={styles.moviePoster} src={movie.posterImgUrl}></img>
+        <img className={styles.moviePoster} src={movie.posterUrl}></img>
         <iframe className={styles.trailer}
           src= {embedLink}
           title="YouTube video player"
-          //style{{border: "none" }} 
+          // style border
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
           allowFullScreen>
         </iframe>
@@ -137,11 +139,22 @@ export default function MoviePage() {
       <p className={styles.subSectionItems}>{actorsList}</p>
       <hr className={styles.hr}/>
       <h3 className={styles.subSectionHeading}>Showtimes:</h3>
-      <div className={styles.buttonsContainer}>
-        {SHOWTIMES.map((value, index) =>(
-          <button className={styles.showTimeButtons} onClick={bookMovieHandler} key={index}>{value}</button>
-        ))}
-      </div>
+      {movie.isCurrentlyRunning && (
+        <div className={styles.buttonsContainer}>
+          {SHOWTIMES.map((value, index) =>(
+            <button
+              className={styles.showTimeButtons}
+              onClick={() => goToBooking(value)}
+              key={index}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+      )}
+      {!movie.isCurrentlyRunning && (
+        <p className={styles.subSectionItems}>Showtimes will be available when the movie is running.</p>
+      )}
     </div>
   );
 }

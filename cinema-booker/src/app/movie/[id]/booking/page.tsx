@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 
 export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { id } = useParams();
 
   // Accept either a plain label or an ISO datetime
   const label = searchParams.get("time");
@@ -274,7 +275,7 @@ export default function BookingPage() {
             >
               <button
                 type="button"
-                onClick={() => router.push("/movie/MOVIE_ID")}
+                onClick={() => router.push(`/movie/${id}`)}
                 style={{
                   padding: "10px 14px",
                   borderRadius: 8,

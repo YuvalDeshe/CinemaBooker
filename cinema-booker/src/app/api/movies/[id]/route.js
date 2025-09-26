@@ -19,28 +19,31 @@ export async function GET(request, { params }) {
             });
         }
 
-        // Format the movie as needed for your frontend
+        // Normalize castList and other fields
+        let castList = [];
+        if (Array.isArray(movie.Cast)) {
+            castList = movie.Cast;
+        } else if (typeof movie.Cast === "string") {
+            castList = movie.Cast.split(",").map(actor => actor.trim());
+        }
+
         const formattedMovie = {
-            title: movie.title,
-            genre: Array.isArray(movie.genre)
-                ? movie.genre.map(g => g.trim())
-                : (typeof movie.genre === 'string' && movie.genre.includes(',')
-                    ? movie.genre.split(',').map(g => g.trim())
-                    : [movie.genre]),
-            posterImgUrl: movie.png,
-            director: movie.director,
-            castList: Array.isArray(movie.Cast)
-                ? movie.Cast
-                : (typeof movie.Cast === 'string'
-                    ? movie.Cast.split(',').map(c => c.trim())
-                    : []),
-            rating: movie.Rating,
-            runtime: movie.RunTime,
-            trailerLink: movie.trailer,
-            isCurrentlyRunning: movie.isCurrentlyRunning === 'true',
-            description: movie.description,
-            showTime: movie.showTime,
             _id: movie._id,
+            title: movie.title,
+            description: movie.description,
+            genre: Array.isArray(movie.genre)
+                ? movie.genre
+                : (typeof movie.genre === "string" && movie.genre.includes(",")
+                    ? movie.genre.split(",").map(g => g.trim())
+                    : [movie.genre]),
+            posterUrl: movie.png,
+            trailerLink: movie.trailer,
+            director: movie.director,
+            castList,
+            rating: movie.Rating,
+            runTime: movie.RunTime,
+            isCurrentlyRunning: movie.isCurrentlyRunning === true || movie.isCurrentlyRunning === "true",
+            showTime: movie.showTime,
         };
 
         return new Response(JSON.stringify(formattedMovie), {

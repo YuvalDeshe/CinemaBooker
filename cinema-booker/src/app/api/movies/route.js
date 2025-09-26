@@ -12,6 +12,7 @@ export async function GET() {
         const movies = await moviesCollection.find({}).toArray();
 
         const formattedMovies = movies.map(movie => ({
+            _id: movie._id, 
             title: movie.title,
             genre: Array.isArray(movie.genre)
                 ? movie.genre.map(g => g.trim())
