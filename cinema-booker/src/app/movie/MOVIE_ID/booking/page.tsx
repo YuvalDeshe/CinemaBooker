@@ -32,11 +32,13 @@ export default function BookingPage() {
   // Form state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [tickets, setTickets] = useState(1);
+  const [adultTickets, setAdultTickets] = useState(1);
+  const [childTickets, setChildTickets] = useState(0);
+  const [seniorTickets, setSeniorTickets] = useState(0);
   const [agree, setAgree] = useState(false);
 
   const isValid =
-    name.trim().length > 1 && /\S+@\S+\.\S+/.test(email) && tickets > 0 && agree;
+    name.trim().length > 1 && /\S+@\S+\.\S+/.test(email) && (adultTickets + childTickets + seniorTickets > 0) && agree;
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: 16 }}>
@@ -170,15 +172,15 @@ export default function BookingPage() {
 
               <div style={{ display: "grid", gap: 6 }}>
                 <label htmlFor="tickets" style={{ fontWeight: 600 }}>
-                  Tickets
+                  Child Tickets
                 </label>
                 <input
                   id="tickets"
                   type="number"
-                  min={1}
+                  min={0}
                   max={10}
-                  value={tickets}
-                  onChange={(e) => setTickets(Number(e.target.value || 1))}
+                  value={childTickets}
+                  onChange={(e) => setChildTickets(Number(e.target.value || 1))}
                   style={{
                     background: "#111827",
                     color: "#f9fafb",
@@ -192,7 +194,55 @@ export default function BookingPage() {
                 </small>
               </div>
 
-              <div style={{ display: "grid", gap: 6, alignContent: "end" }}>
+              <div style={{ display: "grid", gap: 6 }}>
+                <label htmlFor="tickets" style={{ fontWeight: 600 }}>
+                  Adult Tickets
+                </label>
+                <input
+                  id="tickets"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={adultTickets}
+                  onChange={(e) => setAdultTickets(Number(e.target.value || 1))}
+                  style={{
+                    background: "#111827",
+                    color: "#f9fafb",
+                    border: "1px solid #4b5563",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                  }}
+                />
+                <small style={{ color: "#9ca3af" }}>
+                  Max 10 for this prototype.
+                </small>
+              </div>
+
+              <div style={{ display: "grid", gap: 6 }}>
+                <label htmlFor="tickets" style={{ fontWeight: 600 }}>
+                  Senior Tickets
+                </label>
+                <input
+                  id="tickets"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={seniorTickets}
+                  onChange={(e) => setSeniorTickets(Number(e.target.value || 1))}
+                  style={{
+                    background: "#111827",
+                    color: "#f9fafb",
+                    border: "1px solid #4b5563",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                  }}
+                />
+                <small style={{ color: "#9ca3af" }}>
+                  Max 10 for this prototype.
+                </small>
+              </div>
+
+              <div style={{ display: "grid", gap: 6, alignContent: "end", marginBottom: 25 }}>
                 <label
                   style={{
                     display: "flex",
@@ -204,7 +254,7 @@ export default function BookingPage() {
                     borderRadius: 8,
                   }}
                 >
-                  <input
+                  <input 
                     type="checkbox"
                     checked={agree}
                     onChange={(e) => setAgree(e.target.checked)}
