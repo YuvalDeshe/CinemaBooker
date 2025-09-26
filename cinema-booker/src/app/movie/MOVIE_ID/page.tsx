@@ -68,14 +68,12 @@ export default function MoviePage() {
   let embedLink: string = "https://www.youtube.com/embed/" + 
     movie.trailerLink.substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
 
-  // ✅ Hooks must be inside the component
   const router = useRouter();
 
   const returnHandler = () => {
     router.push('/');
   };
 
-  // ✅ Define goToBooking inside the component (after router)
   const goToBooking = (timeLabel: string) => {
     router.push(`/movie/MOVIE_ID/booking?time=${encodeURIComponent(timeLabel)}`);
   };
