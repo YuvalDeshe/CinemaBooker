@@ -2,11 +2,20 @@
 
 import React, { useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
+import styles from "../styles.module.css";
+
+// Only fetch the relevant info for the booking page
+type Movie = {
+  title: string;
+  posterUrl?: string;
+}
 
 export default function BookingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = useParams();
+  const [movie, setMovie] = React.useState<Movie | null>(null);
+
 
   // Accept either a plain label or an ISO datetime
   const label = searchParams.get("time");
@@ -40,6 +49,16 @@ export default function BookingPage() {
 
   const isValid =
     name.trim().length > 1 && /\S+@\S+\.\S+/.test(email) && (adultTickets + childTickets + seniorTickets > 0) && agree;
+
+  // fetch movie information
+  React.useEffect(() => {
+    if (!id) return;
+    fetch(`/api/movies/${id}`)
+      .then(res => res.json())
+      .then(data => setMovie(data));
+  }, [id]);
+
+  if (!movie) return <div className={styles.mainDiv}>Loading...</div>;
 
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: 16 }}>
@@ -76,20 +95,25 @@ export default function BookingPage() {
               alignItems: "center",
             }}
           >
+            {/* Movie poster */}
             <div
               aria-hidden
               style={{
                 width: 120,
                 height: 168,
                 borderRadius: 12,
-                background:
-                  "linear-gradient(135deg, rgba(62,161,255,.25), rgba(124,77,255,.25))",
                 border: "1px solid #374151",
               }}
-            />
+            >
+              {movie.posterUrl ? (
+                <img src={movie.posterUrl} alt={`${movie.title} poster`} className="w-full h-full object-cover rounded" />
+              ) : (
+                <span className="text-gray-500">No Image</span>
+              )}
+            </div>
             <div style={{ display: "grid", gap: 8 }}>
               <h2 style={{ margin: 0, fontSize: "1.25rem" }}>
-                Example Movie Title
+                {movie.title}
               </h2>
               <div style={{ display: "flex", gap: 10 }}>
                 <span style={{ width: 110, color: "#9ca3af" }}>Showtime</span>
