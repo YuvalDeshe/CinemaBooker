@@ -9,7 +9,7 @@ export async function GET(request, { params }) {
         const db = client.db('MoviesDatabase');
         const moviesCollection = db.collection('MoviesCollection');
 
-        const { id } = params;
+        const { id } = await params;
         const movie = await moviesCollection.findOne({ _id: new ObjectId(id) });
 
         if (!movie) {
