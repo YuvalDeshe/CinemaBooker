@@ -27,7 +27,7 @@ export async function GET(request, { params }) {
         const moviesCollection = db.collection('MoviesCollection');
 
         // You do not need await params here, just destructure params
-        const { id } = params;
+        const { id } = await params;
 
         // This line (13) will now succeed because the client is open
         const movie = await moviesCollection.findOne({ _id: new ObjectId(id) });
