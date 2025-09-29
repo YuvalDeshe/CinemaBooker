@@ -1,15 +1,35 @@
 import { MongoClient, ObjectId } from 'mongodb';
 
 const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+
+// Declare a variable for the client outside the handler
+let client;
+let db;
+
+// Function to connect to the database (only runs once)
+async function connectToDatabase() {
+    if (db) {
+        return { client, db }; // Connection is already established
+    }
+
+    // Connect to the database
+    client = new MongoClient(uri);
+    await client.connect();
+    db = client.db('MoviesDatabase');
+
+    return { client, db };
+}
 
 export async function GET(request, { params }) {
     try {
-        await client.connect();
-        const db = client.db('MoviesDatabase');
+        // Use the connection function instead of connecting on every call
+        const { db } = await connectToDatabase();
         const moviesCollection = db.collection('MoviesCollection');
 
-        const { id } = await params;
+        // You do not need await params here, just destructure params
+        const { id } = params;
+
+        // This line (13) will now succeed because the client is open
         const movie = await moviesCollection.findOne({ _id: new ObjectId(id) });
 
         if (!movie) {
@@ -19,7 +39,7 @@ export async function GET(request, { params }) {
             });
         }
 
-        // Normalize castList and other fields
+        // Normalize castList and other fields (rest of your logic remains the same)
         let castList = [];
         if (Array.isArray(movie.Cast)) {
             castList = movie.Cast;
@@ -42,7 +62,7 @@ export async function GET(request, { params }) {
             castList,
             rating: movie.Rating,
             runTime: movie.RunTime,
-            isCurrentlyRunning: movie.isCurrentlyRunning === true || movie.isCurrentlyRunning === "true",
+            isCurrentlyRunning: movie.isCurrentlyRunning,
             showTime: movie.showTime,
         };
 
@@ -57,7 +77,6 @@ export async function GET(request, { params }) {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
-    } finally {
-        await client.close();
     }
+    // REMOVED: The finally block with await client.close();
 }

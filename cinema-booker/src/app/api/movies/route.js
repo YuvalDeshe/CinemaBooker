@@ -25,7 +25,7 @@ export async function GET() {
             rating: movie.Rating,
             runTime: movie.RunTime,
             trailer: movie.trailer,
-            isCurrentlyRunning: movie.isCurrentlyRunning === 'True',
+            isCurrentlyRunning: movie.isCurrentlyRunning,
         }));
 
         return new Response(JSON.stringify(formattedMovies), {

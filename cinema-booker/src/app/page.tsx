@@ -50,8 +50,9 @@ export default function Home() {
 
   const currentlyRunning = filteredMovies.filter(m => m.isCurrentlyRunning);
   const comingSoon = filteredMovies.filter(m => !m.isCurrentlyRunning);
-    
-  return (
+    // console.log(movies);
+
+    return (
     <div className="font-sans min-h-screen bg-gray-900">
       <header className="mb-12 flex flex-col sm:flex-row items-center justify-center gap-4 px-8 sm:px-32">
         <div className="flex-1">

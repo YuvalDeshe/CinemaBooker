@@ -27,6 +27,8 @@ type Movie = {
   _id: string;
 }
 
+
+
 export default function MoviePage() {
   const { id } = useParams();
   const router = useRouter();
