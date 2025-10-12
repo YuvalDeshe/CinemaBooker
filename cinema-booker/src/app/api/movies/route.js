@@ -27,11 +27,7 @@ export async function GET() {
         const formattedMovies = movies.map(movie => ({
             _id: movie._id,
             title: movie.title,
-            genre: Array.isArray(movie.genre)
-                ? movie.genre.map(g => g.trim())
-                : (typeof movie.genre === 'string' && movie.genre.includes(',')
-                    ? movie.genre.split(',').map(g => g.trim())
-                    : [movie.genre]),
+            genre: movie.genre,
             posterUrl: movie.png,
             director: movie.director,
             cast: movie.Cast,
