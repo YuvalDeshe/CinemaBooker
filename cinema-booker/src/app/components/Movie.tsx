@@ -28,7 +28,7 @@ export default function Movie({ _id, title, genre, posterUrl, isCurrentlyRunning
         )}
       </div>
       <h3 className="font-semibold text-lg mb-1 text-center">{title}</h3>
-      <div className="text-xs text-white text-center">{genre.join(", ")}</div>
+      <div className="text-xs text-white text-center">{genre}</div>
       <div className="flex flex-col gap-2 w-full mt-4 mb-4">
         <a
           href={`/movie/${_id}`}
