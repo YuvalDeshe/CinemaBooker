@@ -1,5 +1,5 @@
 type RegisterFormProps = {
-    handleRegister: (email: string, password: string) => void
+    handleRegister: (fname: string, lname: string, phone: string, email: string, password: string) => void
 }
 
 export default function RegisterForm({handleRegister}: RegisterFormProps) {
@@ -8,25 +8,36 @@ export default function RegisterForm({handleRegister}: RegisterFormProps) {
         e.preventDefault();
         const form = e.currentTarget;
         const data = new FormData(form);
+        const fname = String(data.get('fname') ?? '');
+        const lname = String(data.get('lname') ?? '');
+        const phone = String(data.get('phone') ?? '');
         const email = String(data.get('email') ?? '');
         const password = String(data.get('password') ?? '');
-        handleRegister(email, password);
+        handleRegister(fname, lname, phone, email, password);
     }
-    // make this pretty
-    return( 
+
+    return( // make this pretty
     <form onSubmit={onSubmit}>
         <label>
-            name: <input type="text" required name="password" className="bg-white text-black"></input>
+            first name: <input type="text" required name="fname" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
         <label>
-            phone number: <input type="text" required name="password" className="bg-white text-black"></input>
+            last name: <input type="text" required name="lname" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
         <label>
-            email: <input type="email" required name="email" className="bg-white text-black"></input>
+            phone number: <input type="text" required name="phone" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
         <label>
-            password: <input type="password" required name="password" className="bg-white text-black"></input>
+            email: <input type="email" required name="email" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
+        <label>
+            password: <input type="password" required name="password" className="bg-white text-black m-2"></input>
+        </label>
+        <br></br>
         {/* add optional payment information inputs */}
         <button type="submit" className="bg-white text-black p-1">register</button>
     </form>

@@ -16,11 +16,13 @@ export default function LoginForm({handleLogin}: LoginFormProps) {
     return( 
     <form onSubmit={onSubmit}>
         <label>
-            email: <input type="email" name="email" className="bg-white text-black"></input>
+            email: <input type="email" name="email" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
         <label>
-            password: <input type="password" name="password" className="bg-white text-black"></input>
+            password: <input type="password" name="password" className="bg-white text-black m-2"></input>
         </label>
+        <br></br>
         <button type="submit" className="bg-white text-black p-1">login</button>
     </form>
     )
