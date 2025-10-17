@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import SearchBar from "./components/SearchBar";
 import GenreDropdown from "./components/GenreDropdown";
 import MovieList from "./components/MovieList";
+import TopBar from "./components/TopBar";
 
 // temporary hard-coded movies. will replace later when the database is up and running
 // const MOVIES = [

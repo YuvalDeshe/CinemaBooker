@@ -7,6 +7,7 @@ import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from "./styles.module.css"
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import TopBar from "@/app/components/TopBar";
 
 
 //Array of hardcoded showtimes, loaded into the page dynamically.
@@ -75,17 +76,6 @@ export default function MoviePage() {
 
   return (
     <div className={styles.mainDiv}>
-      <div className={styles.topBar}>
-        <button className={styles.homeButton} onClick={returnHandler}>
-          <FontAwesomeIcon className={styles.icon} icon={faHouse}/> 
-          <p className={styles.buttonText}>Home</p> 
-        </button>
-        <h2 className={styles.mainHeading}>Cinema E-Booking Site</h2>
-        <button className={styles.tempButtonCSS}>
-          <FontAwesomeIcon className={styles.icon} icon={faHouse}/> 
-          <p className={styles.buttonText}>Home</p> 
-        </button> 
-      </div>
       <h1 className={styles.movieTitle}>{movie.title}</h1>
       <div className={styles.primaryMovieDiv}>
         <img className={styles.moviePoster} src={movie.posterUrl}></img>
