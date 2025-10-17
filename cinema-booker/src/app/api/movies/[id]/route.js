@@ -51,11 +51,7 @@ export async function GET(request, { params }) {
             _id: movie._id,
             title: movie.title,
             description: movie.description,
-            genre: Array.isArray(movie.genre)
-                ? movie.genre
-                : (typeof movie.genre === "string" && movie.genre.includes(",")
-                    ? movie.genre.split(",").map(g => g.trim())
-                    : [movie.genre]),
+            genre: movie.genre,
             posterUrl: movie.png,
             trailerLink: movie.trailer,
             director: movie.director,
