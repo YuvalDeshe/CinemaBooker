@@ -35,7 +35,6 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
         const city = String(data.get('city') ?? '');
         const state = String(data.get('state') ?? '');
         const zip = String(data.get('zip') ?? '');
-        // console.log(`data: ${String(data)}`)
         handleRegister(fname, lname, phone, email, password, cardType, cardNumber, expDate, billingStreet, billingCity, billingState, billingZip, street, city, state, zip);
     }
 
@@ -74,11 +73,11 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
                                 Card type:
                                 <div>
                                     <label>
-                                        <input type="radio" required name="cardType" id="debit" className="bg-white text-black m-2" /> Debit
+                                        <input type="radio" required name="cardType" id="debit" value="debit" className="bg-white text-black m-2" /> Debit
                                     </label>
 
                                     <label>
-                                        <input type="radio" required name="cardType" id="credit" className="bg-white text-black m-2" /> Credit
+                                        <input type="radio" required name="cardType" id="credit" value="credit" className="bg-white text-black m-2" /> Credit
                                     </label>
                                 </div>
                             </label>
