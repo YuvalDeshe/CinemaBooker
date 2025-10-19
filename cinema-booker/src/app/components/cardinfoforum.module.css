@@ -1,0 +1,36 @@
+.mainDiv {
+    border-radius: 8px;
+    padding: 4px;
+    margin: 10px 8px;
+    background-color: rgb(94, 94, 94);
+    width: 600px;
+    transition: 0.1s;
+}
+
+.label {
+    font-size: 16px;
+}
+
+.inputField {
+    background-color: rgb(136, 136, 136);
+    border-radius: 8px;
+    margin: 4px;
+    padding-left: 4px;
+}
+
+.deleteButton {
+    font-size: 20px;
+    background-color: #c62828;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+}
+
+.deleteButton:hover {
+    background-color: #ff3636;
+    transform: scale(1.1);
+}
