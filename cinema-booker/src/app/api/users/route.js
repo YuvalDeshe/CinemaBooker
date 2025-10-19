@@ -90,6 +90,8 @@ export async function POST(request) {
             billingAddress: newUser.billingAddress || null,
             paymentCard: newUser.paymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
+            userType: newUser.userType || "CUSTOMER",
+            userStatus: newUser.userStatus || "PENDING",
         };
 
         const result = await usersCollection.insertOne(userToInsert);

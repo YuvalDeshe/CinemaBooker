@@ -1,26 +1,35 @@
 'use client';
 import LoginForm from "@/app/components/LoginForm";
 
-function login(email: string, password: string) {
-        /* 
-        ===DATABASE===
-        - check if the provided credentials match a user in
-          the database. if they do, log them in. i can handle
-          the technical aspects of logging them in and tracking
-          their session if you want me to
+async function login(email: string, password: string) {
+    try {
+        console.log(`Attempting login for email: ${email}`);
 
-        - the LoginForm should check that the email is in the
-          correct format before allowing the user to submit
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
 
-        - remember to hash the password!!!!!
-        */
+        const data = await response.json();
 
-    console.log(`email: ${email}`)
-    console.log(`password: ${password}`)
+        if (response.ok) {
+            console.log("Login Successful! User data:", data.user);
+            // TODO: dump the user on the home page after successful login
+            return { success: true, user: data.user };
+        } else {
+            console.error("Login Failed:", data.message);
+            return { success: false, message: data.message };
+        }
+    } catch (error) {
+        console.error("Network or parsing error during login:", error);
+        return { success: false, message: "An unexpected network error occurred." };
+    }
 }
 
 export default function Login() {
-
     return(
         <div>
             <LoginForm handleLogin={login}></LoginForm>
