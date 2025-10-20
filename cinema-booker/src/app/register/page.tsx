@@ -1,56 +1,80 @@
 'use client';
 import RegisterForm from "@/app/components/RegisterForm";
 
-function register(fname: string, lname: string, phone: string, 
-    email: string, password: string, cardType: string, cardNumber: string, 
-    expDate: string, billingStreet: string, billingCity: string, billingState: string, 
-    billingZip: string, street: string, city: string, state: string, zip: string) {
-        /* 
-        ===DATABASE===
-        - register the account in the database
-          then probably send the user to the login page?
+async function register(
+    fname: string,
+    lname: string,
+    phone: string,
+    email: string,
+    password: string,
+    cardType: string,
+    cardNumber: string,
+    expDate: string,
+    billingStreet: string,
+    billingCity: string,
+    billingState: string,
+    billingZip: string,
+    street: string, // Restored: General Address Street
+    city: string, // Restored: General Address City
+    state: string, // Restored: General Address State
+    zip: string // Restored: General Address Zip
+) {
+        const userPayload = {
+                username: email,
+                firstName: fname,
+                lastName: lname,
+                email: email,
+                password: password,
+                userType: "CUSTOMER",
+                userStatus: "PENDING",
 
-        - the RegisterForm does NOT check to make sure the data
-          is valid. i'm happy to implement that if you want, but
-          i just wanted to get a proof of concept done so you
-          had something to work with.
+                billingAddress: {
+                        street: billingStreet,
+                        city: billingCity,
+                        state: billingState,
+                        zip: billingZip,
+                },
 
-        - remember to hash the password
+                paymentCard: [{
+                        cardType: cardType,
+                        cardNumber: cardNumber,
+                        expDate: expDate,
+                }],
 
-        - this info should PROBABLY be put into a User object
-          of some sort before it's passed to this method. I
-          decided I'd let you handle that so you can arrange
-          the data the way that best works for you
+                isRegisteredForPromos: false,
+        };
 
-        - there is the start of a User schema in src/models/userSchema.ts.
-          it is very incomplete and maybe you have a different way of
-          organizing it, but i thought i would need this and abandoned it along the way.
-        */
-        console.log(`fname: ${fname}`);
-        console.log(`lname: ${lname}`)
-        console.log(`phone: ${phone}`)
-        console.log(`email: ${email}`);
-        console.log(`password: ${password}`);
-        console.log(`credit card:`)
-        console.log(`\tcardType: ${cardType}`)
-        console.log(`\tcardNumber: ${cardNumber}`)
-        console.log(`\texpDate: ${expDate}`);
-        console.log(`\tbillingStreet: ${billingStreet}`)
-        console.log(`\tbillingCity: ${billingCity}`)
-        console.log(`\tbillingState: ${billingState}`)
-        console.log(`\tbillingZip: ${billingZip}`);
-        console.log(`address:`)
-        console.log(`\tstreet: ${street}`)
-        console.log(`\tcity: ${city}`)
-        console.log(`\tstate: ${state}`)
-        console.log(`\tzip: ${zip}`);
+        console.log("Attempting to register user with payload:", userPayload);
+
+        try {
+                const response = await fetch('/api/users', {
+                        method: 'POST',
+                        headers: {
+                                'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userPayload),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                        console.log("Registration successful!", data);
+                        window.location.href = '/login';
+
+                } else {
+                        console.error("Registration failed:", data.message);
+                }
+
+        } catch (error) {
+                console.error("Network or unexpected error during registration:", error);
+        }
 }
 
 export default function Register() {
 
-    return(
-        <div>
-            <RegisterForm handleRegister={register}></RegisterForm>
-        </div>
-    )
+        return(
+            <div>
+                    <RegisterForm handleRegister={register}></RegisterForm>
+            </div>
+        )
 }
