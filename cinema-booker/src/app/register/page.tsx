@@ -30,7 +30,7 @@ async function register(user: User) {
                 paymentCard: [{
                         cardType: user.getCards()[0].getCardType(),
                         cardNumber: user.getCards()[0].getCardNumber(),
-                        // TODO: expand expDate to expMonth and expYear in the database
+                        // TODO: expand expDate in the database to expMonth and expYear
                         expMonth: user.getCards()[0].getExpMonth(),
                         expYear: user.getCards()[0].getExpYear(),
                         billingAddress: {
@@ -41,6 +41,8 @@ async function register(user: User) {
                         }
                 }], 
 
+                // TODO: add orderHistory to the database
+                orderHistory: [],
                 isRegisteredForPromos: user.getPromo(),
         };
 

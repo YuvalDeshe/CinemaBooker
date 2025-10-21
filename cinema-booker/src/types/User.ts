@@ -6,6 +6,7 @@ export const Status = {
     SUSPENDED: "Suspended"
 }
 
+// TODO: (future deliverable) change User to an Interface with Admin and Customer extending it.
 export default class User {
     private fname: string;
     private lname: string;
