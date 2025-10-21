@@ -1,55 +1,46 @@
 'use client';
 import RegisterForm from "@/app/components/RegisterForm";
+import User from "@/types/User";
 
-async function register(
-    fname: string,
-    lname: string,
-    phone: string,
-    email: string,
-    password: string,
-    cardType: string,
-    cardNumber: string,
-    expDate: string,
-    billingStreet: string,
-    billingCity: string,
-    billingState: string,
-    billingZip: string,
-    street: string, 
-    city: string, 
-    state: string, 
-    zip: string, 
-    promo: boolean
-) {
+async function register(user: User) {
         const userPayload = {
-                username: email,
-                firstName: fname,
-                lastName: lname,
-                email: email,
-                password: password,
-                phone: phone,
+                firstName: user.getFirstName(),
+                lastName: user.getLastName(),
+                email: user.getEmail(),
+                password: user.getPassword(), // TODO(?): hash password
+                phone: user.getPhoneNumber(),
                 userType: "CUSTOMER",
-                userStatus: "PENDING",
+                userStatus: user.getStatus(),
 
                 homeAddress: {
-                        street: street,
-                        city: city,
-                        state: state,
-                        zip: zip
+                        street: user.getAddress().street,
+                        city: user.getAddress().city,
+                        state: user.getAddress().state,
+                        zip: user.getAddress().zip
                 },
 
+                /* 
+                TODO:
+                make this field optional somehow. the user does not need
+                to provide a payment method at registration.
+                as is, this will throw an error if the user did not
+                enter a card.
+                */
                 paymentCard: [{
-                        cardType: cardType,
-                        cardNumber: cardNumber,
-                        expDate: expDate,
+                        cardType: user.getCards()[0].getCardType(),
+                        cardNumber: user.getCards()[0].getCardNumber(),
+                        // TODO: expand expDate to expMonth and expYear in the database
+                        expMonth: user.getCards()[0].getExpMonth(),
+                        expYear: user.getCards()[0].getExpYear(),
                         billingAddress: {
-                                street: billingStreet,
-                                city: billingCity,
-                                state: billingState,
-                                zip: billingZip,
+                                street: user.getCards()[0].getBillingStreet(),
+                                city: user.getCards()[0].getBillingCity(),
+                                state: user.getCards()[0].getBillingState(),
+                                zip: user.getCards()[0].getBillingZip(),
                         }
-                }],
+                }], 
 
-                isRegisteredForPromos: promo,
+                isRegisteredForPromos: user.getPromo(),
         };
 
         console.log("Attempting to register user with payload:", userPayload);
@@ -80,9 +71,9 @@ async function register(
 
 export default function Register() {
 
-        return(
-            <div>
-                    <RegisterForm handleRegister={register}></RegisterForm>
-            </div>
+        return (
+                <div>
+                        <RegisterForm handleRegister={register}></RegisterForm>
+                </div>
         )
 }

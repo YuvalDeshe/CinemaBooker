@@ -1,8 +1,10 @@
 'use client';
 import LoginForm from "@/app/components/LoginForm";
+import { useRouter } from "next/router";
 
 async function login(email: string, password: string) {
     try {
+        let router = useRouter()
         console.log(`Attempting login for email: ${email}`);
 
         const response = await fetch('/api/login', {
@@ -17,7 +19,8 @@ async function login(email: string, password: string) {
 
         if (response.ok) {
             console.log("Login Successful! User data:", data.user);
-            // TODO: dump the user on the home page after successful login
+            // TODO: test that the user is successfully put on the home page after login
+            router.push('/');
             return { success: true, user: data.user };
         } else {
             console.error("Login Failed:", data.message);

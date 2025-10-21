@@ -1,10 +1,9 @@
 import { useState } from "react";
+import User from "@/types/User";
+import Card from "@/types/Card";
 
 type RegisterFormProps = {
-    handleRegister: (fname: string, lname: string, phone: string, 
-    email: string, password: string, cardType: string, cardNumber: string, 
-    expDate: string, billingStreet: string, billingCity: string, billingState: string, 
-    billingZip: string, street: string, city: string, state: string, zip: string, promo: boolean) => void
+    handleRegister: (user: User) => void
 }
 
 export default function RegisterForm({ handleRegister }: RegisterFormProps) {
@@ -26,7 +25,8 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
         const password = String(data.get('password') ?? '');
         const cardType = String(data.get('cardType') ?? '');
         const cardNumber = String(data.get('cardNumber') ?? '');
-        const expDate = String(data.get('expDate') ?? '');
+        const expMonth = String(data.get('expMonth') ?? '');
+        const expYear = String(data.get('expYear') ?? '');
         const billingStreet = String(data.get('billingStreet') ?? '');
         const billingCity = String(data.get('billingCity') ?? '');
         const billingState = String(data.get('billingState') ?? '');
@@ -36,7 +36,14 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
         const state = String(data.get('state') ?? '');
         const zip = String(data.get('zip') ?? '');
         const promo = Boolean(data.get('promo'));
-        handleRegister(fname, lname, phone, email, password, cardType, cardNumber, expDate, billingStreet, billingCity, billingState, billingZip, street, city, state, zip, promo);
+
+        let card = new Card(cardType, cardNumber, expMonth, expYear, billingStreet, billingCity, billingState, billingZip);
+        let address = {street, city, state, zip};
+        let user = new User(fname, lname, phone, email, password, promo, address, [card]);
+        if (user.getCards()[0].getCardType() == '') { // if the user didn't enter a card, remove the blank card
+            user.removeCard(0);
+        }
+        handleRegister(user);
     }
 
     return ( // make this pretty
@@ -88,7 +95,11 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
                                 <br></br>
                             </label>
                             <label>
-                                Expiration date: <input type="text" required name="expDate" className="bg-white text-black m-2"></input>
+                                Expiration month: <input type="text" required name="expMonth" className="bg-white text-black m-2"></input>
+                                <br></br>
+                            </label>
+                            <label>
+                                Expiration year: <input type="text" required name="expYear" className="bg-white text-black m-2"></input>
                                 <br></br>
                             </label>
                             <label>

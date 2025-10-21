@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import Status from '@/types/User';
 
 const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const SALT_ROUNDS = 10;
@@ -91,7 +92,7 @@ export async function POST(request) {
             paymentCard: newUser.paymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
             userType: newUser.userType || "CUSTOMER",
-            userStatus: newUser.userStatus || "PENDING",
+            userStatus: newUser.userStatus || Status.INACTIVE,
         };
 
         const result = await usersCollection.insertOne(userToInsert);
