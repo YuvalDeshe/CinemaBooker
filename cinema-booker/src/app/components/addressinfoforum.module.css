@@ -1,0 +1,156 @@
+.mainDiv {
+    background-color: #3b3b3b;
+    border-radius: 40px;
+    margin: 25px 100px;
+}
+
+.editProfileHeading {
+    text-align: center;
+    font-size: 72px;
+    -webkit-text-stroke: 2px black;
+    color: white;
+}
+
+.hr {
+    border-color: #636363;
+    border-width: 2px;
+    border-radius: 10px;
+    margin-top: 12px;
+    margin-left: 150px;
+    margin-right: 150px;
+    margin-bottom: 15px;
+}
+
+.forumContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.email {
+    text-align: center;
+    font-size: 24px;
+    color: white;
+}
+
+.label {
+    font-size: 32px;
+    margin-left: 8px;
+    color: white;
+}
+
+.inputField {
+    margin-top: 4px;
+    margin-bottom: 24px;
+    margin-left: 12px;
+    margin-right: 80%;
+    font-size: 20px;
+    background-color: #838383;
+    border-radius: 6px;
+    padding: 0 4px;
+}
+
+.subLabel {
+    font-size: 24px;
+    margin-left: 16px;
+    margin-right: 8px;
+    color: white;
+}
+
+.subInputField {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 12px;
+    background-color: #838383;
+    border-radius: 4px;
+    padding: 0 4px;
+}
+
+.addressInputField {
+    margin-bottom: 4px;
+    margin-left: 12px;
+    width: 44.75%;
+    background-color: #838383;
+    border-radius: 4px;
+    padding: 0 4px;
+}
+
+.addressSubField {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px; /* adds space between items */
+    width: 90px;
+}
+
+.billingAddressContainer {
+    padding-bottom: 24px;
+    padding-top: 8px;
+    background-color: rgb(94, 94, 94);
+    width: 65%;
+    margin-left: 8px;
+    border-radius: 12px;
+}
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+}
+
+.promoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 12px;
+}
+
+.addCardButton {
+    background-color: rgb(79, 176, 255);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: white;
+    margin-bottom: 16px;
+}
+
+.addCardButton:hover {
+    background-color: rgb(127, 197, 253);
+    transform: scale(1.05);
+}
+
+.addCardButtonDisabled {
+    background-color: rgba(136, 136, 136, 0.4);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: rgb(170, 170, 170);
+}
+
+.noticeLabel {
+    padding: 4px 10px;
+    margin: 10px 0;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    border-color: yellow;
+    border-width: 1px;
+    border-radius: 12px;
+    width: 500px;
+}
+
+.noteLabel {
+    font-size: 20px;
+    margin-left: 16px;
+    margin-right: 8px;
+    color: white;
+    margin-bottom: 4px;
+}
