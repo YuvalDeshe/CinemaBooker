@@ -4,7 +4,7 @@ type RegisterFormProps = {
     handleRegister: (fname: string, lname: string, phone: string, 
     email: string, password: string, cardType: string, cardNumber: string, 
     expDate: string, billingStreet: string, billingCity: string, billingState: string, 
-    billingZip: string, street: string, city: string, state: string, zip: string) => void
+    billingZip: string, street: string, city: string, state: string, zip: string, promo: boolean) => void
 }
 
 export default function RegisterForm({ handleRegister }: RegisterFormProps) {
@@ -35,7 +35,8 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
         const city = String(data.get('city') ?? '');
         const state = String(data.get('state') ?? '');
         const zip = String(data.get('zip') ?? '');
-        handleRegister(fname, lname, phone, email, password, cardType, cardNumber, expDate, billingStreet, billingCity, billingState, billingZip, street, city, state, zip);
+        const promo = Boolean(data.get('promo'));
+        handleRegister(fname, lname, phone, email, password, cardType, cardNumber, expDate, billingStreet, billingCity, billingState, billingZip, street, city, state, zip, promo);
     }
 
     return ( // make this pretty
@@ -130,6 +131,10 @@ export default function RegisterForm({ handleRegister }: RegisterFormProps) {
                         </div>
                     )}
                 </label>
+                <label>
+                    Sign up for promotional emails? <input type="checkbox" name="promo" className="bg-white text-black m-2" ></input>
+                </label>
+                <br></br>
                 <button type="submit" className="bg-white text-black p-1">Register</button>
             </form>
             <label>Already have an account? <a href="/login" className="text-blue-400 underline">Login</a></label>

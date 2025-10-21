@@ -17,7 +17,8 @@ async function register(
     street: string, // Restored: General Address Street
     city: string, // Restored: General Address City
     state: string, // Restored: General Address State
-    zip: string // Restored: General Address Zip
+    zip: string, // Restored: General Address Zip
+    promo: boolean
 ) {
         const userPayload = {
                 username: email,
@@ -41,7 +42,7 @@ async function register(
                         expDate: expDate,
                 }],
 
-                isRegisteredForPromos: false,
+                isRegisteredForPromos: promo,
         };
 
         console.log("Attempting to register user with payload:", userPayload);
