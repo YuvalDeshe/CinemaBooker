@@ -29,17 +29,23 @@ async function register(
                 userType: "CUSTOMER",
                 userStatus: "PENDING",
 
-                billingAddress: {
-                        street: billingStreet,
-                        city: billingCity,
-                        state: billingState,
-                        zip: billingZip,
+                homeAddress: {
+                        street: street,
+                        city: city,
+                        state: state,
+                        zip: zip
                 },
 
                 paymentCard: [{
                         cardType: cardType,
                         cardNumber: cardNumber,
                         expDate: expDate,
+                        billingAddress: {
+                                street: billingStreet,
+                                city: billingCity,
+                                state: billingState,
+                                zip: billingZip,
+                        }
                 }],
 
                 isRegisteredForPromos: promo,
