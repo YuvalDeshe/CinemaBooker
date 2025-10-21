@@ -2,6 +2,7 @@
 import LoginForm from "@/app/components/LoginForm";
 import { useRouter } from "next/router";
 
+// TODO: move this function to its own class to follow SOLID design principles and adhere to MVC framework
 async function login(email: string, password: string) {
     try {
         let router = useRouter()

@@ -2,6 +2,7 @@
 import RegisterForm from "@/app/components/RegisterForm";
 import User from "@/types/User";
 
+// TODO: move this function to its own class to follow SOLID design principles and adhere to MVC framework
 async function register(user: User) {
         const userPayload = {
                 firstName: user.getFirstName(),
