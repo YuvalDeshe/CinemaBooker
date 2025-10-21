@@ -14,10 +14,10 @@ async function register(
     billingCity: string,
     billingState: string,
     billingZip: string,
-    street: string, // Restored: General Address Street
-    city: string, // Restored: General Address City
-    state: string, // Restored: General Address State
-    zip: string, // Restored: General Address Zip
+    street: string, 
+    city: string, 
+    state: string, 
+    zip: string, 
     promo: boolean
 ) {
         const userPayload = {
@@ -26,6 +26,7 @@ async function register(
                 lastName: lname,
                 email: email,
                 password: password,
+                phone: phone,
                 userType: "CUSTOMER",
                 userStatus: "PENDING",
 
