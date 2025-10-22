@@ -1,11 +1,9 @@
 'use client';
 import LoginForm from "@/app/components/LoginForm";
-import { useRouter } from "next/router";
 
 // TODO: (future deliverable) move this function to its own class to follow SOLID design principles and adhere to MVC framework
 async function login(email: string, password: string) {
     try {
-        let router = useRouter()
         console.log(`Attempting login for email: ${email}`);
 
         const response = await fetch('/api/login', {
@@ -21,7 +19,7 @@ async function login(email: string, password: string) {
         if (response.ok) {
             console.log("Login Successful! User data:", data.user);
             // TODO: test that the user is successfully put on the home page after login
-            router.push('/');
+            globalThis.location.href = '/';
             return { success: true, user: data.user };
         } else {
             console.error("Login Failed:", data.message);
