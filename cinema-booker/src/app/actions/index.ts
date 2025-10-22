@@ -1,15 +1,13 @@
-'use server';
+'use client';
 
-import { signIn, signOut } from "@/app/api/auth/route";
+// import { signIn, signOut } from "@/app/api/auth/route";
+import { signIn, signOut } from 'next-auth/react';
 
 export async function doLogout() {
-    await signOut({ redirectTo: "/"});
+    await signOut({ redirect: true, callbackUrl: "/"});
 }
 
-export async function doCredentialLogin(formData: FormData): Promise<any> {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
+export async function doCredentialLogin(email: string, password: string): Promise<any> {
     try {
         const response = await signIn("credentials", {
             email,

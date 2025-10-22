@@ -5,9 +5,11 @@ import { faHouse, faUser } from "@fortawesome/free-solid-svg-icons";
 import styles from "./topbar.module.css"
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect} from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function TopBar() {
 const router = useRouter();
+const { data: session, status } = useSession();
 
 // useRef (and other below items) used for the positioning of the profile icon dropdown
 const [isExpanded, setIsExpanded] = useState(false);
@@ -45,6 +47,8 @@ const toggleUserMenu = () => {
 //**NOTE**: Edit this handler to log the user out.
 const logoutHandler = () => {
   console.log("Logout Clicked!")
+  signOut();
+  // globalThis.location.reload();
 }
 
 //**NOTE**: Edit the URL of this to reflect the User ID of the currently logged-in user.
@@ -76,15 +80,20 @@ return (
           <p className={styles.buttonText}>Home</p> 
         </button>
         <h2 className={styles.mainHeading}>Cinema E-Booking Site</h2>
-        {isLoggedIn ? (
+        {/* {isLoggedIn ? ( */}
+        {status === "authenticated" && session?.user && (
         <button className={styles.button} onClick={toggleUserMenu} ref={buttonRef} id='buttonID'>
           <FontAwesomeIcon className={styles.icon} icon={faUser} />
           <p className={styles.buttonText}>Profile</p> 
         </button>
-        ) : 
+        )}
+        {status === "unauthenticated" && ( 
         <button className={styles.loginButton} onClick={loginHandler} ref={buttonRef} id='buttonID'>
           <p className={styles.buttonText}>Login</p> 
-        </button>}
+        </button>)}
+        {status === "loading" && (
+          <p>Loading session...</p>
+        )}
         {isExpanded && (
           <div
           className={styles.dropdownMenu}

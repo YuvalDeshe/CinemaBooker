@@ -51,6 +51,7 @@ export async function POST(request) {
         const responseData = {
             _id: user._id,
             username: user.username,
+            password: user.password,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
