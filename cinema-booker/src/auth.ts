@@ -1,22 +1,18 @@
-import NextAuth, { AuthOptions } from "next-auth";
+'use server';
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import User from "@/models/userSchema";
-import connectMongoDB from "@/app/mongodb";
-import { apiBaseUrl } from "next-auth/client/_utils";
 
-const authOptions: AuthOptions = {
-    session: {
-        strategy: "jwt",
-    },
-    providers: [
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {
-                email: { label: "Email", type: "text" },
-                password: { label: "Password", type: "password" },
-            },
-            async authorize(credentials): Promise<any> {
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  session: { strategy: "jwt" },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials): Promise<any> {
                 console.log(" Validating credentials for:", credentials?.email);
 
                 if (!credentials?.email || !credentials?.password) {
@@ -75,27 +71,6 @@ const authOptions: AuthOptions = {
                     return { success: false, message: "An unexpected network error occurred." };
                 }
             },
-        }),
-    ],
-    callbacks: {
-        async jwt({ token, user }: any) {
-            if (user) {
-                token.id = user.id;
-                token.username = user.email;
-            }
-            return token;
-        },
-        async session({ session, token }: any) {
-            if (token && session.user) {
-                session.user.id = token.id as string;
-                session.user.name = token.email as string;
-            }
-            return session;
-        },
-    },
-};
-
-const handler = NextAuth(authOptions);
-
-// Export the handler for Next.js App Router HTTP methods
-export { handler as GET, handler as POST, handler as auth };
+    }),
+  ],
+});
