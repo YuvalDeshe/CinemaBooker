@@ -62,7 +62,7 @@ export async function POST(request) {
 
         const newUser = await request.json();
 
-        if (!newUser.username || !newUser.password || !newUser.email || !newUser.firstName || !newUser.lastName) {
+        if (!newUser.password || !newUser.email || !newUser.firstName || !newUser.lastName) {
             return new Response(JSON.stringify({ message: "Missing required user fields." }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
