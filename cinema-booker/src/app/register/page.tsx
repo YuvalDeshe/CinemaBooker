@@ -4,6 +4,21 @@ import User from "@/types/User";
 
 // TODO: move this function to its own class to follow SOLID design principles and adhere to MVC framework
 async function register(user: User) {
+        let paymentCard: any[] = [];
+        if (user.getCards().length != 0) {
+                let paymentCard = [{
+                        cardType: user.getCards()[0].getCardType() ?? '',
+                        cardNumber: user.getCards()[0].getCardNumber() ?? '',
+                        expMonth: user.getCards()[0].getExpMonth() ?? '',
+                        expYear: user.getCards()[0].getExpYear() ?? '',
+                        billingAddress: {
+                                street: user.getCards()[0].getBillingStreet() ?? '',
+                                city: user.getCards()[0].getBillingCity() ?? '',
+                                state: user.getCards()[0].getBillingState() ?? '',
+                                zip: user.getCards()[0].getBillingZip() ?? '',
+                        }
+                }]
+        }
         const userPayload = {
                 firstName: user.getFirstName(),
                 lastName: user.getLastName(),
@@ -27,19 +42,7 @@ async function register(user: User) {
                 as is, this will throw an error if the user did not
                 enter a card.
                 */
-                paymentCard: [{
-                        cardType: user.getCards()[0].getCardType(),
-                        cardNumber: user.getCards()[0].getCardNumber(),
-                        // TODO: expand expDate in the database to expMonth and expYear
-                        expMonth: user.getCards()[0].getExpMonth(),
-                        expYear: user.getCards()[0].getExpYear(),
-                        billingAddress: {
-                                street: user.getCards()[0].getBillingStreet(),
-                                city: user.getCards()[0].getBillingCity(),
-                                state: user.getCards()[0].getBillingState(),
-                                zip: user.getCards()[0].getBillingZip(),
-                        }
-                }], 
+                paymentCard: paymentCard, 
 
                 // TODO: add orderHistory to the database
                 orderHistory: [],
