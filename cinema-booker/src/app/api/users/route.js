@@ -34,7 +34,7 @@ export async function GET() {
             lastName: user.lastName,
             email: user.email,
             isRegisteredForPromos: user.isRegisteredForPromos,
-            // Exclude: password, billingAddress, paymentCard
+            // Exclude: password, homeAddress, paymentCard
         }));
 
         return new Response(JSON.stringify(formattedUsers), {
@@ -70,11 +70,12 @@ export async function POST(request) {
         }
 
         const existingUser = await usersCollection.findOne({
-            $or: [{ username: newUser.username }, { email: newUser.email }]
+            // $or: [{ username: newUser.username }, { email: newUser.email }]
+             email: newUser.email 
         });
 
         if (existingUser) {
-            return new Response(JSON.stringify({ message: "Username or email already in use." }), {
+            return new Response(JSON.stringify({ message: "Email already in use." }), {
                 status: 409, // Conflict
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -88,7 +89,7 @@ export async function POST(request) {
             lastName: newUser.lastName,
             email: newUser.email,
             password: hashedPassword,
-            billingAddress: newUser.billingAddress || null,
+            homeAddress: newUser.homeAddress || null,
             paymentCard: newUser.paymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
             userType: newUser.userType || "CUSTOMER",
