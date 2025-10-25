@@ -12,6 +12,19 @@ export async function middleware(req: NextRequest) {
 
   const isAuthenticated = !!token;
 
+  // I wont lie chat told me to do this for the images I did for the login and sign up pages to work!
+   if (
+    pathname.startsWith("/_next") ||            
+    pathname.startsWith("/api/auth") ||         
+    pathname.startsWith("/posters/") ||         
+    pathname === "/favicon.ico" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    /\.(png|jpg|jpeg|gif|svg|webp|ico|txt|map)$/i.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
   console.log("isAuthenticated:", isAuthenticated, "| path:", pathname);
 
   // Redirect unauthenticated users trying to access protected routes
