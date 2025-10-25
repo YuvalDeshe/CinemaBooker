@@ -80,6 +80,12 @@ export async function POST(request) {
         }
 
         const hashedPassword = await bcrypt.hash(newUser.password, SALT_ROUNDS);
+        let hashedPaymentCard = [];
+        if (Array.isArray(newUser.paymentCard) && newUser.paymentCard.length > 0) {
+            hashedPaymentCard = await Promise.all(
+                newUser.paymentCard.map(card => bcrypt.hash(card, SALT_ROUNDS))
+            );
+        }
 
         const userToInsert = {
             username: newUser.username,
@@ -88,8 +94,10 @@ export async function POST(request) {
             email: newUser.email,
             password: hashedPassword,
             billingAddress: newUser.billingAddress || null,
-            paymentCard: newUser.paymentCard || [],
+            paymentCard: hashedPaymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
+            userType: "CUSTOMER",
+            userStatus: "UNREGISTERED"
         };
 
         const result = await usersCollection.insertOne(userToInsert);
