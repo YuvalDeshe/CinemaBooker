@@ -6,7 +6,7 @@ import User from "@/types/User";
 async function register(user: User) {
         let paymentCard: any[] = [];
         if (user.getCards().length != 0) {
-                let paymentCard = [{
+                paymentCard = [{
                         cardType: user.getCards()[0].getCardType() ?? '',
                         cardNumber: user.getCards()[0].getCardNumber() ?? '',
                         expMonth: user.getCards()[0].getExpMonth() ?? '',
