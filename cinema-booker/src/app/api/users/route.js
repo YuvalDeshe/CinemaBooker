@@ -82,6 +82,12 @@ export async function POST(request) {
         }
 
         const hashedPassword = await bcrypt.hash(newUser.password, SALT_ROUNDS);
+        let hashedPaymentCard = [];
+        if (Array.isArray(newUser.paymentCard) && newUser.paymentCard.length > 0) {
+            hashedPaymentCard = await Promise.all(
+                newUser.paymentCard.map(card => bcrypt.hash(card, SALT_ROUNDS))
+            );
+        }
 
         const userToInsert = {
             username: newUser.username,
