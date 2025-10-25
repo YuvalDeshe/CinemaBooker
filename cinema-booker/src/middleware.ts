@@ -7,7 +7,7 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
-  const publicPaths = ["/", "/login", "/register"];
+  const publicPaths = ["/", "/login", "/register", "/movie"];
   const unauthenticatedPaths = ["/login", "/register"];
 
   const isAuthenticated = !!token;
@@ -27,8 +27,10 @@ export async function middleware(req: NextRequest) {
 
   console.log("isAuthenticated:", isAuthenticated, "| path:", pathname);
 
+  const isPublic = publicPaths.some(p => pathname === p || pathname.startsWith(`${p}/`));
+
   // Redirect unauthenticated users trying to access protected routes
-  if (!isAuthenticated && !publicPaths.includes(pathname)) {
+  if (!isAuthenticated && !isPublic) {
     console.log(`Unauthenticated user attempted to access illegal page: '${pathname}'`)
     return NextResponse.redirect(new URL("/login", req.url));
   }
