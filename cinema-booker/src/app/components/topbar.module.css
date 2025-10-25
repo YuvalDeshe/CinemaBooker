@@ -1,0 +1,94 @@
+.topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #2B3E63;
+}
+
+.icon {
+    font-size: 48px;
+    color: white;
+    padding-bottom: 5px;
+}
+
+.buttonText {
+    color: white;
+    font-size: 20px;
+}
+
+.button {
+    margin: 10px;
+    padding-top: 4px;
+    padding-left:  20px;
+    padding-right:  20px;
+    transition: 0.1s;
+    border-radius: 10px;
+}
+
+.button:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.mainHeading {
+    font-size: 72px;
+    -webkit-text-stroke: 2px black;
+    color: white;
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownMenu {
+    position: absolute;
+    z-index: 50;
+    background-color: #3b3b3b;
+    border-width: 1.5px;
+    border-color: black;
+    border-radius: 10px;
+    animation: slideDown 0.25s ease-out forwards;
+}
+
+.dropdownMenuContainer {
+    margin: 2px 0;
+}
+
+.dropdownMenuButtons {
+    display: flex;
+    align-items: center;     
+    justify-content: center; 
+    width: 100%;             
+    padding: 8px 8px;
+    background-color: #3b3b3b;
+    transition: 0.08s;
+    border-radius: 10px;   
+}
+
+.dropdownMenuButtons:hover {
+    background-color: #555555;
+}
+
+.loginButton {
+    border-radius: 10px;
+    border-width: 2px;
+    margin-right: 16px;
+    padding: 10px 20px;
+    transition: 0.1s;
+}
+
+.loginButton:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.loginButton > p {
+    font-size: 32px;
+}

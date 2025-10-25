@@ -2,7 +2,7 @@
 
 import {useRouter} from "next/navigation";
 import React from "react";
-import styles from "./styles.module.css";
+import styles from "./movie.module.css";
 
 type MovieProps = {
   _id: string;

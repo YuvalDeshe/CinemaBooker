@@ -85,8 +85,10 @@ export async function PATCH(request, { params }) {
         }
 
         if (updateData.password) {
-            console.warn("PASSWORD UPDATE: New password is being saved without hashing. USE BCRYPT!");
-            updateDoc.password = updateData.password;
+            console.log("PASSWORD UPDATE: Hashing new password using bcrypt.");
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(updateData.password, salt);
+            updateDoc.password = hashedPassword;
         }
 
         if (updateData.paymentCard) {

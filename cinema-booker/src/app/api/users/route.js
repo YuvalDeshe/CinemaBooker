@@ -1,7 +1,8 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import Status from '@/types/User';
 
-const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 const SALT_ROUNDS = 10;
 
 let client;
@@ -33,7 +34,7 @@ export async function GET() {
             lastName: user.lastName,
             email: user.email,
             isRegisteredForPromos: user.isRegisteredForPromos,
-            // Exclude: password, billingAddress, paymentCard
+            // Exclude: password, homeAddress, paymentCard
         }));
 
         return new Response(JSON.stringify(formattedUsers), {
@@ -61,7 +62,7 @@ export async function POST(request) {
 
         const newUser = await request.json();
 
-        if (!newUser.username || !newUser.password || !newUser.email || !newUser.firstName || !newUser.lastName) {
+        if (!newUser.password || !newUser.email || !newUser.firstName || !newUser.lastName) {
             return new Response(JSON.stringify({ message: "Missing required user fields." }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
@@ -69,11 +70,12 @@ export async function POST(request) {
         }
 
         const existingUser = await usersCollection.findOne({
-            $or: [{ username: newUser.username }, { email: newUser.email }]
+            // $or: [{ username: newUser.username }, { email: newUser.email }]
+             email: newUser.email 
         });
 
         if (existingUser) {
-            return new Response(JSON.stringify({ message: "Username or email already in use." }), {
+            return new Response(JSON.stringify({ message: "Email already in use." }), {
                 status: 409, // Conflict
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -93,11 +95,11 @@ export async function POST(request) {
             lastName: newUser.lastName,
             email: newUser.email,
             password: hashedPassword,
-            billingAddress: newUser.billingAddress || null,
-            paymentCard: hashedPaymentCard || [],
+            homeAddress: newUser.homeAddress || null,
+            paymentCard: newUser.paymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
-            userType: "CUSTOMER",
-            userStatus: "UNREGISTERED"
+            userType: newUser.userType || "CUSTOMER",
+            userStatus: newUser.userStatus || Status.INACTIVE,
         };
 
         const result = await usersCollection.insertOne(userToInsert);
