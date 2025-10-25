@@ -96,7 +96,7 @@ export async function POST(request) {
             email: newUser.email,
             password: hashedPassword,
             homeAddress: newUser.homeAddress || null,
-            paymentCard: newUser.paymentCard || [],
+            paymentCard: hashedPaymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
             userType: newUser.userType || "CUSTOMER",
             userStatus: newUser.userStatus || Status.INACTIVE,
