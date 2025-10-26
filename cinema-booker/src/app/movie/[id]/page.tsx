@@ -35,7 +35,7 @@ export default function MoviePage() {
   const router = useRouter();
   const [movie, setMovie] = React.useState<Movie | null>(null);
 
-  React.useEffect(() => {
+  React.useEffect(() => { 
     if (!id) return;
     fetch(`/api/movies/${id}`)
       .then(res => res.json())

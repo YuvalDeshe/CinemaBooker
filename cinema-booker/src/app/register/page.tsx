@@ -35,16 +35,7 @@ async function register(user: User) {
                         zip: user.getAddress().zip
                 },
 
-                /* 
-                TODO:
-                make this field optional somehow. the user does not need
-                to provide a payment method at registration.
-                as is, this will throw an error if the user did not
-                enter a card.
-                */
                 paymentCard: paymentCard, 
-
-                // TODO: add orderHistory to the database
                 orderHistory: [],
                 isRegisteredForPromos: user.getPromo(),
         };
