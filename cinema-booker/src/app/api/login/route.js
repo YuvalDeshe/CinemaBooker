@@ -48,6 +48,17 @@ export async function POST(request) {
             });
         }
 
+        // Check if email is verified (for new users who registered after implementing email verification)
+        if (user.hasOwnProperty('isEmailVerified') && !user.isEmailVerified) {
+            return new Response(JSON.stringify({ 
+                message: "Please verify your email address before logging in. Check your email for a verification link.",
+                requiresVerification: true
+            }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const responseData = {
             _id: user._id,
             username: user.username,
@@ -58,6 +69,7 @@ export async function POST(request) {
             isRegisteredForPromos: user.isRegisteredForPromos,
             userType: user.userType,
             userStatus: user.userStatus,
+            isEmailVerified: user.isEmailVerified || true, // Default to true for existing users
         };
 
         return new Response(JSON.stringify({

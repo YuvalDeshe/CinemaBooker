@@ -1,10 +1,23 @@
-'use server';
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.isEmailVerified = user.isEmailVerified;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.isEmailVerified = token.isEmailVerified;
+      }
+      return session;
+    },
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -12,6 +25,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async authorize(credentials): Promise<any> {
                 console.log(" Validating credentials for:", credentials?.email);
 
@@ -64,6 +78,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                     return {
                         id: user._id.toString(),
                         email: user.email,
+                        isEmailVerified: user.isEmailVerified || true, // Default to true for existing users
                     };
 
                 } catch (error) {

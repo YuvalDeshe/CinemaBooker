@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from "./styles.module.css"
 import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import TopBar from "@/app/components/TopBar";
 
@@ -33,6 +34,7 @@ type Movie = {
 export default function MoviePage() {
   const { id } = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [movie, setMovie] = React.useState<Movie | null>(null);
 
   React.useEffect(() => {
@@ -69,7 +71,19 @@ export default function MoviePage() {
   };
 
   const goToBooking = (timeLabel: string) => {
-    // use the dynamic id from the URL
+    if (!session) {
+      // Redirect to login with a return URL
+      router.push(`/login?redirect=/movie/${id}/booking&time=${encodeURIComponent(timeLabel)}`);
+      return;
+    }
+    
+    if (session.user && !session.user.isEmailVerified) {
+      // Show message about email verification
+      alert("Please verify your email address before booking tickets. Check your inbox for a verification email.");
+      return;
+    }
+    
+    // Proceed to booking
     router.push(`/movie/${id}/booking?time=${encodeURIComponent(timeLabel)}`);
   };
 
@@ -103,6 +117,11 @@ export default function MoviePage() {
       <p className={styles.subSectionItems}>{actorsList}</p>
       <hr className={styles.hr}/>
       <h3 className={styles.subSectionHeading}>Showtimes:</h3>
+      {!session && movie.isCurrentlyRunning && (
+        <p className={styles.subSectionItems} style={{marginBottom: '10px', color: '#fbbf24'}}>
+          Sign in to book tickets for these showtimes:
+        </p>
+      )}
       {movie.isCurrentlyRunning && (
         <div className={styles.buttonsContainer}>
           {SHOWTIMES.map((value, index) =>(
@@ -112,6 +131,7 @@ export default function MoviePage() {
               key={index}
             >
               {value}
+              {!session && <span style={{fontSize: '10px', display: 'block'}}>Sign in to book</span>}
             </button>
           ))}
         </div>

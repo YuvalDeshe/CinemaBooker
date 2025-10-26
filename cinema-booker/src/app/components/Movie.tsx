@@ -47,7 +47,7 @@ export default function Movie({ _id, title, genre, posterUrl, isCurrentlyRunning
         {SHOWTIMES.map((value, index) => (
           <button
             className={styles.showTimeButtons}
-            onClick={() => router.push(`/movie/${_id}/booking?time=${encodeURIComponent(value)}`)}
+            onClick={() => router.push(`/movie/${_id}?time=${encodeURIComponent(value)}`)}
             key={`${title} ${index}`}
           >
             {value}

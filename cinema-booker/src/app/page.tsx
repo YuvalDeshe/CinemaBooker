@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import SearchBar from "./components/SearchBar";
 import GenreDropdown from "./components/GenreDropdown";
 import MovieList from "./components/MovieList";
+import EmailVerificationBanner from "./components/EmailVerificationBanner";
 
 // temporary hard-coded movies. will replace later when the database is up and running
 // const MOVIES = [
@@ -20,10 +23,17 @@ type MovieData = {
     _id: string;
 };
 
-export default function Home() {
+function HomeContent() {
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [movies, setMovies] = useState<MovieData[]>([]);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+
+  const showVerificationRequired = searchParams.get('verification-required') === 'true';
+  const isAuthenticated = status === 'authenticated';
+  const isEmailVerified = session?.user?.isEmailVerified ?? false;
 
   useEffect(() => {
       const fetchMovies = async () =>   {
@@ -40,6 +50,34 @@ export default function Home() {
       };
       fetchMovies();
   }, []);
+
+  const handleResendVerificationEmail = async () => {
+    if (!session?.user?.email) return;
+
+    setIsResendingEmail(true);
+    try {
+      const response = await fetch('/api/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: session.user.email }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('Verification email sent! Please check your inbox.');
+      } else {
+        alert(data.message || 'Failed to send verification email.');
+      }
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+      alert('An error occurred while sending the verification email.');
+    } finally {
+      setIsResendingEmail(false);
+    }
+  };
 
   // temporary filtering as a proof of concept. will replace later when the database is up and running
   const filteredMovies = movies.filter(movie =>
@@ -62,6 +100,18 @@ export default function Home() {
           <GenreDropdown selected={selectedGenres} setSelected={setSelectedGenres} />
         </div>
       </header>
+      
+      {/* Email Verification Banner */}
+      {isAuthenticated && (!isEmailVerified || showVerificationRequired) && (
+        <div className="px-8 sm:px-32 mb-6">
+          <EmailVerificationBanner
+            userEmail={session?.user?.email || undefined}
+            onResendEmail={handleResendVerificationEmail}
+            isResending={isResendingEmail}
+          />
+        </div>
+      )}
+      
       <main className="px-8 sm:px-32 pb-20">
         <section>
           <h2 className="text-white text-2xl font-bold mb-4">Currently Running</h2>
@@ -73,5 +123,13 @@ export default function Home() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
