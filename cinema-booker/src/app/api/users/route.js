@@ -1,7 +1,10 @@
 import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import Status from '@/types/User';
+import { generateEmailVerificationToken } from '@/lib/tokens';
+import { sendEmail, generateVerificationEmailHtml, generateVerificationEmailText } from '@/lib/email';
 
-const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 const SALT_ROUNDS = 10;
 
 let client;
@@ -87,6 +90,9 @@ export async function POST(request) {
             );
         }
 
+        // Generate email verification token
+        const { token: emailVerificationToken, expires: emailVerificationExpires } = generateEmailVerificationToken();
+
         const userToInsert = {
             username: newUser.username,
             firstName: newUser.firstName,
@@ -96,11 +102,34 @@ export async function POST(request) {
             billingAddress: newUser.billingAddress || null,
             paymentCard: hashedPaymentCard || [],
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
-            userType: "CUSTOMER",
-            userStatus: "UNREGISTERED"
+            userType: newUser.userType || "CUSTOMER",
+            userStatus: newUser.userStatus || Status.INACTIVE,
+            isEmailVerified: false,
+            emailVerificationToken: emailVerificationToken,
+            emailVerificationExpires: emailVerificationExpires,
         };
 
         const result = await usersCollection.insertOne(userToInsert);
+
+        // Send verification email
+        const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/verify-email?token=${emailVerificationToken}`;
+        
+        try {
+            const emailResult = await sendEmail({
+                to: newUser.email,
+                subject: 'Verify Your Email - Cinema Booker',
+                text: generateVerificationEmailText(verificationUrl, newUser.email),
+                html: generateVerificationEmailHtml(verificationUrl, newUser.email),
+            });
+
+            if (!emailResult.success) {
+                console.error('Failed to send verification email:', emailResult.error);
+                // Note: We don't fail the registration if email sending fails
+            }
+        } catch (emailError) {
+            console.error('Error sending verification email:', emailError);
+            // Note: We don't fail the registration if email sending fails
+        }
 
         const responseUser = {
             _id: result.insertedId,
@@ -109,6 +138,7 @@ export async function POST(request) {
             lastName: userToInsert.lastName,
             email: userToInsert.email,
             isRegisteredForPromos: userToInsert.isRegisteredForPromos,
+            message: 'Registration successful! Please check your email to verify your account.',
         };
 
         return new Response(JSON.stringify(responseUser), {

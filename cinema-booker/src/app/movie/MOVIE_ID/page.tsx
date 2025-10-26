@@ -56,7 +56,7 @@ export default function MoviePage() {
 
   //Turns array of actors in castList into a single comma-separated string.
   let actorsList: string = "";
-  movie.castList.forEach((actor: String, index: number) => {
+  movie.castList.forEach((actor: string, index: number) => {
     if (index == movie.castList.length - 1) {
       actorsList = actorsList + actor;
     } else {
@@ -65,7 +65,7 @@ export default function MoviePage() {
   });
 
   //Makes the movies trailer youtube link embeddable.
-  let embedLink: string = "https://www.youtube.com/embed/" + 
+  const embedLink: string = "https://www.youtube.com/embed/" + 
     movie.trailerLink.substring(movie.trailerLink.lastIndexOf("=") + 1, movie.trailerLink.length);
 
   const router = useRouter();

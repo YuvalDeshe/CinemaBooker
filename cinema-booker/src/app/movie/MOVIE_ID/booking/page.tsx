@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function BookingPage() {
+function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -308,5 +308,13 @@ export default function BookingPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>}>
+      <BookingContent />
+    </Suspense>
   );
 }
