@@ -1,0 +1,98 @@
+/* [project]/cinema-booker/src/app/components/topbar.module.css [app-client] (css) */
+.topbar-module__qvX02G__topBar {
+  background-color: #2b3e63;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.topbar-module__qvX02G__icon {
+  color: #fff;
+  padding-bottom: 5px;
+  font-size: 48px;
+}
+
+.topbar-module__qvX02G__buttonText {
+  color: #fff;
+  font-size: 20px;
+}
+
+.topbar-module__qvX02G__button {
+  border-radius: 10px;
+  margin: 10px;
+  padding-top: 4px;
+  padding-left: 20px;
+  padding-right: 20px;
+  transition: all .1s;
+}
+
+.topbar-module__qvX02G__button:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+.topbar-module__qvX02G__mainHeading {
+  -webkit-text-stroke: 2px black;
+  color: #fff;
+  font-size: 72px;
+}
+
+@keyframes topbar-module__qvX02G__slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.topbar-module__qvX02G__dropdownMenu {
+  z-index: 50;
+  background-color: #3b3b3b;
+  border-width: 1.5px;
+  border-color: #000;
+  border-radius: 10px;
+  animation: .25s ease-out forwards topbar-module__qvX02G__slideDown;
+  position: absolute;
+}
+
+.topbar-module__qvX02G__dropdownMenuContainer {
+  margin: 2px 0;
+}
+
+.topbar-module__qvX02G__dropdownMenuButtons {
+  background-color: #3b3b3b;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  transition: all 80ms;
+  display: flex;
+}
+
+.topbar-module__qvX02G__dropdownMenuButtons:hover {
+  background-color: #555;
+}
+
+.topbar-module__qvX02G__loginButton {
+  border-width: 2px;
+  border-radius: 10px;
+  margin-right: 16px;
+  padding: 10px 20px;
+  transition: all .1s;
+}
+
+.topbar-module__qvX02G__loginButton:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+.topbar-module__qvX02G__loginButton > p {
+  font-size: 32px;
+}
+
+/*# sourceMappingURL=cinema-booker_src_app_components_topbar_module_css_bad6b30c._.single.css.map*/

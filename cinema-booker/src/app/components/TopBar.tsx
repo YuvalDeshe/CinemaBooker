@@ -8,6 +8,9 @@ export default function TopBar() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
+  const userType = (session?.user as any)?.userType; // e.g. "ADMIN" | "USER"
+  const isAdmin = userType === "ADMIN";
+
   return (
     <nav className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
@@ -18,6 +21,14 @@ export default function TopBar() {
         <div className="flex items-center space-x-4">
           {session ? (
             <>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="px-3 py-2 rounded bg-gradient-to-r from-blue-500/20 to-cyan-400/20 border border-blue-400/50 hover:from-blue-500/30 hover:to-cyan-300/30 transition"
+                  >
+                    Admin Dashboard
+                  </Link>
+              )}
               <span>Welcome, {session.user?.email}</span>
               <button
                 onClick={() => {

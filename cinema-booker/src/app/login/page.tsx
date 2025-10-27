@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import BackgroundReel from "@/app/components/BackgroundReel";
 import Link from "next/link";
 
 function LoginContent() {
@@ -76,75 +77,77 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+  <div className="relative min-h-screen flex items-center justify-center bg-[#0b1221] text-white">
+    <BackgroundReel />
 
-          {error && (
-            <div className="text-red-500 text-sm text-center bg-red-100 p-2 rounded">
-              {error}
-            </div>
-          )}
+    <div className="relative z-10 w-full max-w-md p-[1px] rounded-2xl bg-gradient-to-b from-blue-500/60 via-blue-400/20 to-transparent">
+      <div className="bg-[#1b2235]/85 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/60 p-8">
+        <h1 className="text-3xl font-semibold text-center mb-2">Login</h1>
+        <p className="text-center text-sm text-gray-300 mb-6">
+          Welcome back to <span className="font-medium">Cinema E-Booking</span>
+        </p>
+
+        {error && (
+          <div className="mb-4 rounded-md border border-red-500/60 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block mb-1 text-gray-300">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
           <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </button>
+            <label htmlFor="password" className="block mb-1 text-gray-300">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              required
+              autoComplete="current-password"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
-          <div className="text-center">
-            <span className="text-gray-300">Don&apos;t have an account? </span>
-            <Link href="/register" className="text-indigo-400 hover:text-indigo-300">
-              Sign up here
-            </Link>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-md transition-all duration-200"
+          >
+            {isLoading ? "Logging in…" : "Log In"}
+          </button>
         </form>
+
+        <p className="text-center mt-6 text-gray-300">
+          Don’t have an account?{" "}
+          <Link href="/register" className="text-blue-300 hover:text-blue-200 underline">
+            Register
+          </Link>
+    
+        </p>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default function LoginPage() {

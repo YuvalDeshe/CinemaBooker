@@ -1,0 +1,213 @@
+/* [project]/cinema-booker/src/app/movie/MOVIE_ID/booking/styles.module.css [app-client] (css) */
+:root {
+  --bg: #0b0e13;
+  --card: #121826;
+  --border: #1f2937;
+  --text: #e6eefc;
+  --muted: #a9b6cc;
+  --accent: #3ea1ff;
+  --accent-2: #7c4dff;
+  --danger: #ff4d7a;
+}
+
+.styles-module__0MFwUa__page {
+  background: radial-gradient(1200px 600px at 20% -10%, rgba(62, 161, 255, .12), transparent 60%), radial-gradient(900px 500px at 110% 0%, rgba(124, 77, 255, .1), transparent 55%), var(--bg);
+  min-height: 100dvh;
+  color: var(--text);
+}
+
+.styles-module__0MFwUa__header {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(rgba(62, 161, 255, .12), rgba(124, 77, 255, .1) 60%, rgba(0, 0, 0, 0));
+}
+
+.styles-module__0MFwUa__headerInner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 16px;
+}
+
+.styles-module__0MFwUa__title {
+  letter-spacing: .2px;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.styles-module__0MFwUa__subtitle {
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+
+.styles-module__0MFwUa__container {
+  gap: 16px;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 16px 40px;
+  display: grid;
+}
+
+.styles-module__0MFwUa__card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
+}
+
+.styles-module__0MFwUa__summaryTop {
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 16px;
+  display: grid;
+}
+
+.styles-module__0MFwUa__posterStub {
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(62, 161, 255, .18), rgba(124, 77, 255, .18));
+  border-radius: 12px;
+  width: 120px;
+  height: 168px;
+}
+
+.styles-module__0MFwUa__summaryText {
+  gap: 8px;
+  display: grid;
+}
+
+.styles-module__0MFwUa__movieTitle {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.styles-module__0MFwUa__metaRow {
+  gap: 10px;
+  display: flex;
+}
+
+.styles-module__0MFwUa__metaLabel {
+  width: 110px;
+  color: var(--muted);
+}
+
+.styles-module__0MFwUa__metaValue {
+  font-weight: 600;
+}
+
+.styles-module__0MFwUa__sectionTitle {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.styles-module__0MFwUa__form {
+  gap: 12px;
+  display: grid;
+}
+
+.styles-module__0MFwUa__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  display: grid;
+}
+
+@media (max-width: 700px) {
+  .styles-module__0MFwUa__grid, .styles-module__0MFwUa__summaryTop {
+    grid-template-columns: 1fr;
+  }
+
+  .styles-module__0MFwUa__posterStub {
+    width: 100%;
+    height: 220px;
+  }
+}
+
+.styles-module__0MFwUa__field {
+  gap: 6px;
+  display: grid;
+}
+
+.styles-module__0MFwUa__fieldCheckbox {
+  align-content: end;
+}
+
+label {
+  font-weight: 600;
+}
+
+.styles-module__0MFwUa__hint {
+  color: var(--muted);
+}
+
+input[type="text"], input[type="email"], input[type="number"] {
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: #0b101a;
+  border-radius: 10px;
+  outline: none;
+  padding: 10px 12px;
+}
+
+input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(62, 161, 255, .18);
+}
+
+.styles-module__0MFwUa__checkbox {
+  border: 1px solid var(--border);
+  background: #0b101a;
+  border-radius: 10px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  display: flex;
+}
+
+.styles-module__0MFwUa__actions {
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+  display: flex;
+}
+
+.styles-module__0MFwUa__primary, .styles-module__0MFwUa__secondary {
+  letter-spacing: .2px;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  transition: transform 60ms, box-shadow .2s, background .2s, border-color .2s;
+}
+
+.styles-module__0MFwUa__primary {
+  background: linear-gradient(180deg, var(--accent), #2b70ff);
+  color: #fff;
+  border: 1px solid #2a60d9;
+  box-shadow: 0 8px 20px rgba(62, 161, 255, .35);
+}
+
+.styles-module__0MFwUa__primary:disabled {
+  color: #a5b3cc;
+  box-shadow: none;
+  cursor: not-allowed;
+  background: #2a3450;
+  border-color: #2a3450;
+}
+
+.styles-module__0MFwUa__primary:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.styles-module__0MFwUa__secondary {
+  color: #cfe1ff;
+  background: none;
+  border: 1px solid #30405a;
+}
+
+.styles-module__0MFwUa__secondary:hover {
+  background: #0e1422;
+}
+
+.styles-module__0MFwUa__secondary:active {
+  transform: translateY(1px);
+}
+
+/*# sourceMappingURL=cinema-booker_src_app_movie_MOVIE_ID_booking_styles_module_3b6d43cd.css.map*/
