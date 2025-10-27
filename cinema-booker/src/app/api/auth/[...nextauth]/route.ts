@@ -7,7 +7,7 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.isEmailVerified = user.isEmailVerified;
+        token.isEmailVerified = (user as any).isEmailVerified;
       }
       return token;
     },

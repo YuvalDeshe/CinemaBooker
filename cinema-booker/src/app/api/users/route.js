@@ -1,11 +1,8 @@
-import { MongoClient } from 'mongodb';
+﻿import { MongoClient } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import Status from '@/types/User';
-<<<<<<< HEAD
-=======
 import { generateEmailVerificationToken } from '@/lib/tokens';
 import { sendEmail, generateVerificationEmailHtml, generateVerificationEmailText } from '@/lib/email';
->>>>>>> emailVerification
 
 const uri = process.env.MONGODB_URI;
 const SALT_ROUNDS = 10;
@@ -75,8 +72,7 @@ export async function POST(request) {
         }
 
         const existingUser = await usersCollection.findOne({
-            // $or: [{ username: newUser.username }, { email: newUser.email }]
-             email: newUser.email 
+            email: newUser.email 
         });
 
         if (existingUser) {
@@ -108,12 +104,9 @@ export async function POST(request) {
             isRegisteredForPromos: newUser.isRegisteredForPromos || false,
             userType: newUser.userType || "CUSTOMER",
             userStatus: newUser.userStatus || Status.INACTIVE,
-<<<<<<< HEAD
-=======
             isEmailVerified: false,
             emailVerificationToken: emailVerificationToken,
             emailVerificationExpires: emailVerificationExpires,
->>>>>>> emailVerification
         };
 
         const result = await usersCollection.insertOne(userToInsert);
