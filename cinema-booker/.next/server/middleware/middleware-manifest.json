@@ -1,0 +1,31 @@
+{
+  "sorted_middleware": [],
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/cinema-booker_32910036._.js",
+        "server/edge/chunks/[root-of-the-server]__525a9421._.js",
+        "server/edge/chunks/turbopack-cinema-booker_edge-wrapper_bcecbb30.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/((?!_next|api|static|favicon.ico).*){(\\\\.json)}?",
+          "originalSource": "/((?!_next|api|static|favicon.ico).*)"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "WYD2kyt2MTgWwywtWSmZDYehzc3XnO2jVD+usauq/0o=",
+        "__NEXT_PREVIEW_MODE_ID": "b88aba261ecf27f002e73978fb9d0cf6",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "156e582d89fe004b67e5c95758cb2524fe42995025c307f12fe9aa8d74ba3d72",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "7dfd97425e1e33afc8432e98bd93d29683e2a20b0fa5da8517b1e22e1a4ff5bd"
+      }
+    }
+  },
+  "instrumentation": null,
+  "functions": {}
+}

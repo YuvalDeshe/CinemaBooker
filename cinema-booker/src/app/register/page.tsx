@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import BackgroundReel from "@/app/components/BackgroundReel";
+
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -92,160 +94,165 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-            Create your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-300">
-                  First Name
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="First name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-300">
-                  Last Name
-                </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Last name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+  <div className="relative min-h-screen flex items-center justify-center bg-[#0b1221] text-white">
+    <BackgroundReel />
 
+    <div className="relative z-10 w-full max-w-md p-[1px] rounded-2xl bg-gradient-to-b from-blue-500/60 via-blue-400/20 to-transparent">
+      <div className="bg-[#1b2235]/85 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/60 p-8">
+        <h1 className="text-3xl font-semibold text-center mb-2">Register</h1>
+        <p className="text-center text-sm text-gray-300 mb-6">
+          Create your <span className="font-medium">Cinema E-Booking</span> account
+        </p>
+
+        {error && (
+          <div className="mb-4 rounded-md border border-red-500/60 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 rounded-md border border-green-500/60 bg-green-500/10 px-3 py-2 text-sm text-green-200">
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                Email Address
+              <label htmlFor="firstName" className="block mb-1 text-gray-300">
+                First Name
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
+                id="firstName"
+                name="firstName"
                 type="text"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Username"
-                value={formData.username}
+                autoComplete="given-name"
+                className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="John"
+                value={formData.firstName}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                Password
+              <label htmlFor="lastName" className="block mb-1 text-gray-300">
+                Last Name
               </label>
               <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
+                id="lastName"
+                name="lastName"
+                type="text"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
+                autoComplete="family-name"
+                className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Doe"
+                value={formData.lastName}
                 onChange={handleChange}
               />
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">
-                Confirm Password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="isRegisteredForPromos"
-                name="isRegisteredForPromos"
-                type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                checked={formData.isRegisteredForPromos}
-                onChange={handleChange}
-              />
-              <label htmlFor="isRegisteredForPromos" className="ml-2 block text-sm text-gray-300">
-                Subscribe to promotional emails
-              </label>
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-sm text-center bg-red-100 p-2 rounded">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="text-green-500 text-sm text-center bg-green-100 p-2 rounded">
-              {success}
-            </div>
-          )}
+          {/* Username field */}
+          <div>
+            <label htmlFor="username" className="block mb-1 text-gray-300">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              autoComplete="username"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
 
           <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              {isLoading ? "Creating account..." : "Create account"}
-            </button>
+            <label htmlFor="email" className="block mb-1 text-gray-300">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+            />
           </div>
 
-          <div className="text-center">
-            <span className="text-gray-300">Already have an account? </span>
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300">
-              Sign in here
-            </Link>
+          <div>
+            <label htmlFor="password" className="block mb-1 text-gray-300">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autoComplete="new-password"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block mb-1 text-gray-300">
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              autoComplete="new-password"
+              className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="••••••••"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="isRegisteredForPromos"
+              name="isRegisteredForPromos"
+              type="checkbox"
+              className="h-4 w-4 text-indigo-400 focus:ring-blue-400 border-gray-400 rounded bg-white"
+              checked={formData.isRegisteredForPromos}
+              onChange={handleChange}
+            />
+            <label htmlFor="isRegisteredForPromos" className="ml-2 block text-sm text-gray-300">
+              Subscribe to promotional emails
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-md transition-all duration-200"
+          >
+            {isLoading ? "Creating account…" : "Register"}
+          </button>
         </form>
+
+        <p className="text-center mt-6 text-gray-300">
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-300 hover:text-blue-200 underline">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
-  );
+  </div>
+);
 }

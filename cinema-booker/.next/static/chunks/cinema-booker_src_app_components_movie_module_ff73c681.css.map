@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///Users/nizar/Desktop/software_eng/CinemaBooker/cinema-booker/src/app/components/movie.module.css"],"sourcesContent":[".showTimeButtons {\n    color:white;\n    background-color: rgb(58, 58, 58);\n    border-color: white;\n    border-width: 2px;\n    border-radius: 10px;\n    padding: 6px;\n    font-size: 13px;\n    transition: 0.1s;\n    margin: 2px;\n}\n\n.showTimeButtons:hover {\n    transform: scale(1.1);\n    /* background-color: rgba(255, 255, 255, 0.2); */\n}"],"names":[],"mappings":"AAAA;;;;;;;;;;;;AAYA","debugId":null}}]
+}
