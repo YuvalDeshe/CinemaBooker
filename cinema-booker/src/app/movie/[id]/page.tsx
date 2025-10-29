@@ -37,7 +37,7 @@ export default function MoviePage() {
   const { data: session } = useSession();
   const [movie, setMovie] = React.useState<Movie | null>(null);
 
-  React.useEffect(() => {
+  React.useEffect(() => { 
     if (!id) return;
     fetch(`/api/movies/${id}`)
       .then(res => res.json())

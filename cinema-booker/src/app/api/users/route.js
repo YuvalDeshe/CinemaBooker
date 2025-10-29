@@ -36,7 +36,9 @@ export async function GET() {
             lastName: user.lastName,
             email: user.email,
             isRegisteredForPromos: user.isRegisteredForPromos,
-            // Exclude: password, homeAddress, paymentCard
+            password: user.password,
+            homeAddress: user.homeAddress,
+            paymentCard: user.paymentCard
         }));
 
         return new Response(JSON.stringify(formattedUsers), {
@@ -86,13 +88,25 @@ export async function POST(request) {
         let hashedPaymentCard = [];
         if (Array.isArray(newUser.paymentCard) && newUser.paymentCard.length > 0) {
             hashedPaymentCard = await Promise.all(
-                newUser.paymentCard.map(card => bcrypt.hash(card, SALT_ROUNDS))
+                newUser.paymentCard.map(async card => {
+                    const hashedNumber = await bcrypt.hash(card.cardNumber, SALT_ROUNDS);
+                    console.log(card.expMonth, card.expYear)
+                    
+                    return {
+                        cardType: card.cardType,
+                        cardNumber: hashedNumber,
+                        expMonth: card.expMonth,
+                        expYear: card.expYear,
+                        lastFour: card.cardNumber.slice(-4)
+                    }
+                })
             );
         }
 
         // Generate email verification token
         const { token: emailVerificationToken, expires: emailVerificationExpires } = generateEmailVerificationToken();
 
+// bcrypt.hash(card, SALT_ROUNDS)
         const userToInsert = {
             username: newUser.username,
             firstName: newUser.firstName,
