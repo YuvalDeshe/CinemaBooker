@@ -8,22 +8,23 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const publicPaths = ["/", "/login", "/register", "/api/verify-email"];
-  
-  const movieBrowsingPaths = ["/movie"]; // Allow viewing movies and showtimes
-  
+  const movieBrowsingPaths = ["/movie"];
   const authRequiredPaths = ["/user", "/profile"];
-  
-  const verificationRequiredPaths = ["/booking"]; // Only booking requires verification
-  
+  const verificationRequiredPaths = ["/booking"];
   const unauthenticatedPaths = ["/login", "/register"];
+  const adminPaths = ["/admin"];
 
   const isAuthenticated = !!token;
   const isEmailVerified = token?.isEmailVerified ?? false;
 
-   if (
-    pathname.startsWith("/_next") ||            
-    pathname.startsWith("/api/auth") ||         
-    pathname.startsWith("/posters/") ||         
+  const userType = (token as any)?.userType || (token as any)?.role;
+  const isAdmin = userType === "ADMIN";
+
+  // allow framework/static assets
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/posters/") ||
     pathname === "/favicon.ico" ||
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
@@ -31,9 +32,7 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.next();
   }
-
-  console.log("isAuthenticated:", isAuthenticated, "isEmailVerified:", isEmailVerified, "| path:", pathname);
-
+  // public pages always allowed
   if (publicPaths.includes(pathname)) {
     return NextResponse.next();
   }
@@ -43,17 +42,29 @@ export async function middleware(req: NextRequest) {
   }
 
   if (isAuthenticated && unauthenticatedPaths.includes(pathname)) {
-    console.log(`Authenticated user attempted to access login/register page: '${pathname}'`)
+    console.log(`Authenticated user attempted to access login/register page: '${pathname}'`);
     return NextResponse.redirect(new URL("/", req.url));
   }
 
+  if (adminPaths.some(path => pathname.startsWith(path))) {
+    if (!isAuthenticated) {
+      console.log(`Unauthenticated user attempted to access admin: '${pathname}'`);
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    if (!isAdmin) {
+      console.log(`Non-admin user attempted to access admin: '${pathname}'`);
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    return NextResponse.next();
+  }
+
   if (!isAuthenticated && authRequiredPaths.some(path => pathname.startsWith(path))) {
-    console.log(`Unauthenticated user attempted to access auth-required page: '${pathname}'`)
+    console.log(`Unauthenticated user attempted to access auth-required page: '${pathname}'`);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
   if (!isAuthenticated && verificationRequiredPaths.some(path => pathname.startsWith(path))) {
-    console.log(`Unauthenticated user attempted to access booking: '${pathname}'`)
+    console.log(`Unauthenticated user attempted to access booking: '${pathname}'`);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
