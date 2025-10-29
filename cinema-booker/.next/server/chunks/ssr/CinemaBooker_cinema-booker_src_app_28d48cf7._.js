@@ -175,7 +175,13 @@ function LoginContent() {
                 setError("Authentication failed. Please try again.");
             } else {
                 // Refresh session to get updated user data
-                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getSession"])();
+                const session = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2d$auth$2f$react$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getSession"])();
+                const role = session?.user?.userType || session?.user?.role || "USER";
+                if (role === "ADMIN") {
+                    router.push("/admin");
+                    router.refresh();
+                    return;
+                }
                 // Redirect to the intended page if provided
                 if (redirectUrl) {
                     const finalUrl = time ? `${redirectUrl}?time=${encodeURIComponent(time)}` : redirectUrl;
@@ -197,7 +203,7 @@ function LoginContent() {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$BackgroundReel$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                lineNumber: 81,
+                lineNumber: 90,
                 columnNumber: 5
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -210,7 +216,7 @@ function LoginContent() {
                             children: "Login"
                         }, void 0, false, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                            lineNumber: 85,
+                            lineNumber: 94,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -222,13 +228,13 @@ function LoginContent() {
                                     children: "Cinema E-Booking"
                                 }, void 0, false, {
                                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                    lineNumber: 87,
+                                    lineNumber: 96,
                                     columnNumber: 27
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                            lineNumber: 86,
+                            lineNumber: 95,
                             columnNumber: 9
                         }, this),
                         error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -236,7 +242,7 @@ function LoginContent() {
                             children: error
                         }, void 0, false, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                            lineNumber: 91,
+                            lineNumber: 100,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -251,7 +257,7 @@ function LoginContent() {
                                             children: "Email"
                                         }, void 0, false, {
                                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                            lineNumber: 98,
+                                            lineNumber: 107,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -266,13 +272,13 @@ function LoginContent() {
                                             onChange: (e)=>setEmail(e.target.value)
                                         }, void 0, false, {
                                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                            lineNumber: 101,
+                                            lineNumber: 110,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                    lineNumber: 97,
+                                    lineNumber: 106,
                                     columnNumber: 11
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -283,7 +289,7 @@ function LoginContent() {
                                             children: "Password"
                                         }, void 0, false, {
                                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                            lineNumber: 115,
+                                            lineNumber: 124,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -298,13 +304,13 @@ function LoginContent() {
                                             onChange: (e)=>setPassword(e.target.value)
                                         }, void 0, false, {
                                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                            lineNumber: 118,
+                                            lineNumber: 127,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                    lineNumber: 114,
+                                    lineNumber: 123,
                                     columnNumber: 11
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -314,13 +320,13 @@ function LoginContent() {
                                     children: isLoading ? "Logging in…" : "Log In"
                                 }, void 0, false, {
                                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                    lineNumber: 131,
+                                    lineNumber: 140,
                                     columnNumber: 11
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                            lineNumber: 96,
+                            lineNumber: 105,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -334,30 +340,30 @@ function LoginContent() {
                                     children: "Register"
                                 }, void 0, false, {
                                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                                    lineNumber: 142,
+                                    lineNumber: 151,
                                     columnNumber: 11
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                            lineNumber: 140,
+                            lineNumber: 149,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                    lineNumber: 84,
+                    lineNumber: 93,
                     columnNumber: 7
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-                lineNumber: 83,
+                lineNumber: 92,
                 columnNumber: 5
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-        lineNumber: 80,
+        lineNumber: 89,
         columnNumber: 3
     }, this);
 }
@@ -368,17 +374,17 @@ function LoginPage() {
             children: "Loading..."
         }, void 0, false, {
             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-            lineNumber: 155,
+            lineNumber: 164,
             columnNumber: 25
         }, void 0),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LoginContent, {}, void 0, false, {
             fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-            lineNumber: 156,
+            lineNumber: 165,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/CinemaBooker/cinema-booker/src/app/login/page.tsx",
-        lineNumber: 155,
+        lineNumber: 164,
         columnNumber: 5
     }, this);
 }
