@@ -57,17 +57,8 @@ function LoginContent() {
         setError("Authentication failed. Please try again.");
       } else {
         // Refresh session to get updated user data
-        const session = await getSession();
-        const role =
-        (session?.user as any)?.userType || 
-        (session?.user as any)?.role ||     
-        "USER";
-
-        if (role === "ADMIN") {
-          router.push("/admin");  
-          router.refresh();       
-          return;                 
-        }
+        await getSession();
+        
         // Redirect to the intended page if provided
         if (redirectUrl) {
           const finalUrl = time ? `${redirectUrl}?time=${encodeURIComponent(time)}` : redirectUrl;
