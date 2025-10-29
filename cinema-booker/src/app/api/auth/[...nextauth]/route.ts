@@ -1,6 +1,6 @@
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 
 const handler = NextAuth({
   session: { strategy: "jwt" },
@@ -8,12 +8,14 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.isEmailVerified = (user as any).isEmailVerified;
+        token.userType = (user as any).userType ?? (user as any).role ?? "USER";
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.isEmailVerified = token.isEmailVerified;
+        (session.user as any).isEmailVerified = token.isEmailVerified;
+        (session.user as any).userType = token.userType;
       }
       return session;
     },
@@ -26,7 +28,7 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log(" Validating credentials for:", credentials?.email);
+        console.log("Validating credentials for:", credentials?.email);
 
         if (!credentials?.email || !credentials?.password) {
           console.log("Missing credentials.");
@@ -36,49 +38,48 @@ const handler = NextAuth({
         const { email, password } = credentials;
         const trimmedEmail = email.trim();
 
-        let user;
         try {
           console.log(`Finding user: "${trimmedEmail}"`);
 
-          const apiUrl = process.env.NEXT_PUBLIC_API_DOMAIN
+          const apiUrl = process.env.NEXT_PUBLIC_API_DOMAIN;
           const response = await fetch(`${apiUrl}/login`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({ email, password }),
           });
 
           const data = await response.json();
 
-          if (response.ok) {
-            user = data.user;
-          } else {
-            console.error("User not found: ", trimmedEmail);
+          if (!response.ok) {
+            console.error("User not found:", trimmedEmail);
             return null;
           }
 
-          if (!user.password) {
-            console.error(` Password field missing for user ${user.email}. Check DB/Schema.`);
+          const user = data.user;
+
+          if (!user || !user.password) {
+            console.error(`Password field missing for user ${user?.email}.`);
             return null;
           }
 
-          console.log(` Comparing password for ${user.email}...`);
+          console.log(`Comparing password for ${user.email}...`);
           const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
           if (!isPasswordCorrect) {
-            console.log(` Password incorrect for ${user.email}.`);
+            console.log(`Password incorrect for ${user.email}.`);
             return null;
           }
 
-          console.log(` Credentials valid for ${user.email}.`);
+          console.log(`Credentials valid for ${user.email}.`);
           return {
             id: user._id.toString(),
             email: user.email,
             username: user.username,
-            isEmailVerified: user.isEmailVerified || true,
+            isEmailVerified: user.isEmailVerified ?? true,
+            userType: user.userType ?? user.role ?? "USER",
           };
-
         } catch (error) {
           console.error("Network or parsing error during login:", error);
           return null;
@@ -86,6 +87,6 @@ const handler = NextAuth({
       },
     }),
   ],
-})
+});
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };
