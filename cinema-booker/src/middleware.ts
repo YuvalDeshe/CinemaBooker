@@ -32,12 +32,6 @@ export async function middleware(req: NextRequest) {
 
   const isPublic = publicPaths.some(p => pathname === p || pathname.startsWith(`${p}/`));
 
-  // Redirect unauthenticated users trying to access protected routes
-  if (!isAuthenticated && !isPublic) {
-    console.log(`Unauthenticated user attempted to access protected page: '${pathname}'`);
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
   // Redirect authenticated users away from login/register pages
   if (isAuthenticated && unauthenticatedPaths.includes(pathname)) {
     console.log(`Authenticated user attempted to access login/register page: '${pathname}'`);

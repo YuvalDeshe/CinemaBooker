@@ -7,6 +7,7 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id;
         token.isEmailVerified = (user as any).isEmailVerified;
         token.userType = (user as any).userType ?? (user as any).role ?? "USER";
       }
@@ -14,6 +15,7 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (token && session.user) {
+        (session.user as any).id = token.id;
         (session.user as any).isEmailVerified = token.isEmailVerified;
         (session.user as any).userType = token.userType;
       }

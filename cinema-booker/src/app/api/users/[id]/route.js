@@ -1,10 +1,9 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { getServerSession } from 'next-auth';
-import {authOptions} from '../../auth/[...nextauth]/route'
 import bcrypt from 'bcryptjs';
 
-const uri = process.env.MONGODB_URI;
-const SALT_ROUNDS = 10;
+import { sendEmail, generateProfileUpdateEmailHtml, generateProfileUpdateEmailText } from '@/lib/email';
+
+const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
 let client;
 let db;
@@ -13,7 +12,6 @@ async function connectToDatabase() {
     if (db) {
         return { client, db };
     }
-
     client = new MongoClient(uri);
     await client.connect();
     db = client.db('UserDatabase');
@@ -41,9 +39,11 @@ export async function GET(request, { params }) {
             lastName: user.lastName,
             email: user.email,
             password: user.password,
-            homeAddress: user.homeAddress,
-            paymentCard: user.paymentCard,
+            homeAddress: user.homeAddress || { street: "", city: "", state: "", zip: "" },
+            paymentCard: user.paymentCard || [],
             isRegisteredForPromos: user.isRegisteredForPromos,
+            userType: user.userType,
+            userStatus: user.userStatus,
         };
 
         return new Response(JSON.stringify(formattedUser), {
@@ -67,17 +67,9 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
     try {
-        const session = await getServerSession(authOptions);
-        const { id } = await params;
-
-        if (!session) {
-            return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-        } else if (session.user.id !== id) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
         const { db } = await connectToDatabase();
         const usersCollection = db.collection('UserCollection');
+        const { id } = await params;
 
         if (!ObjectId.isValid(id)) {
             return new Response(JSON.stringify({ message: "Invalid User ID format" }), {
@@ -86,9 +78,17 @@ export async function PATCH(request, { params }) {
             });
         }
 
+        // Get the current user data for email notification
+        const currentUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+        if (!currentUser) {
+            return new Response(JSON.stringify({ message: "User not found." }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const updateData = await request.json();
         const updateDoc = {};
-        const user = await usersCollection.findOne({ email: updateData.email });
 
         if (updateData.firstName) {
             updateDoc.firstName = updateData.firstName;
@@ -96,48 +96,23 @@ export async function PATCH(request, { params }) {
         if (updateData.lastName) {
             updateDoc.lastName = updateData.lastName;
         }
+        if (updateData.homeAddress) {
+            updateDoc.homeAddress = updateData.homeAddress;
+        }
+        if (updateData.isRegisteredForPromos !== undefined) {
+            updateDoc.isRegisteredForPromos = updateData.isRegisteredForPromos;
+        }
+
         if (updateData.password) {
-            const isSamePassword = await bcrypt.compare(updateData.password, user.password);
-            if (!(isSamePassword || updateData.password === user.password)) {
-                console.log("PASSWORD UPDATE: Hashing new password using bcrypt.");
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(updateData.password, salt);
-                updateDoc.password = hashedPassword;
-            } else {
-                updateDoc.password = user.password;
-            }
+            console.log("PASSWORD UPDATE: Hashing new password using bcrypt.");
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(updateData.password, salt);
+            updateDoc.password = hashedPassword;
         }
 
         if (updateData.paymentCard) {
-            /*
-            TODO:
-            - add some logic to account for already existing cards
-            */
-           let hashedPaymentCard = [];
             if (Array.isArray(updateData.paymentCard)) {
-                hashedPaymentCard = await Promise.all(
-                    updateData.paymentCard.map(async card => {
-                        if (card.isNew) {
-                        const hashedNumber = await bcrypt.hash(card.cardNumber, SALT_ROUNDS);
-                        return {
-                            cardType: card.cardType,
-                            cardNumber: hashedNumber,
-                            expMonth: card.expMonth,
-                            expYear: card.expYear,
-                            lastFour: card.cardNumber.slice(-4)
-                        }
-                    } else {
-                        return {
-                            cardType: card.cardType,
-                            cardNumber: card.cardNumber,
-                            expMonth: card.expMonth,
-                            expYear: card.expYear,
-                            lastFour: card.lastFour
-                        }
-                    }
-                    })
-                )
-                updateDoc.paymentCard = hashedPaymentCard;
+                updateDoc.paymentCard = updateData.paymentCard;
             } else {
                 return new Response(JSON.stringify({ message: "paymentCard must be an array." }), {
                     status: 400,
@@ -172,9 +147,29 @@ export async function PATCH(request, { params }) {
             });
         }
 
+        // Send profile update notification email
+        const updatedFields = Object.keys(updateDoc);
+        const userName = `${currentUser.firstName} ${currentUser.lastName}`;
+        
+        try {
+            const emailResult = await sendEmail({
+                to: currentUser.email,
+                subject: 'Profile Updated - Cinema Booker',
+                text: generateProfileUpdateEmailText(userName, updatedFields),
+                html: generateProfileUpdateEmailHtml(userName, updatedFields),
+            });
+
+            if (!emailResult.success) {
+                console.error('Failed to send profile update notification:', emailResult.error);
+            }
+        } catch (emailError) {
+            console.error('Error sending profile update notification:', emailError);
+            // Don't fail the update if email fails
+        }
+
         return new Response(JSON.stringify({
             message: "User updated successfully.",
-            updatedFields: Object.keys(updateDoc)
+            updatedFields: updatedFields
         }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

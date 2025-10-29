@@ -17,9 +17,7 @@ export default function TopBar() {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  //**NOTE**: isLoggedIn controls the dynamic rendering of either the profile icon (if logged in) OR login button (if not logged in)
-  //Tweak it as necessary to change based off the user session information.
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  //**NOTE**: Using session status to control dynamic rendering of profile icon vs login button
 
   //Navigate to Home Page
   const homeHandler = () => {
@@ -53,10 +51,14 @@ export default function TopBar() {
 
   //**NOTE**: Edit the URL of this to reflect the User ID of the currently logged-in user.
   const editProfileHandler = () => {
+    console.log('Edit Profile clicked. Session:', session);
+    console.log('User ID:', session?.user?.id);
     if (session?.user?.id) {
-      router.push(`/user/${session.user.id}/profile/edit`);
+      const profileUrl = `/user/${session.user.id}/profile/edit`;
+      console.log('Navigating to:', profileUrl);
+      router.push(profileUrl);
     } else {
-      router.push('/login');
+      console.log('No session or user ID, redirecting to login');
     }
   }
 
