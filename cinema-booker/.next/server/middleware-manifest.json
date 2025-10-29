@@ -1,0 +1,33 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/CinemaBooker_cinema-booker_d080f230._.js",
+        "server/edge/chunks/[root-of-the-server]__5b1b37a4._.js",
+        "server/edge/chunks/turbopack-CinemaBooker_cinema-booker_edge-wrapper_27090b5e.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?(?:\\/((?!_next|api|static|favicon.ico).*))(\\\\.json)?[\\/#\\?]?$",
+          "originalSource": "/((?!_next|api|static|favicon.ico).*)"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "jHDM6qyds3GyGCLfjfw5dRpm/QOHkUTjsKt531Hx0lA=",
+        "__NEXT_PREVIEW_MODE_ID": "7416c8b320014e94a1acf3b952843b68",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "6238eb4180ccbc981c2e5f4c395afb3981c7af13c6dec4cce74d390c8c4c4273",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "9eeecedb53e694b4a76bef34e0df87cd947feb3dc6534537bc023c18b736459d"
+      }
+    }
+  },
+  "sortedMiddleware": [
+    "/"
+  ],
+  "functions": {}
+}

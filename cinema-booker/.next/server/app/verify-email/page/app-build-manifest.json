@@ -1,0 +1,26 @@
+{
+  "pages": {
+    "/verify-email/page": [
+      "static/chunks/cf061_next_dist_3232a1a3._.js",
+      "static/chunks/CinemaBooker_cinema-booker_src_app_favicon_ico_mjs_10e0ad16._.js",
+      "static/chunks/[root-of-the-server]__1c691fa9._.css",
+      "static/chunks/cf061_@fortawesome_fontawesome-svg-core_index_mjs_7574e263._.js",
+      "static/chunks/cf061_@fortawesome_free-solid-svg-icons_index_mjs_6ca1c7b4._.js",
+      "static/chunks/cf061_9dd1dd3b._.js",
+      "static/chunks/CinemaBooker_cinema-booker_src_app_components_e384600f._.js",
+      "static/chunks/CinemaBooker_cinema-booker_src_app_layout_tsx_55e8d8d3._.js",
+      "static/chunks/cf061_next_dist_client_components_builtin_global-error_1bf740ba.js",
+      "static/chunks/CinemaBooker_cinema-booker_src_app_verify-email_page_tsx_b7883d88._.js",
+      "static/chunks/CinemaBooker_cinema-booker_src_app_verify-email_page_tsx_1bf740ba._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_e593a528._.js",
+      "static/chunks/cf061_next_dist_compiled_react-dom_482e27c4._.js",
+      "static/chunks/cf061_next_dist_compiled_next-devtools_index_5257ccb4.js",
+      "static/chunks/cf061_next_dist_compiled_ee85fe31._.js",
+      "static/chunks/cf061_next_dist_client_74d7659e._.js",
+      "static/chunks/cf061_next_dist_fb94892d._.js",
+      "static/chunks/cf061_@swc_helpers_cjs_16ab2177._.js",
+      "static/chunks/CinemaBooker_cinema-booker_a0ff3932._.js",
+      "static/chunks/turbopack-CinemaBooker_cinema-booker_bdd01158._.js"
+    ]
+  }
+}

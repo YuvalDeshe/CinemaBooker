@@ -27,9 +27,14 @@ export default function CardInfoForm({ cardType, cardNumber, expMonth, expYear, 
   }, [card]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCard((prev) => ({ ...prev, [name]: value }));
-  };
+  let { name, value } = e.target;
+
+  // Normalize radio names like "cardType-new" → "cardType"
+  if (name.startsWith("cardType")) name = "cardType";
+
+  setCard((prev) => ({ ...prev, [name]: value }));
+};
+
 
 
   return (
@@ -39,10 +44,10 @@ export default function CardInfoForm({ cardType, cardNumber, expMonth, expYear, 
       <div>
         <div>
           <label>Card Type:</label>
-          <input type="radio" required checked={cardType === 'debit'} onChange={handleChange} name="cardType" value="debit" className="h-4 w-4 m-2" />
+          <input type="radio" required checked={cardType === 'debit'} onChange={handleChange} name={`cardType-${card.cardNumber || "new"}`} value="debit" className="h-4 w-4 m-2" />
           Debit
           <label className="inline-flex items-center gap-2 text-gray-200">
-            <input type="radio" required checked={cardType === 'credit'} onChange={handleChange} name="cardType" value="credit" className="h-4 w-4 ml-2" />
+            <input type="radio" required checked={cardType === 'credit'} onChange={handleChange} name={`cardType-${card.cardNumber || "new"}`} value="credit" className="h-4 w-4 ml-2" />
             Credit
           </label>
         </div>

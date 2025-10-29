@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/CinemaBooker/cinema-booker/src/app/components/cardinfoforum.module.css"],"sourcesContent":[".mainDiv {\r\n    border-radius: 8px;\r\n    padding: 4px;\r\n    margin: 10px 8px;\r\n    background-color: rgb(94, 94, 94);\r\n    width: 600px;\r\n    transition: 0.1s;\r\n}\r\n\r\n.label {\r\n    font-size: 16px;\r\n}\r\n\r\n.inputField {\r\n    background-color: rgb(136, 136, 136);\r\n    border-radius: 8px;\r\n    margin: 4px;\r\n    padding-left: 4px;\r\n}\r\n\r\n.deleteButton {\r\n    font-size: 20px;\r\n    background-color: #c62828;\r\n    color: white;\r\n    border: none;\r\n    border-radius: 8px;\r\n    padding: 6px 16px;\r\n    cursor: pointer;\r\n    margin-top: 10px;\r\n    transition: 0.2s;\r\n}\r\n\r\n.deleteButton:hover {\r\n    background-color: #ff3636;\r\n    transform: scale(1.1);\r\n}\r\n"],"names":[],"mappings":"AAAA;;;;;;;;;AASA;;;;AAIA;;;;;;;AAOA;;;;;;;;;;;;AAYA"}}]
+}

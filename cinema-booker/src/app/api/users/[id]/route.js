@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { sendEmail, generateProfileUpdateEmailHtml, generateProfileUpdateEmailText } from '@/lib/email';
 
 const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const SALT_ROUNDS = 10;
 
 let client;
 let db;
@@ -103,16 +104,52 @@ export async function PATCH(request, { params }) {
             updateDoc.isRegisteredForPromos = updateData.isRegisteredForPromos;
         }
 
+        // ✅ Fetch existing user from DB
+        const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+        if (!user) {
+            return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+        }
+
         if (updateData.password) {
-            console.log("PASSWORD UPDATE: Hashing new password using bcrypt.");
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(updateData.password, salt);
-            updateDoc.password = hashedPassword;
+            const isSamePassword = await bcrypt.compare(updateData.password, user.password);
+            if (!(isSamePassword || updateData.password === user.password)) {
+                console.log("PASSWORD UPDATE: Hashing new password using bcrypt.");
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(updateData.password, salt);
+                updateDoc.password = hashedPassword;
+            } else {
+                updateDoc.password = user.password;
+            }
         }
 
         if (updateData.paymentCard) {
+           let hashedPaymentCard = [];
             if (Array.isArray(updateData.paymentCard)) {
-                updateDoc.paymentCard = updateData.paymentCard;
+                hashedPaymentCard = await Promise.all(
+                    updateData.paymentCard.map(async card => {
+                        if (card.isNew) {
+                        // hash the card number if the user added a new card
+                        const hashedNumber = await bcrypt.hash(card.cardNumber, SALT_ROUNDS);
+                        return {
+                            cardType: card.cardType,
+                            cardNumber: hashedNumber,
+                            expMonth: card.expMonth,
+                            expYear: card.expYear,
+                            lastFour: card.cardNumber.slice(-4)
+                        }
+                    } else {
+                        // don't rehash the card number if the card is already in the DB
+                        return {
+                            cardType: card.cardType,
+                            cardNumber: card.cardNumber,
+                            expMonth: card.expMonth,
+                            expYear: card.expYear,
+                            lastFour: card.lastFour
+                        }
+                    }
+                    })
+                )
+                updateDoc.paymentCard = hashedPaymentCard;
             } else {
                 return new Response(JSON.stringify({ message: "paymentCard must be an array." }), {
                     status: 400,

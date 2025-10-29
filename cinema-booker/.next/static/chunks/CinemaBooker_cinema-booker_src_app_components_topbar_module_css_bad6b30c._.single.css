@@ -1,0 +1,98 @@
+/* [project]/CinemaBooker/cinema-booker/src/app/components/topbar.module.css [app-client] (css) */
+.topbar-module__MebPBq__topBar {
+  background-color: #2b3e63;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.topbar-module__MebPBq__icon {
+  color: #fff;
+  padding-bottom: 5px;
+  font-size: 48px;
+}
+
+.topbar-module__MebPBq__buttonText {
+  color: #fff;
+  font-size: 20px;
+}
+
+.topbar-module__MebPBq__button {
+  border-radius: 10px;
+  margin: 10px;
+  padding-top: 4px;
+  padding-left: 20px;
+  padding-right: 20px;
+  transition: all .1s;
+}
+
+.topbar-module__MebPBq__button:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+.topbar-module__MebPBq__mainHeading {
+  -webkit-text-stroke: 2px black;
+  color: #fff;
+  font-size: 72px;
+}
+
+@keyframes topbar-module__MebPBq__slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.topbar-module__MebPBq__dropdownMenu {
+  z-index: 50;
+  background-color: #3b3b3b;
+  border-width: 1.5px;
+  border-color: #000;
+  border-radius: 10px;
+  animation: .25s ease-out forwards topbar-module__MebPBq__slideDown;
+  position: absolute;
+}
+
+.topbar-module__MebPBq__dropdownMenuContainer {
+  margin: 2px 0;
+}
+
+.topbar-module__MebPBq__dropdownMenuButtons {
+  background-color: #3b3b3b;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  transition: all 80ms;
+  display: flex;
+}
+
+.topbar-module__MebPBq__dropdownMenuButtons:hover {
+  background-color: #555;
+}
+
+.topbar-module__MebPBq__loginButton {
+  border-width: 2px;
+  border-radius: 10px;
+  margin-right: 16px;
+  padding: 10px 20px;
+  transition: all .1s;
+}
+
+.topbar-module__MebPBq__loginButton:hover {
+  background-color: rgba(255, 255, 255, .2);
+  transform: scale(1.1);
+}
+
+.topbar-module__MebPBq__loginButton > p {
+  font-size: 32px;
+}
+
+/*# sourceMappingURL=CinemaBooker_cinema-booker_src_app_components_topbar_module_css_bad6b30c._.single.css.map*/

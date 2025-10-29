@@ -1,0 +1,39 @@
+/* [project]/CinemaBooker/cinema-booker/src/app/components/cardinfoforum.module.css [app-client] (css) */
+.cardinfoforum-module__4W1Rva__mainDiv {
+  background-color: #5e5e5e;
+  border-radius: 8px;
+  width: 600px;
+  margin: 10px 8px;
+  padding: 4px;
+  transition: all .1s;
+}
+
+.cardinfoforum-module__4W1Rva__label {
+  font-size: 16px;
+}
+
+.cardinfoforum-module__4W1Rva__inputField {
+  background-color: #888;
+  border-radius: 8px;
+  margin: 4px;
+  padding-left: 4px;
+}
+
+.cardinfoforum-module__4W1Rva__deleteButton {
+  color: #fff;
+  cursor: pointer;
+  background-color: #c62828;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  padding: 6px 16px;
+  font-size: 20px;
+  transition: all .2s;
+}
+
+.cardinfoforum-module__4W1Rva__deleteButton:hover {
+  background-color: #ff3636;
+  transform: scale(1.1);
+}
+
+/*# sourceMappingURL=CinemaBooker_cinema-booker_src_app_components_cardinfoforum_module_css_bad6b30c._.single.css.map*/

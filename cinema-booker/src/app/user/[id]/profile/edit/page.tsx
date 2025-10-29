@@ -109,6 +109,8 @@ export default function EditProfile() {
       updatedPassword = newPassword;
     }
 
+    //
+
     const updatedUser = {
       ...user,
       firstName,
