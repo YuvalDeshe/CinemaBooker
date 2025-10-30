@@ -1,13 +1,17 @@
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
+  service: 'gmail', // Use Gmail service
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+  secure: false, // Use STARTTLS for port 587
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 export interface EmailOptions {
@@ -19,6 +23,18 @@ export interface EmailOptions {
 
 export async function sendEmail({ to, subject, text, html }: EmailOptions) {
   try {
+    console.log('Preparing to send email...');
+    console.log('To:', to);
+    console.log('Subject:', subject);
+    console.log('From:', process.env.SMTP_FROM || process.env.SMTP_USER);
+    console.log('SMTP User:', process.env.SMTP_USER ? 'Set' : 'Not set');
+    console.log('SMTP Password:', process.env.SMTP_PASSWORD ? 'Set' : 'Not set');
+    
+    // Verify transporter connection
+    console.log('Verifying SMTP connection...');
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
+    
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
       to,
@@ -27,11 +43,24 @@ export async function sendEmail({ to, subject, text, html }: EmailOptions) {
       html,
     };
 
+    console.log('Sending email with nodemailer...');
     const result = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', result.messageId);
+    console.log('Email sent successfully! Message ID:', result.messageId);
+    console.log('Email details:', {
+      accepted: result.accepted,
+      rejected: result.rejected,
+      pending: result.pending,
+      messageId: result.messageId
+    });
     return { success: true, messageId: result.messageId };
   } catch (error) {
     console.error('Error sending email:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: (error as any)?.code,
+      command: (error as any)?.command,
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
@@ -225,7 +254,6 @@ export function generateProfileUpdateEmailHtml(userName: string, updatedFields: 
             <div class="header">
                 <div class="logo">Cinema Booker</div>
                 <h1>Profile Updated Successfully</h1>
-                <div class="success-icon">✅</div>
             </div>
             
             <p>Hi ${userName},</p>
@@ -298,6 +326,145 @@ SECURITY NOTICE: If you did not make these changes, please contact our support t
 
 Thank you for using Cinema Booker!
 
+Cinema Booker © 2025. All rights reserved.
+This is an automated message, please do not reply to this email.
+  `;
+}
+
+// PASSWORD RESET FUNCTIONS
+export function generatePasswordResetEmailHtml(resetUrl: string, userEmail: string) {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password - Cinema Booker</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background: white;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                border-bottom: 2px solid #e74c3c;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #e74c3c;
+                margin-bottom: 10px;
+            }
+            .button {
+                display: inline-block;
+                padding: 12px 30px;
+                background-color: #e74c3c;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 20px 0;
+                font-weight: bold;
+            }
+            .button:hover {
+                background-color: #c0392b;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+            }
+            .warning {
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                color: #856404;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+            .security-notice {
+                background-color: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">Cinema Booker</div>
+                <h1>Password Reset Request</h1>
+            </div>
+            
+            <p>Hi there!</p>
+            
+            <p>We received a request to reset the password for your Cinema Booker account. If you made this request, click the button below to reset your password:</p>
+            
+            <div style="text-align: center;">
+                <a href="${resetUrl}" class="button">Reset My Password</a>
+            </div>
+            
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+                ${resetUrl}
+            </p>
+            
+            <div class="warning">
+                <strong>Important:</strong> This password reset link will expire in 15 minutes. If you don't reset your password within this time, you'll need to request a new reset link.
+            </div>
+            
+            <div class="security-notice">
+                <strong>Security Notice:</strong> If you did not request a password reset, please ignore this email. Your password will remain unchanged. If you're concerned about the security of your account, please contact our support team.
+            </div>
+            
+            <p>For your security, this reset link can only be used once. After you create a new password, this link will no longer work.</p>
+            
+            <div class="footer">
+                <p>This email was sent to ${userEmail}</p>
+                <p>Cinema Booker &copy; 2025. All rights reserved.</p>
+                <p>This is an automated message, please do not reply to this email.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+export function generatePasswordResetEmailText(resetUrl: string, userEmail: string) {
+  return `
+Cinema Booker - Password Reset Request
+
+Hi there!
+
+We received a request to reset the password for your Cinema Booker account. If you made this request, visit the following link to reset your password:
+
+${resetUrl}
+
+This password reset link will expire in 15 minutes. If you don't reset your password within this time, you'll need to request a new reset link.
+
+SECURITY NOTICE: If you did not request a password reset, please ignore this email. Your password will remain unchanged. If you're concerned about the security of your account, please contact our support team.
+
+For your security, this reset link can only be used once. After you create a new password, this link will no longer work.
+
+This email was sent to ${userEmail}
 Cinema Booker © 2025. All rights reserved.
 This is an automated message, please do not reply to this email.
   `;
