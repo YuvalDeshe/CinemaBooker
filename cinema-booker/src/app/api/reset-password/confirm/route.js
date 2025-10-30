@@ -3,8 +3,21 @@ import bcrypt from 'bcryptjs';
 import connectMongoDB from '@/app/mongodb';
 import User from '@/models/userSchema';
 import { isTokenExpired } from '@/lib/tokens';
+import { MongoClient } from 'mongodb';
 
-export async function POST(request: NextRequest) {
+const uri = process.env.MONGODB_URI ?? '';
+const client = new MongoClient(uri);
+const dbName = 'UserDatabase';
+
+async function connectToDatabase() {
+  if (!client.topology?.isConnected()) {
+    await client.connect();
+  }
+  const db = client.db(dbName);
+  return db;
+}
+
+export async function POST(request) {
   try {
     const { token, password } = await request.json();
 
@@ -32,11 +45,16 @@ export async function POST(request: NextRequest) {
 
     await connectMongoDB();
 
-    // Find user with matching reset token
-    const user = await User.findOne({
-      passwordResetToken: token,
-    }).select('+passwordResetToken +passwordResetExpires +password');
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('UserCollection');
 
+    // Find user with matching reset token
+    const user = await usersCollection.findOne({
+      passwordResetToken: token,
+    })
+    // .select('+passwordResetToken +passwordResetExpires +password');
+
+    await console.log('reset password user: ', user);
     if (!user) {
       return NextResponse.json(
         { message: 'Invalid or expired reset token' },
@@ -45,6 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if token has expired
+    if (user.passwordResetExpires) console.log('expired? ', isTokenExpired(user.passwordResetExpires))
     if (!user.passwordResetExpires || isTokenExpired(user.passwordResetExpires)) {
       // Clear expired token
       user.passwordResetToken = undefined;
@@ -65,7 +84,14 @@ export async function POST(request: NextRequest) {
     user.password = hashedPassword;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
-    await user.save();
+    await usersCollection.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          passwordResetToken: token,
+        },
+      }
+    );
 
     return NextResponse.json(
       { message: 'Password has been successfully reset' },

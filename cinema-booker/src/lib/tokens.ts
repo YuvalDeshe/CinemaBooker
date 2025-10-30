@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { ISODateString } from 'next-auth';
 
 /**
  * Generate a cryptographically secure random token
@@ -42,6 +43,6 @@ export function generatePasswordResetToken() {
  * @param expiresAt The expiration date of the token
  * @returns True if the token has expired, false otherwise
  */
-export function isTokenExpired(expiresAt: Date): boolean {
+export function isTokenExpired(expiresAt: ISODateString): boolean {
     return new Date() > expiresAt;
 }

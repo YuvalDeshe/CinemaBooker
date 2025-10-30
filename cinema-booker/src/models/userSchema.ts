@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
+import { ISODateString } from 'next-auth';
 
 interface IUser extends Document {
     email: string;
     password?: string;
     passwordResetToken?: string;
-    passwordResetExpires?: Date;
+    passwordResetExpires?: ISODateString;
     // add more details as needed. these are the only ones necessary for login/register.
 }
 
