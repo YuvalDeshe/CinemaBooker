@@ -6,6 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import BackgroundReel from "@/app/components/BackgroundReel";
 import Link from "next/link";
 
+/* 
+TODO: Change this to render the LoginForm component instead 
+      of the raw JSX.
+
+TODO: Ensure that LoginForm has a reset password link and
+      that it leads to the right page
+*/
 function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -136,6 +143,8 @@ function LoginContent() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
+        <a href="/resetPassword" className="text-blue-300 hover:text-blue-200 underline">Forgot your password?</a>
 
           <button
             type="submit"

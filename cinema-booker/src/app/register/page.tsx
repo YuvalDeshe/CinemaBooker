@@ -6,6 +6,10 @@ import BackgroundReel from "@/app/components/BackgroundReel";
 
 import Link from "next/link";
 
+/* 
+TODO: Change this to render the LoginForm component instead 
+      of the raw JSX.
+*/
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     firstName: "",
