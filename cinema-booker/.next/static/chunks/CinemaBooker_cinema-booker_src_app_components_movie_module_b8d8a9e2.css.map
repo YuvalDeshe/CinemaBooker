@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/johnd/OneDrive/Desktop/Folders/Web%20Dev%20Stuff/CinemaBooker/cinema-booker/src/app/components/movie.module.css"],"sourcesContent":[".showTimeButtons {\r\n    color:white;\r\n    background-color: rgb(58, 58, 58);\r\n    border-color: white;\r\n    border-width: 2px;\r\n    border-radius: 10px;\r\n    padding: 6px;\r\n    font-size: 13px;\r\n    transition: 0.1s;\r\n    margin: 2px;\r\n}\r\n\r\n.showTimeButtons:hover {\r\n    transform: scale(1.1);\r\n    /* background-color: rgba(255, 255, 255, 0.2); */\r\n}"],"names":[],"mappings":"AAAA;;;;;;;;;;;;AAYA","debugId":null}}]
-}

@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+.next/
 /out/
 
 # production
@@ -25,6 +26,8 @@
 *.pem
 package-lock.json
 package.json
+cinema-booker/package-lock.json
+cinema-booker/package.json
 
 # debug
 npm-debug.log*
