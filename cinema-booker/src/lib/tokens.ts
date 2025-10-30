@@ -23,3 +23,25 @@ export function generateEmailVerificationToken() {
         expires
     };
 }
+
+/**Generate a password reset token with expiration (15 minutes from now)
+ * @returns Object containing token and expiration date
+ */
+export function generatePasswordResetToken() {
+    const token = generateSecureToken();
+    const expires = new Date();
+    expires.setMinutes(expires.getMinutes() + 15); // Expire in 15 minutes
+    
+    return {
+        token,
+        expires
+    };
+}
+
+/**Check if a token has expired
+ * @param expiresAt The expiration date of the token
+ * @returns True if the token has expired, false otherwise
+ */
+export function isTokenExpired(expiresAt: Date): boolean {
+    return new Date() > expiresAt;
+}

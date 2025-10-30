@@ -3,6 +3,8 @@ import mongoose, { Schema, Document, models, Model } from 'mongoose';
 interface IUser extends Document {
     email: string;
     password?: string;
+    passwordResetToken?: string;
+    passwordResetExpires?: Date;
     // add more details as needed. these are the only ones necessary for login/register.
 }
 
@@ -16,6 +18,14 @@ const userSchema: Schema<IUser> = new Schema({
     password: {
         type: String,
         required: [true, 'Password is required.'],
+        select: false,
+    },
+    passwordResetToken: {
+        type: String,
+        select: false,
+    },
+    passwordResetExpires: {
+        type: Date,
         select: false,
     }
 }, { timestamps: true });
