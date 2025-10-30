@@ -24,8 +24,10 @@
 # misc
 .DS_Store
 *.pem
+package*
 package-lock.json
 package.json
+cinema-booker/package*
 cinema-booker/package-lock.json
 cinema-booker/package.json
 
