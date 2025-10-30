@@ -30,6 +30,11 @@ export default function TopBar() {
     router.push('/login')
   }
 
+  //Navigate to Login Page
+  const registerHandler = () => {
+    router.push('/register')
+  }
+
   //Handler for Profile Button, toggles visibility of dropdown menu.
   const toggleUserMenu = () => {
     if (buttonRef.current) {
@@ -99,9 +104,15 @@ export default function TopBar() {
         </button>
       )}
       {status === "unauthenticated" && (
+        <div>
+        <button className={styles.registerButton} onClick={registerHandler} ref={buttonRef} id='buttonID'>
+          <p className={styles.buttonText}>Register</p>
+        </button>
         <button className={styles.loginButton} onClick={loginHandler} ref={buttonRef} id='buttonID'>
           <p className={styles.buttonText}>Login</p>
-        </button>)}
+        </button>
+        </div>
+        )}
       {status === "loading" && (
         <p>Loading session...</p>
       )}

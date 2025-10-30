@@ -10,6 +10,7 @@ __turbopack_context__.v({
   "icon": "topbar-module__MebPBq__icon",
   "loginButton": "topbar-module__MebPBq__loginButton",
   "mainHeading": "topbar-module__MebPBq__mainHeading",
+  "registerButton": "topbar-module__MebPBq__registerButton",
   "slideDown": "topbar-module__MebPBq__slideDown",
   "topBar": "topbar-module__MebPBq__topBar",
 });
@@ -59,6 +60,10 @@ function TopBar() {
     //Navigate to Login Page
     const loginHandler = ()=>{
         router.push('/login');
+    };
+    //Navigate to Login Page
+    const registerHandler = ()=>{
+        router.push('/register');
     };
     //Handler for Profile Button, toggles visibility of dropdown menu.
     const toggleUserMenu = ()=>{
@@ -121,7 +126,7 @@ function TopBar() {
                         icon: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f40$fortawesome$2f$free$2d$solid$2d$svg$2d$icons$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["faHouse"]
                     }, void 0, false, {
                         fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                        lineNumber: 90,
+                        lineNumber: 95,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -129,13 +134,13 @@ function TopBar() {
                         children: "Home"
                     }, void 0, false, {
                         fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                        lineNumber: 91,
+                        lineNumber: 96,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 89,
+                lineNumber: 94,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -143,7 +148,7 @@ function TopBar() {
                 children: "Cinema E-Booking Site"
             }, void 0, false, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 93,
+                lineNumber: 98,
                 columnNumber: 7
             }, this),
             status === "authenticated" && (session === null || session === void 0 ? void 0 : session.user) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -157,7 +162,7 @@ function TopBar() {
                         icon: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f40$fortawesome$2f$free$2d$solid$2d$svg$2d$icons$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["faUser"]
                     }, void 0, false, {
                         fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                        lineNumber: 97,
+                        lineNumber: 102,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -165,38 +170,64 @@ function TopBar() {
                         children: "Profile"
                     }, void 0, false, {
                         fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                        lineNumber: 98,
+                        lineNumber: 103,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 96,
+                lineNumber: 101,
                 columnNumber: 9
             }, this),
-            status === "unauthenticated" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].loginButton,
-                onClick: loginHandler,
-                ref: buttonRef,
-                id: "buttonID",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                    className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].buttonText,
-                    children: "Login"
-                }, void 0, false, {
-                    fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                    lineNumber: 103,
-                    columnNumber: 11
-                }, this)
-            }, void 0, false, {
+            status === "unauthenticated" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].registerButton,
+                        onClick: registerHandler,
+                        ref: buttonRef,
+                        id: "buttonID",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].buttonText,
+                            children: "Register"
+                        }, void 0, false, {
+                            fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
+                            lineNumber: 109,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
+                        lineNumber: 108,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].loginButton,
+                        onClick: loginHandler,
+                        ref: buttonRef,
+                        id: "buttonID",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$src$2f$app$2f$components$2f$topbar$2e$module$2e$css__$5b$app$2d$client$5d$__$28$css__module$29$__["default"].buttonText,
+                            children: "Login"
+                        }, void 0, false, {
+                            fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
+                            lineNumber: 112,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
+                        lineNumber: 111,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 102,
+                lineNumber: 107,
                 columnNumber: 9
             }, this),
             status === "loading" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 children: "Loading session..."
             }, void 0, false, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 106,
+                lineNumber: 117,
                 columnNumber: 9
             }, this),
             isExpanded && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -216,12 +247,12 @@ function TopBar() {
                                 children: "Admin Controls"
                             }, void 0, false, {
                                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                                lineNumber: 116,
+                                lineNumber: 127,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                            lineNumber: 115,
+                            lineNumber: 126,
                             columnNumber: 26
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -231,12 +262,12 @@ function TopBar() {
                                 children: "Edit Profile"
                             }, void 0, false, {
                                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                                lineNumber: 119,
+                                lineNumber: 130,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                            lineNumber: 118,
+                            lineNumber: 129,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$CinemaBooker$2f$cinema$2d$booker$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -246,29 +277,29 @@ function TopBar() {
                                 children: "Logout"
                             }, void 0, false, {
                                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                                lineNumber: 122,
+                                lineNumber: 133,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                            lineNumber: 121,
+                            lineNumber: 132,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                    lineNumber: 114,
+                    lineNumber: 125,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-                lineNumber: 109,
+                lineNumber: 120,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/CinemaBooker/cinema-booker/src/app/components/TopBar.tsx",
-        lineNumber: 88,
+        lineNumber: 93,
         columnNumber: 5
     }, this);
 }

@@ -2096,12 +2096,29 @@ body {
 }
 
 .topbar-module__MebPBq__loginButton:hover {
-  background-color: rgba(255, 255, 255, .2);
+  background-color: rgba(56, 102, 255, .67);
   transform: scale(1.1);
 }
 
 .topbar-module__MebPBq__loginButton > p {
-  font-size: 32px;
+  font-size: 16px;
+}
+
+.topbar-module__MebPBq__registerButton {
+  border-width: 2px;
+  border-radius: 10px;
+  margin-right: 16px;
+  padding: 10px 20px;
+  transition: all .1s;
+}
+
+.topbar-module__MebPBq__registerButton:hover {
+  background-color: rgba(255, 75, 75, .67);
+  transform: scale(1.1);
+}
+
+.topbar-module__MebPBq__registerButton > p {
+  font-size: 16px;
 }
 
 /*# sourceMappingURL=%5Broot-of-the-server%5D__1c691fa9._.css.map*/
