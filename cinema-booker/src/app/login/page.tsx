@@ -144,6 +144,8 @@ function LoginContent() {
             />
           </div>
 
+        <a href="/resetPassword" className="text-blue-300 hover:text-blue-200 underline">Forgot your password?</a>
+
           <button
             type="submit"
             disabled={isLoading}
