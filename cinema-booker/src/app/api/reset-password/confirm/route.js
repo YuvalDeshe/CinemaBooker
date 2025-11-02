@@ -88,6 +88,7 @@ export async function POST(request) {
       { _id: user._id },
       {
         $set: {
+          password: hashedPassword,
           passwordResetToken: token,
         },
       }
