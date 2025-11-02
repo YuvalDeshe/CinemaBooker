@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 import { sendEmail, generateProfileUpdateEmailHtml, generateProfileUpdateEmailText } from '@/lib/email';
 
-const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 const SALT_ROUNDS = 10;
 
 let client;
