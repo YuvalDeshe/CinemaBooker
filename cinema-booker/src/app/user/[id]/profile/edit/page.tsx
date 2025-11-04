@@ -253,7 +253,7 @@ export default function EditProfile() {
           className={styles.inputField}
         />
 
-        <input className={styles.addCardButton} type="submit" value="Submit" />
+        <input className={styles.submit} type="submit" value="Submit" />
       </form>
     </div>
   );

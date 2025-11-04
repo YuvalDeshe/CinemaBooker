@@ -44,7 +44,7 @@
     margin-left: 12px;
     margin-right: 80%;
     font-size: 20px;
-    background-color: #838383;
+    background-color: #757575;
     border-radius: 6px;
     padding: 0 4px;
 }
@@ -60,7 +60,7 @@
     margin-top: 4px;
     margin-bottom: 4px;
     margin-left: 12px;
-    background-color: #838383;
+    background-color: #757575;
     border-radius: 4px;
     padding: 0 4px;
 }
@@ -99,7 +99,7 @@
 }
 
 .addCardButton {
-    background-color: rgb(79, 176, 255);
+    background-color: rgb(0, 73, 133);
     width: 150px;
     height: 75px;
     font-size: 24px;
@@ -113,8 +113,9 @@
 }
 
 .addCardButton:hover {
-    background-color: rgb(127, 197, 253);
+    background-color: rgb(0, 95, 173);
     transform: scale(1.05);
+    cursor: pointer;
 }
 
 .addCardButtonDisabled {
@@ -151,7 +152,7 @@
 }
 
 .addAddressButton {
-    background-color: rgb(79, 176, 255);
+    background-color: rgb(0, 73, 133);
     width: 150px;
     height: 75px;
     font-size: 24px;
@@ -168,8 +169,9 @@
 }
 
 .addAddressButton:hover {
-    background-color: rgb(127, 197, 253);
+    background-color: rgb(0, 95, 173);
     transform: scale(1.05);
+    cursor: pointer;
 }
 
 .deleteAddressButton {
@@ -192,4 +194,25 @@
 .deleteAddressButton:hover {
     background-color: #ff3636;
     transform: scale(1.05);
+    cursor: pointer;
+}
+
+.submit {
+    background-color: rgb(79, 176, 255);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: white;
+    margin-bottom: 16px;
+}
+
+.submit:hover {
+    background-color: rgb(127, 197, 253);
+    transform: scale(1.05);
+    cursor: pointer;
 }
