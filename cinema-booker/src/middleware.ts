@@ -10,9 +10,11 @@ export async function middleware(req: NextRequest) {
   const publicPaths = ["/", "/login", "/register", "/verify-email"];
   const unauthenticatedPaths = ["/login", "/register"];
   const verificationRequiredPaths = ["/booking"];
+  const adminPaths = ["/admin", "/admin/addmovie"]
 
   const isAuthenticated = !!token;
   const isEmailVerified = token?.isEmailVerified ?? false;
+  const userType = token?.userType ?? "USER";
 
   console.log("isAuthenticated:", isAuthenticated, "| path:", pathname);
 
@@ -42,6 +44,12 @@ export async function middleware(req: NextRequest) {
   if (isAuthenticated && !isEmailVerified && verificationRequiredPaths.some(path => pathname.startsWith(path))) {
     console.log(`Unverified user attempted to access booking: '${pathname}'`);
     return NextResponse.redirect(new URL("/?verification-required=true", req.url));
+  }
+
+  // Redirect unauthorized users away from admin pages
+  if ((!isAuthenticated || userType !== "ADMIN") && adminPaths.some((path) => pathname.startsWith(path))) {
+    console.log(`Unauthorized user attempted to access admin page: '${pathname}'`);
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();

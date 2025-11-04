@@ -21,5 +21,6 @@ declare module "next-auth/jwt" {
     email?: string;
     isEmailVerified?: boolean;
     username?: string;
+    userType?: string;
   }
 }

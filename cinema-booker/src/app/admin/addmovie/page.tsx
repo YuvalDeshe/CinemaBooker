@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import styles from "./styles.module.css"
 import ActorInfoForm from "@/app/components/ActorInfoForm";
 
 export default function AddMovie() {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+
   type Actor = { id: string; name: string };
   let nextId = 0;
   const createActor = () => ({ id: String(nextId++), name: "" });
-
-
-  const MAX_ACTORS = 8; //Maximum number of actors able to be added to a movie;
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -27,6 +29,7 @@ export default function AddMovie() {
   const sampleText: string = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...";
   const genreArray: string[] = ["Action", "Adventure", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller"];
   const MPAARatingArray: string[] = ["G", "PG", "PG-13", "R"];
+  const MAX_ACTORS = 8; //Maximum number of actors able to be added to a movie;
 
   const ActorsButtonHandler = () => {
     setActorsArray(prev => (prev.length >= MAX_ACTORS ? prev : [...prev, { id: crypto.randomUUID(), name: "" }]));
@@ -35,7 +38,6 @@ export default function AddMovie() {
 const onDeleteHandler = (id: string) => {
   setActorsArray(prev => prev.filter(actor => actor.id !== id));
 };
-
 
   const isActorsButtonDisabled = actorsArray.length >= MAX_ACTORS;
  
