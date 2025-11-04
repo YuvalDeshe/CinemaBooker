@@ -1,16 +1,30 @@
 'use client';
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./actorinfoform.module.css";
-import { useState, useEffect } from "react";
+import { useId } from "react";
 
-export default function ActorInfoForm() {
+type ActorInfoProps =  {
+  name: string;
+  onDelete: () => void;
+  onChange: (actorName: string) => void;
+}
+
+
+export default function ActorInfoForm({name, onDelete, onChange} : ActorInfoProps) {
+  const uniqueId = useId();
+  const [actor, setActor] = useState(name);
+
+  //Notifies parent when local state changes
+  useEffect(() => {
+      onChange(actor);
+    }, [actor]);
 
   return (
     <div className={styles.mainDiv}>
       <label className={styles.label}>Actor: </label>
-      <input required placeholder="John Doe" className={styles.inputField} type="text" id="cardNumber" name="cardNumber" />
-      <button type="button" className={styles.deleteButton}>Delete</button>
+      <input onChange={(e) => setActor(e.target.value)} required placeholder="John Doe" className={styles.inputField} type="text" id="cardNumber" name={`actorName-${uniqueId}`} />
+      <button onClick={onDelete} type="button" className={styles.deleteButton}>Delete</button>
     </div>
   );
 }
