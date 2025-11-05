@@ -5,11 +5,23 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import styles from "./styles.module.css"
 import ActorInfoForm from "@/app/components/ActorInfoForm";
+import CustomDropdown from "@/app/components/CustomDropdown";
 
 export default function AddMovie() {
   const router = useRouter();
-  const { data: session, status } = useSession();
 
+  type Movie = {
+    title: String,
+    genre: String,
+    description: String,
+    png: String,
+    trailer: String,
+    director: String,
+    Cast: String,
+    Rating: String,
+    RunTime: String,
+    isCurrentlyRunning: boolean,
+  }
   type Actor = { id: string; name: string };
   let nextId = 0;
   const createActor = () => ({ id: String(nextId++), name: "" });
@@ -35,44 +47,119 @@ export default function AddMovie() {
     setActorsArray(prev => (prev.length >= MAX_ACTORS ? prev : [...prev, { id: crypto.randomUUID(), name: "" }]));
   };
 
-const onDeleteHandler = (id: string) => {
-  setActorsArray(prev => prev.filter(actor => actor.id !== id));
-};
+  const onDeleteHandler = (id: string) => {
+    setActorsArray(prev => prev.filter(actor => actor.id !== id));
+  };
+
+  const genreDropdownHandler = (value: string) => {
+    setGenre(value);
+  }
+
+  const MPAADropdownHandler = (value: string) => {
+    setRating(value);
+  }
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      let actorsString: String = "";
+
+      //Turn array of actors into a combined string (assigned to actorsString)
+      actorsArray.forEach(function(element, index) {
+        actorsString = actorsString + element.name;
+
+        if (!(index == actorsArray.length - 1)) {
+          actorsString = actorsString + ", "
+        }
+      });
+
+      //Trim leading 0s of runTime strings and combine them in a formatted string.
+      const hoursTrimmed = runTimeHours.replace(/^0+/, '') || "0";
+      const minutesTrimmed = runTimeMinutes.replace(/^0+/, '') || "0";
+
+      const runtimeString = `${hoursTrimmed}h ${minutesTrimmed}m`;
+
+  
+      const newMovie : Movie = {
+        title: title,
+        genre: genre,
+        description: description,
+        png: moviePosterURL,
+        trailer: trailerURL,
+        director: director,
+        Cast: actorsString,
+        Rating: rating,
+        RunTime: runtimeString,
+        isCurrentlyRunning: false,
+      };
+
+      console.log(newMovie);
+      resetForm();
+      try {
+        const res = await fetch(`/api/admin/addmovie`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newMovie),
+        });
+  
+        if (!res.ok) throw new Error("Failed to add movie");
+  
+        alert("✅ Movie added successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("❌ Error adding movie.");
+      }
+    };
 
   const isActorsButtonDisabled = actorsArray.length >= MAX_ACTORS;
+  const disableDelete = actorsArray.length == 1;
+
+  const resetForm = () => {
+  setTitle("");
+  setDescription("");
+  setGenre("");
+  setRunTimeMinutes("");
+  setRunTimeHours("");
+  setRating("");
+  setTrailerURL("");
+  setMoviePosterURL("");
+  setDirector("");
+  setActorsArray([createActor()]);
+};
+
  
   return (
     <div className={styles.mainDiv}>
       <h1 className={styles.addMovieHeading}>Add Movie</h1>
       <hr className={styles.hr}/>
-      <form className={styles.formContainer}>
+      <form className={styles.formContainer} onSubmit={submitHandler}>
         <label className={styles.label}>Title</label>
-        <input onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. The Godfather" className={styles.inputField} name="title" type="text"/>
+        <input value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g. The Godfather" className={styles.inputField} name="title" type="text"/>
         <label className={styles.label}>Description</label>
-        <textarea onChange={(e) => setDescription(e.target.value)} maxLength={1500} required placeholder={sampleText} className={styles.textArea} rows={10} cols={10}></textarea>
+        <textarea value={description} onChange={(e) => setDescription(e.target.value)} maxLength={1500} required placeholder={sampleText} className={styles.textArea} rows={10} cols={10}></textarea>
         <label className={styles.label}>Genre</label>
-         {/**Genre Dropdown Component Here*/}
+        <CustomDropdown options={genreArray} value={genre} onChange={genreDropdownHandler}/>
         <label className={styles.label}>Runtime</label>
         <div className={styles.runTimeContainer}>
-          <input onChange={(e) => setRunTimeHours(e.target.value)} required placeholder="HH" maxLength={2} className={styles.runTimeInput} name="hour" type="text"/>
-          <input onChange={(e) => setRunTimeMinutes(e.target.value)} required placeholder="MM" maxLength={2} className={styles.runTimeInput} name="mins" type="text"/>
+          <input value={runTimeHours} minLength={2} onChange={(e) => setRunTimeHours(e.target.value)} required placeholder="HH" maxLength={2} className={styles.runTimeInput} name="hour" type="text"/>
+          <input value={runTimeMinutes} minLength={2} onChange={(e) => setRunTimeMinutes(e.target.value)} required placeholder="MM" maxLength={2} className={styles.runTimeInput} name="mins" type="text"/>
         </div>
         <label className={styles.label}>Rating</label>
-        {/**Should be a dropdown, delete below input field*/}
-        <input className={styles.inputField} name="rating" type="text"/>
+        <CustomDropdown options={MPAARatingArray} value={rating} onChange={MPAADropdownHandler}/>
         <hr className={styles.hr}/>
         <label className={styles.label}>Trailer URL</label>
-        <input onChange={(e) => setTrailerURL(e.target.value)} required placeholder="www.youtube.com/..." className={styles.inputURL} name="trailerurl" type="url"/>
+        <input value={trailerURL} onChange={(e) => setTrailerURL(e.target.value)} required placeholder="www.youtube.com/..." className={styles.inputURL} name="trailerurl" type="url"/>
         <label className={styles.label}>Movie Poster Image URL</label>
-        <input onChange={(e) => setMoviePosterURL(e.target.value)} required placeholder="https://i.imgur.com/..." className={styles.inputURL} name="movieposterurl" type="url"/>
+        <input value={moviePosterURL} onChange={(e) => setMoviePosterURL(e.target.value)} required placeholder="https://i.imgur.com/..." className={styles.inputURL} name="movieposterurl" type="url"/>
         <hr className={styles.hr}/>
         <label className={styles.label}>Director</label>
-        <input onChange={(e) => setDirector(e.target.value)} required placeholder="John Doe" className={styles.inputField} name="director" type="text"/>
+        <input value={director} onChange={(e) => setDirector(e.target.value)} required placeholder="John Doe" className={styles.inputField} name="director" type="text"/>
         <label className={styles.label}>Actors</label>
         {actorsArray.map((actor) => (
           <ActorInfoForm
             key={actor.id}
             name={actor.name}
+            disableDelete={disableDelete}
             onChange={(actorName: string) => {
               setActorsArray(prev =>
                 prev.map(a => a.id === actor.id ? { ...a, name: actorName } : a)
