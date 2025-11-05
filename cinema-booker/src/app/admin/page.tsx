@@ -201,6 +201,14 @@ export default function AdminHomePage() {
             )}
           </ul>
         </section>
+
+        {/* Schedule Movies */}
+        {/* update UI as needed */}
+        <section>
+          <button className="text-sm border border-neutral-700 px-3 py-1.5 rounded hover:bg-neutral-900">
+            <a href="/admin/scheduleShows">Schedule Movie Shows</a>
+          </button>
+        </section>
       </div>
     </main>
   );
