@@ -62,6 +62,13 @@ export default function AddMovie() {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
+      // Validation: ensure at least one actor name is filled in
+      const hasAtLeastOneActor = actorsArray.some(actor => actor.name.trim() !== "");
+      if (!hasAtLeastOneActor) {
+        alert("❌ Please add at least one actor before submitting.");
+        return;
+      }
+
       let actorsString: String = "";
 
       //Turn array of actors into a combined string (assigned to actorsString)
