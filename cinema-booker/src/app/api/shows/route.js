@@ -61,6 +61,8 @@ export async function POST(request) {
         const showToInsert = {
             movieID: ObjectId.createFromHexString(newShow.movieID),
             showRoomID: ObjectId.createFromHexString(newShow.showRoomID),
+            movieTitle: newShow.movieTitle,
+            showRoomName: newShow.showRoomName,
             time: newShow.time,
             date: newShow.date,
             seatReservationArray: newShow.seatReservationArray,
@@ -70,11 +72,13 @@ export async function POST(request) {
 
         const responseShow = {
             _id: result.insertedId,
-            movieID: newShow.movieID,
-            showRoomID: newShow.showRoomID,
-            time: newShow.time,
-            date: newShow.date,
-            seatReservationArray: newShow.seatReservationArray,
+            movieID: result.movieID,
+            showRoomID: result.showRoomID,
+            movieTitle: result.movieTitle,
+            showRoomName: result.showRoomName,
+            time: result.time,
+            date: result.date,
+            seatReservationArray: result.seatReservationArray,
             message: 'Show scheduling successful!',
         };
 

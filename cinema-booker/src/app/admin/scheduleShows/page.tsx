@@ -3,6 +3,13 @@ import ScheduleShowsForm from "@/app/components/ScheduleShowsForm";
 import { useState } from "react";
 import { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
 
+type Show = {
+    movieID: String,
+    showRoomID: String,
+    time: number,
+    date: string
+}
+
 export default function ScheduleShows() {
     const [error, setError] = useState<string>("");
 
@@ -68,20 +75,49 @@ export default function ScheduleShows() {
             const showDate = validateDate();
             console.log('showDate ', showDate);
 
+            // confirm that the selected time slot is available in the selected showroom
+            const ensureGoodTimeSlot = async () => {
+                // fetch shows from the DB
+                // TODO: move this to its own Data Access class to adhere to the MVC framework
+                let allShows: Show[];
+                try {
+                    const response = await fetch("/api/shows");
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch movies.");
+                    }
+                    const data = await response.json();
+                    allShows = data;
+                    console.log('allShows: ', allShows);
+                    if (allShows.length == 0) { // if no shows are in the DB
+                        console.log('No shows in the DB, time slot is OK');
+                        return true;
+                    }
+                    for (const element of allShows) {
+                        console.log('show: ', element);
+                        console.log(`new vs current roomID: ${element.showRoomID} | ${showRoom._id} | equal? ${element.showRoomID == showRoom._id}`)
+                        console.log(`new vs current time: ${element.time} | ${time} | equal? ${element.time == time}`)
+                        console.log(`new vs current date: ${element.date} | ${showDate} | equal? ${element.date == showDate}`)
+                        if (element.showRoomID == showRoom._id && element.time == time && element.date == showDate) {
+                            console.log('Conflicting time found in the DB');
+                            return false;
+                        }
+                    };
+                    console.log('No time conflict');
+                    return true;
+                } catch (e) {
+                    setError(String(e));
+                    console.error(e);
+                    console.log('Encountered an error, not scheduleing movie');
+                    return false;
+                }
+
+            }
+            const goodTimeSlot = await ensureGoodTimeSlot(); // boolean
+            console.log('goodTimeSlot?', goodTimeSlot)
+            if (!goodTimeSlot) throw new Error('Chosen time slot is already booked in the selected theater');
+
             // create an array of seats where none of them are booked
             const seats = new Array(showRoom.numSeats).fill(false);
-
-            /*
-                Since showrooms and movies were pulled from the DB, assume their
-                values are valid. If either isn't found in the DB, the api route
-                should throw an error. 
-     
-                The admin interacting with the form doesn't have that much input
-                regarding what data they enter, so they shouldn't be able to enter
-                too much incorrect data. However, we can add more data validation
-                later if need be.
-            */
-
 
             // add the show to the database
             // TODO: move this function to a separate Data Access class to adhere to MVC framework
@@ -92,10 +128,14 @@ export default function ScheduleShows() {
                     const showPayload = {
                         movieID: movie._id,
                         showRoomID: showRoom._id,
+                        movieTitle: movieTitle, // added for clarity when looking at DB
+                        showRoomName: showRoom.roomName, // added for clarity when looking at DB
                         time: time, // stored in 24 hour time, hour only (e.g. 3PM = 15)
                         date: showDate, // MM/DD/YYYY
                         seatReservationArray: seats,
+                        // duration not specified; implied duration <= 3hrs
                     }
+                    console.log('showPayload: ', showPayload);
                     const response = await fetch('/api/shows', {
                         method: 'POST',
                         headers: {
