@@ -69,6 +69,20 @@ export default function AddMovie() {
         return;
       }
 
+      // Validation: Ensure Runtime values are valid numbers
+      const hours = parseInt(runTimeHours, 10);
+      const minutes = parseInt(runTimeMinutes, 10);
+
+      if (isNaN(hours) || isNaN(minutes)) {
+        alert("❌ Runtime hours and minutes must be valid numbers.");
+        return;
+      }
+
+      if (minutes < 0 || minutes > 59) {
+        alert("❌ Runtime minutes must be between 0 and 59.");
+        return;
+}
+
       let actorsString: String = "";
 
       //Turn array of actors into a combined string (assigned to actorsString)
