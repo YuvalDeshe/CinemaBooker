@@ -2,13 +2,13 @@
 import { useState, useEffect } from "react";
 
 type ScheduleShowsFormProps = {
-    handleSubmit: (data: FormData) => void
+    handleSubmit: (data: FormData, movies: Movie[], showRooms: ShowRoom[]) => void
     error: string;
     setError: (genres: string) => void;
 }
 
 // TODO: expand types; import these types from their individual files
-type Movie = {
+export type Movie = {
     title: string;
     genre: string[];
     posterUrl: string;
@@ -16,14 +16,16 @@ type Movie = {
     _id: string;
 };
 
-type ShowRoom = {
+export type ShowRoom = {
+    _id: string;
     roomName: string;
     numSeats: number;
 }
 
 export default function ScheduleShowsForm({ handleSubmit, error, setError }: ScheduleShowsFormProps) {
 
-    const [movies, setMovies] = useState<string[]>([]);
+    const [movies, setMovies] = useState<Movie[]>([]);
+    const [movieTitles, setMovieTitles] = useState<string[]>([]);
     const [showRooms, setShowRooms] = useState<ShowRoom[]>([]);
 
     // TODO: move this to its own DataAccess class to uphold MVC framework
@@ -36,7 +38,8 @@ export default function ScheduleShowsForm({ handleSubmit, error, setError }: Sch
                     throw new Error("Failed to fetch movies.");
                 }
                 const data = await response.json();
-                setMovies(data.map((movie: Movie) => movie.title));
+                setMovies(data);
+                setMovieTitles(data.map((movie: Movie) => movie.title));
             } catch (err) {
                 setError(String(err));
                 console.error(err);
@@ -68,14 +71,14 @@ export default function ScheduleShowsForm({ handleSubmit, error, setError }: Sch
             const form = e.currentTarget;
             const data = new FormData(form);
 
-            handleSubmit(data);
+            setError("");
+            handleSubmit(data, movies, showRooms);
         } catch (err) {
             setError(String(err));
             console.error('Registration', err);
         }
     }
     return (
-        // TODO: add input for showroom
         // make this pretty if we think we need to
         // JSX was copied from RegisterForm and changed for the purposes of schedule show
         <div className="flex justify-center">
@@ -85,7 +88,7 @@ export default function ScheduleShowsForm({ handleSubmit, error, setError }: Sch
                     <label htmlFor="movie" className="block mb-1 text-gray-300">Movie</label>
                     <select className="bg-white text-black w-full p-3 rounded-md" name="movie" id="movie" required>Choose a movie:
                         {/* create a dropdown option for each movie in the DB */}
-                        {movies.map((movie) => (
+                        {movieTitles.map((movie) => (
                             <option key={movie} value={movie}>{movie}</option>
                         ))}
                     </select>
@@ -112,20 +115,23 @@ export default function ScheduleShowsForm({ handleSubmit, error, setError }: Sch
                 </div>
 
                 {/* time selector */}
+                {/* TODO(?): make a time ENUM somewhere (in types?) and map options based on it */}
                 <div>
                     <label htmlFor="time" className="block mb-1 text-gray-300">Time</label>
-                    <select className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400" name="showRoom" id="showRoom" required>Choose a showroom:
-                        <option value="9am">9:00 A.M.</option>
-                        <option value="12pm">12:00 P.M.</option>
-                        <option value="3pm">3:00 P.M.</option>
-                        <option value="6pm">6:00 P.M.</option>
-                        <option value="9pm">9:00 P.M.</option>
+                    <select className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400" name="time" id="time" required>Choose a time:
+                        {/* value is set to 24HR time */}
+                        {/* e.g., 3PM is 15:00, so value=15 */}
+                        <option value="9">9:00 A.M.</option>
+                        <option value="12">12:00 P.M.</option>
+                        <option value="15">3:00 P.M.</option>
+                        <option value="18">6:00 P.M.</option>
+                        <option value="21">9:00 P.M.</option>
                     </select>
                 </div>
 
 
                 {/* display the error message if something goes wrong */}
-                {error && (
+                {error !== '' && (
                     <label className="text-red-400 mb-2">{error}</label>
                 )}
 
