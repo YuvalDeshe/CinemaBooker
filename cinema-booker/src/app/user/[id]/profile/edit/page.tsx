@@ -61,6 +61,8 @@ export default function EditProfile() {
   useEffect(() => {
     if (session?.user && session.user.id !== params.id) {
       router.push(`/user/${session.user.id}/profile/edit`);
+    } else if (!session) {
+      router.push('/');
     }
   }, [session, params, router]);
 
