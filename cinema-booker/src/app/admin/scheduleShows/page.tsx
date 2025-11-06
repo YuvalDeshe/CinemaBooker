@@ -1,7 +1,6 @@
 'use client';
-import ScheduleShowsForm from "@/app/components/ScheduleShowsForm";
 import { useState } from "react";
-import { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
+import ScheduleShowsForm, { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
 import { useSession } from "next-auth/react";
 
 type Show = {
@@ -11,15 +10,41 @@ type Show = {
     date: string
 }
 
+// update the a movie in the database; used to set isCurrentlyRunning=true when adding a movie
+// TODO: add this function to a separate Data Access class
+async function updateDBMovie(id: string, updatedMovie: Object, setError: (e: string) => void) {
+    try {
+        console.log(`finding movie with id ${id} in the database...`);
+        const res = await fetch(`/api/movies/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedMovie),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error("Failed to update movie");
+        console.log("Movie updated successfully!");
+        console.log('New movie info: ', data);
+    } catch (error) {
+        setError(String(error));
+        console.error('Error updating movie: ', error);
+    }
+}
+
 export default function ScheduleShows() {
     const [error, setError] = useState<string>("");
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
 
     /*
     TODO: 
     - if the movie is not currently running, set isCurrentlyRunning to true in the DB
     */
     async function scheduleShow(data: FormData, movies: Movie[], showRooms: ShowRoom[]) {
+        if (session?.user?.userType != "ADMIN") { // extra protection for if a non-admin accesses this method
+            alert('Only admins may schedule movies!');
+            globalThis.location.href = "/";
+            return; 
+        }
         try {
             // console.log('schedule show function');
             console.log('data: ', data);
@@ -122,7 +147,12 @@ export default function ScheduleShows() {
 
             // add the show to the database
             // TODO: move this function to a separate Data Access class to adhere to MVC framework
+
+            // **** TODO: make a patch request to api/movies/[id] to update isCurrentlyRunning
+            // TODO(?): check all movies to see if they should be running when a movie is submitted
             async function addShowToDB() {
+                console.log('movie to update: ', movie);
+                console.log('movieid type: ', typeof movie?._id);
                 try {
                     if (movie === undefined) throw new Error('Movie is undefined');
                     if (showRoom === undefined) throw new Error('ShowRoom is undefined');
@@ -152,6 +182,7 @@ export default function ScheduleShows() {
                     if (response.ok) {
                         console.log('scheduleShows page success');
                         console.log("Show scheduling successful!", data);
+                        updateDBMovie(movie._id, {isCurrentlyRunning: true}, setError);
                         window.location.href = '/admin';
 
                     } else {
