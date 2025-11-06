@@ -19,12 +19,44 @@ async function connectToDatabase() {
     return { db };
 }
 
-export async function GET() {
+export async function GET(request) {
     try {
+        console.log('Shows API called');
         const { db } = await connectToDatabase();
         const showCollection = db.collection('ShowCollection');
 
-        const shows = await showCollection.find({}).toArray();
+        // Get query parameters
+        const url = new URL(request.url);
+        const movieId = url.searchParams.get('movieId');
+        const time = url.searchParams.get('time');
+        const date = url.searchParams.get('date');
+
+        console.log('Searching for shows with movieId:', movieId);
+
+        // Build query
+        let query = {};
+        
+        if (movieId) {
+            // Try both string and ObjectId formats
+            try {
+                query.movieID = new ObjectId(movieId);
+                console.log('Query (ObjectId format):', query);
+            } catch (err) {
+                query.movieID = movieId;
+                console.log('Query (string format):', query);
+            }
+        }
+
+        if (time) {
+            query.time = parseInt(time);
+        }
+
+        if (date) {
+            query.date = date;
+        }
+
+        const shows = await showCollection.find(query).toArray();
+        console.log('Found shows:', shows.length);
 
         return new Response(JSON.stringify(shows), {
             status: 200,
