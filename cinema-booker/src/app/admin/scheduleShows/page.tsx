@@ -4,15 +4,15 @@ import ScheduleShowsForm, { Movie, ShowRoom } from "@/app/components/ScheduleSho
 import { useSession } from "next-auth/react";
 
 type Show = {
-    movieID: String,
-    showRoomID: String,
+    movieID: string,
+    showRoomID: string,
     time: number,
     date: string
 }
 
 // update the a movie in the database; used to set isCurrentlyRunning=true when adding a movie
 // TODO: add this function to a separate Data Access class
-async function updateDBMovie(id: string, updatedMovie: Object, setError: (e: string) => void) {
+async function updateDBMovie(id: string, updatedMovie: object, setError: (e: string) => void) {
     try {
         console.log(`finding movie with id ${id} in the database...`);
         const res = await fetch(`/api/movies/${id}`, {
@@ -49,7 +49,7 @@ export default function ScheduleShows() {
             // console.log('schedule show function');
             console.log('data: ', data);
 
-            const movieTitle: String = String(data.get('movie') ?? '').trim();
+            const movieTitle: string = String(data.get('movie') ?? '').trim();
             const date = String(data.get('date') ?? '').trim();
             const time = Number(data.get('time') ?? '');
             const selectedShowRoom = String(data.get('showRoom') ?? '').trim();
@@ -182,7 +182,7 @@ export default function ScheduleShows() {
                     if (response.ok) {
                         console.log('scheduleShows page success');
                         console.log("Show scheduling successful!", data);
-                        updateDBMovie(movie._id, {isCurrentlyRunning: true}, setError);
+                        await updateDBMovie(movie._id, {isCurrentlyRunning: true}, setError);
                         window.location.href = '/admin';
 
                     } else {

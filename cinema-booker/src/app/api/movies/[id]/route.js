@@ -130,7 +130,7 @@ export async function PATCH(request, { params }) {
         if (updateData.rating) {
             updateDoc.rating = updateData.rating;
         }
-        if (updateData.isCurrentlyRunning) {
+        if (updateData.hasOwnProperty('isCurrentlyRunning')) { // Check if the property exists
             updateDoc.isCurrentlyRunning = updateData.isCurrentlyRunning;
         }
 
