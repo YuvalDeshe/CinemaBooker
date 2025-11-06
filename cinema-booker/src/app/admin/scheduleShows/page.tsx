@@ -2,6 +2,7 @@
 import ScheduleShowsForm from "@/app/components/ScheduleShowsForm";
 import { useState } from "react";
 import { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
+import { useSession } from "next-auth/react";
 
 type Show = {
     movieID: String,
@@ -12,12 +13,12 @@ type Show = {
 
 export default function ScheduleShows() {
     const [error, setError] = useState<string>("");
+    const { data: session, status } = useSession();
 
-    /* TODO: add functionality 
-        - add the show to the DB
-        - if the movie is not currently running, set isCurrentlyRunning to true in the DB
-        - make sure date & time are in the future
-        */
+    /*
+    TODO: 
+    - if the movie is not currently running, set isCurrentlyRunning to true in the DB
+    */
     async function scheduleShow(data: FormData, movies: Movie[], showRooms: ShowRoom[]) {
         try {
             // console.log('schedule show function');
@@ -27,7 +28,7 @@ export default function ScheduleShows() {
             const date = String(data.get('date') ?? '').trim();
             const time = Number(data.get('time') ?? '');
             const selectedShowRoom = String(data.get('showRoom') ?? '').trim();
-
+            const schedulingAdmin = (session?.user as any)?.email ?? null
 
             if (movieTitle === "") throw new Error("No movie selected");
             const movie = movies.find(movie => movie.title === movieTitle);
@@ -133,6 +134,8 @@ export default function ScheduleShows() {
                         time: time, // stored in 24 hour time, hour only (e.g. 3PM = 15)
                         date: showDate, // MM/DD/YYYY
                         seatReservationArray: seats,
+                        scheduledBy: schedulingAdmin,
+                        scheduleDate: String(new Date()),
                         // duration not specified; implied duration <= 3hrs
                     }
                     console.log('showPayload: ', showPayload);

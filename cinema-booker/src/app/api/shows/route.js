@@ -66,6 +66,8 @@ export async function POST(request) {
             time: newShow.time,
             date: newShow.date,
             seatReservationArray: newShow.seatReservationArray,
+            scheduledBy: newShow.scheduledBy,
+            scheudleDate: newShow.scheduleDate,
         };
 
         const result = await showsCollection.insertOne(showToInsert);
@@ -79,6 +81,8 @@ export async function POST(request) {
             time: result.time,
             date: result.date,
             seatReservationArray: result.seatReservationArray,
+            scheduledBy: result.scheduledBy,
+            scheudleDate: result.scheduleDate,
             message: 'Show scheduling successful!',
         };
 
