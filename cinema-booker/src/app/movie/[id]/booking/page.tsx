@@ -144,7 +144,17 @@ function BookingContent() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Prototype: booking submitted (no backend)!");
+              // Create URL with booking details for seat selection
+              const params = new URLSearchParams({
+                name: name,
+                email: email,
+                adultTickets: adultTickets.toString(),
+                childTickets: childTickets.toString(),
+                seniorTickets: seniorTickets.toString(),
+                showtime: chosenTime
+              });
+              
+              router.push(`/movie/${id}/booking/seats?${params.toString()}`);
             }}
             style={{ display: "grid", gap: 12 }}
           >
