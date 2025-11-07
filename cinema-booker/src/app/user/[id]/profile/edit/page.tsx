@@ -16,6 +16,7 @@ type PaymentCard = {
   expYear: string;
   lastFour: string;
   isNew: boolean;
+  _tempId?: string;
 };
 
 type Address = {
@@ -78,7 +79,10 @@ export default function EditProfile() {
         setHomeAddress(data.homeAddress);
         console.log('payment cards: ', data.paymentCard);
         console.log('data: ', data);
-        setCardsList(data.paymentCard);
+        setCardsList(data.paymentCard.map((card: PaymentCard) => ({
+          ...card,
+          _tempId: crypto.randomUUID(), // ✅ give each card a stable unique key
+        })));
         setIsRegisteredForPromos(data.isRegisteredForPromos);
         setAddressForumVisible(!!data.homeAddress?.street);
       } catch (error) {
@@ -203,36 +207,47 @@ export default function EditProfile() {
         <hr className={styles.hr} />
         <h2 className={styles.label}>Payment Cards:</h2>
 
-        {cardsList?.map((card, index) => (
-          !card.isNew ?
-          <ExistingCard
-            key={index}
-            {...card}
-            onDelete={() => setCardsList((prev) => prev.filter((_, i) => i !== index))}
-            onChange={(updatedCard: PaymentCard) => {
-              const updated = [...cardsList];
-              updated[index] = updatedCard;
-              setCardsList(updated);
-            }}
-          /> :
-          <CardInfoForum
-            key={index}
-            {...card}
-            onDelete={() => setCardsList((prev) => prev.filter((_, i) => i !== index))}
-            onChange={(updatedCard: PaymentCard) => {
-              const updated = [...cardsList];
-              updated[index] = updatedCard;
-              setCardsList(updated);
-            }}
-          />
-        ))}
+        {cardsList?.map((card) =>
+          !card.isNew ? (
+            <ExistingCard
+              key={card._tempId} // ✅ use stable key
+              {...card}
+              onDelete={() =>
+                setCardsList((prev) => prev.filter((c) => c._tempId !== card._tempId))
+              }
+              onChange={(updatedCard: PaymentCard) =>
+                setCardsList((prev) =>
+                  prev.map((c) =>
+                    c._tempId === card._tempId ? { ...updatedCard, _tempId: card._tempId } : c
+                  )
+                )
+              }
+            />
+          ) : (
+            <CardInfoForum
+              key={card._tempId} // ✅ use stable key
+              {...card}
+              onDelete={() =>
+                setCardsList((prev) => prev.filter((c) => c._tempId !== card._tempId))
+              }
+              onChange={(updatedCard: PaymentCard) =>
+                setCardsList((prev) =>
+                  prev.map((c) =>
+                    c._tempId === card._tempId ? { ...updatedCard, _tempId: card._tempId } : c
+                  )
+                )
+              }
+            />
+          )
+        )}
+
 
         <button
           className={cardsList?.length >= 3 ? styles.addCardButtonDisabled : styles.addCardButton}
           onClick={(e) => {
             e.preventDefault();
             if (cardsList.length < 3)
-              setCardsList([...cardsList, { cardType: "", cardNumber: "", lastFour: "", expMonth: "", expYear: "", isNew: true }]);
+              setCardsList([...cardsList, { cardType: "", cardNumber: "", lastFour: "", expMonth: "", expYear: "", isNew: true, _tempId: crypto.randomUUID(), }]);
           }}
           disabled={cardsList?.length >= 3}
         >
