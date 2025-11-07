@@ -12,32 +12,27 @@ async function connectToDatabase() {
 
     client = new MongoClient(uri);
     await client.connect();
-    db = client.db('MoviesDatabase');
+    db = client.db('ShowRoomDatabase');
 
     return { db };
 }
 
+// copied and changed from /api/movies; change if needed
 export async function GET() {
     try {
         const { db } = await connectToDatabase();
-        const moviesCollection = db.collection('MoviesCollection');
+        const showRoomCollection = db.collection('ShowRoomCollection');
 
-        const movies = await moviesCollection.find({}).toArray();
+        const showRooms = await showRoomCollection.find({}).toArray();
 
-        const formattedMovies = movies.map(movie => ({
-            _id: movie._id,
-            title: movie.title,
-            genre: movie.genre,
-            posterUrl: movie.png,
-            director: movie.director,
-            cast: movie.Cast,
-            rating: movie.Rating,
-            runTime: movie.RunTime,
-            trailer: movie.trailer,
-            isCurrentlyRunning: movie.isCurrentlyRunning,
+        const formattedShowRooms = showRooms.map(showRoom => ({
+            _id: showRoom._id,
+            roomName: showRoom.roomName,
+            seats: showRoom.seats,
+            numSeats: showRoom.seats.length,
         }));
 
-        return new Response(JSON.stringify(formattedMovies), {
+        return new Response(JSON.stringify(formattedShowRooms), {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
@@ -45,7 +40,7 @@ export async function GET() {
         });
 
     } catch (error) {
-        console.error("Failed to fetch movies:", error);
+        console.error("Failed to fetch show rooms:", error);
         return new Response(JSON.stringify({ message: "An error occurred.", error: error.message }), {
             status: 500,
             headers: {
