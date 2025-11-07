@@ -1,0 +1,155 @@
+.formContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.mainDiv {
+    background-color: #3b3b3b;
+    border-radius: 40px;
+    margin: 25px 100px;
+}
+
+.addMovieHeading {
+    text-align: center;
+    font-size: 72px;
+    -webkit-text-stroke: 2px black;
+    color: white;
+}
+
+.hr {
+    border-color: #636363;
+    border-width: 2px;
+    border-radius: 10px;
+    margin-top: 12px;
+    margin-left: 150px;
+    margin-right: 150px;
+    margin-bottom: 15px;
+}
+
+.label {
+    font-size: 32px;
+    margin-left: 8px;
+    color: white;
+}
+
+.inputField {
+    margin-top: 4px;
+    margin-bottom: 24px;
+    margin-left: 12px;
+    margin-right: 80%;
+    font-size: 20px;
+    background-color: #757575;
+    border-radius: 6px;
+    padding: 0 4px;
+}
+
+.tinyInputField {
+    margin-top: 4px;
+    margin-left: 12px;
+    font-size: 20px;
+    background-color: #757575;
+    width: 100px;
+    height: 32px;
+    border-radius: 6px;
+    padding: 0 4px;
+}
+
+.percentLabel {
+    font-size: 24px;
+    margin-top: 2px;
+    margin-left: 10px;
+}
+
+.textArea {
+    margin-top: 4px;
+    margin-bottom: 24px;
+    margin-left: 12px;
+    margin-right: 60%;
+    font-size: 18px;
+    background-color: #757575;
+    border-radius: 6px;
+    padding: 0 4px;
+    resize: none;
+}
+
+.inputURL {
+    margin-top: 4px;
+    margin-bottom: 24px;
+    margin-left: 12px;
+    margin-right: 60%;
+    font-size: 20px;
+    background-color: #757575;
+    border-radius: 6px;
+    padding: 0 4px;
+}
+
+.runTimeContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+}
+
+.runTimeInput {
+    margin-top: 4px;
+    margin-bottom: 24px;
+    margin-left: 12px;
+    width: 75px;
+    font-size: 20px;
+    background-color: #757575;
+    border-radius: 6px;
+    padding: 0 4px;
+}
+
+.submitButton {
+    background-color: rgb(79, 176, 255);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: white;
+    margin-bottom: 16px;
+}
+
+.submitButton:hover {
+    background-color: rgb(127, 197, 253);
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.addActor {
+    background-color: rgb(0, 73, 133);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: white;
+    margin-bottom: 16px;
+}
+
+.addActor:hover {
+    background-color: rgb(0, 95, 173);
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.addActorDisabled {
+    background-color: rgba(136, 136, 136, 0.4);
+    width: 150px;
+    height: 75px;
+    font-size: 24px;
+    margin-left: 8px;
+    color: white;
+    transition: 0.1s;
+    border-radius: 12px;
+    border-width: 2px;
+    border-color: rgb(170, 170, 170);
+    margin-bottom: 16px;
+}
