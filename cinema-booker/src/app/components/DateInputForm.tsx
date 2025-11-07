@@ -64,7 +64,7 @@ const DateInputForm: React.FC<DateInputFormProps> = ({
           value={text}
           onChange={handleChange}
           maxLength={10}
-          minLength={10}
+          minLength={8}
         />
       </div>
       {error && touched && (

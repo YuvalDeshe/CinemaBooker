@@ -3,7 +3,6 @@
 import { useState } from "react";
 import styles from "./styles.module.css"
 import DateInputForm from "@/app/components/DateInputForm";
-import { error } from "console";
 
 export default function AddPromo() {
 
@@ -19,148 +18,159 @@ export default function AddPromo() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const checkDateFormatting = (startDate : String, endDate : String): boolean => {
-    if (startDate.charAt(2) == '/' && startDate.charAt(5) == '/' && endDate.charAt(2) == '/' && endDate.charAt(5) == '/') {
-      return true;
-    }
+const verifyDate = (date: string): boolean => {
+  // Accepts 1-2 digit month, 1-2 digit day, 4-digit year
+  if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(date)) return false;
+
+  const [monthStr, dayStr, yearStr] = date.split("/");
+  const month = parseInt(monthStr, 10);
+  const day = parseInt(dayStr, 10);
+  const year = parseInt(yearStr, 10);
+
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return false;
+  if (month < 1 || month > 12) return false;
+
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const daysInMonth = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (day < 1 || day > daysInMonth[month - 1]) return false;
+
+  return true;
+};
+
+
+const validateDates = (startDate: string, endDate: string): boolean => {
+  // Split dates into components
+  const [startMonthStr, startDayStr, startYearStr] = startDate.split("/");
+  const [endMonthStr, endDayStr, endYearStr] = endDate.split("/");
+
+  const startYear = parseInt(startYearStr);
+  const endYear = parseInt(endYearStr);
+  const startMonth = parseInt(startMonthStr);
+  const endMonth = parseInt(endMonthStr);
+  const startDay = parseInt(startDayStr);
+  const endDay = parseInt(endDayStr);
+
+  // Validate numerical parsing
+  if ([startYear, startMonth, startDay, endYear, endMonth, endDay].some(isNaN)) {
     return false;
   }
 
+  // Create Date objects for direct comparison
+  const start = new Date(startYear, startMonth - 1, startDay);
+  const end = new Date(endYear, endMonth - 1, endDay);
+
+  // ✅ Allow start <= end
+  return start.getTime() <= end.getTime();
+};
+
+const normalizeDate = (date: string): string => {
+  // Match month/day/year (1–2 digits for month/day, 4 digits for year)
+  const match = date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!match) return date; // if invalid, return original string
+
+  const [, monthStr, dayStr, yearStr] = match;
+  const month = parseInt(monthStr, 10);
+  const day = parseInt(dayStr, 10);
+  const year = parseInt(yearStr, 10);
+
+  // Basic numeric checks
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return date;
+  if (month < 1 || month > 12) return date;
+
+  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  const daysInMonth = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (day < 1 || day > daysInMonth[month - 1]) return date;
+
+  // Always pad with leading zeros
+  const formatted = `${month.toString().padStart(2, "0")}/${day.toString().padStart(2, "0")}/${year}`;
+  return formatted;
+};
+
+const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    //Checks to see if a code under the same name exists (and doesn't add it if so).
+    //Idk if this is required functionality, so I will comment it out for now until needed.
+
+    /**
+    try {
+      const checkRes = await fetch(`/api/admin/addpromo?name=${encodeURIComponent(name)}`);
+      console.log("CHECKRES CALLED");
+      const { exists } = await checkRes.json();
+
+      if (exists) {
+        alert("❌ ERROR: A promo code with that name already exists.");
+        return;
+      }
+    } catch (err) {
+      console.error("Error checking promo code:", err);
+      alert("❌ Error verifying promo code name.");
+      return;
+    }
+    */
 
 
-  const verifyDate = (date: string): boolean => {
-    // Check basic format
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(date)) return false;
+    //Validation: Discount % provided is a valid number.
+    const discountNumber : number = parseInt(discountPercent);
+    let discountMultiplier: number;
 
-    const month = parseInt(date.substring(0, 2));
-    const day = parseInt(date.substring(3, 5));
-    const year = parseInt(date.substring(6));
-
-    if (isNaN(month) || isNaN(day) || isNaN(year)) return false;
-
-    // Month validity
-    if (month < 1 || month > 12) return false;
-
-    // Days in each month
-    const daysInMonth = [31, (year % 4 === 0 ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const maxDays = daysInMonth[month - 1];
-
-    // Day validity
-    if (day < 1 || day > maxDays) return false;
-
-    return true;
-  };
-
-
-  const validateDates = (startDate : String, endDate : String): boolean => {
-    //Throw error if start year is later than end year.
-    if (parseInt(startDate.substring(6)) > parseInt(endDate.substring(6))) {
-      return false;
+    if (isNaN(discountNumber) || (discountNumber < 0 || discountNumber > 100)) {
+      alert("❌ ERROR: Enter a valid discount % (0-100)");
+      return;
+    } else {
+      discountMultiplier = 1 - (discountNumber * .01);
     }
 
-    //If years are equal...
-    if (parseInt(startDate.substring(6)) == parseInt(endDate.substring(6))) {
-      //... and start month is later then end month, throw error
-      if (parseInt(startDate.substring(0, 2)) > parseInt(endDate.substring(0, 2))) {
-        return false;
-      }
 
-      //If year AND month are equal
-      if (parseInt(startDate.substring(0, 2)) == parseInt(endDate.substring(0, 2))) {
-        if (parseInt(startDate.substring(3, 5)) >= parseInt(endDate.substring(3, 5))) {
-          return false;
-        }
-      }
+
+
+    //Validation: Dates are numbers and exist
+    if (!verifyDate(startDate) || !verifyDate(endDate)) {
+      alert("❌ ERROR: Atleast one of the provided dates is not valid or doesn't exist.");
+      return;
     }
-    return true;
-  } 
-
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      //Validation: Code with same name already exists in DB, don't add it.
-      /**
-      try {
-        const checkRes = await fetch("/api/admin/addpromo", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name }),
-        });
-
-        const { exists } = await checkRes.json();
-
-        if (exists) {
-          alert("❌ ERROR: A promo code with that name already exists.");
-          return;
-        }
-      } catch (err) {
-        console.error("Error checking promo code:", err);
-        alert("❌ Error verifying promo code name.");
-        return;
-      }
-      */
-
-      //Validation: Discount % provided is a valid number.
-      const discountNumber : number = parseInt(discountPercent);
-      let discountMultiplier: number;
-
-      if (isNaN(discountNumber) || (discountNumber < 0 || discountNumber > 100)) {
-        alert("❌ ERROR: Enter a valid discount % (0-100)");
-        return;
-      } else {
-        discountMultiplier = 1 - (discountNumber * .01);
-      }
-
-      //Validation: Dates are properly formatted with slashes
-      const areDatesFormatted : boolean = checkDateFormatting(startDate, endDate)
-      if (!areDatesFormatted) {
-        alert("❌ ERROR: Improper Date Formatting (must be MM/DD/YYYY).");
-        return;
-      }
-
-      //Validation: Dates are numbers and exist
-      if (!verifyDate(startDate) || !verifyDate(endDate)) {
-        alert("❌ ERROR: Atleast one of the provided dates is not valid or doesn't exist.");
-        return;
-      }
 
 
-      //Validation: startDate is earlier than endDate
-      const areDatesValid : boolean = validateDates(startDate, endDate);
 
-      if (!areDatesValid) {
-        alert("❌ ERROR: Start date must be earlier than end date.");
-        return;
-      }
+    //Validation: startDate is earlier than endDate
+    const areDatesValid : boolean = validateDates(startDate, endDate);
 
-      //Create object
-      const newPromoCode : PromoCode = {
-        name: name,
-        discountMultiplier: discountMultiplier,
-        startDate: startDate,
-        endDate: endDate,
-      };
+    if (!areDatesValid) {
+      alert("❌ ERROR: Start date must be earlier than end date.");
+      return;
+    }
 
-      console.log(newPromoCode);
-      resetForm();
 
-      /**
-      try {
-        const res = await fetch(`/api/admin/addmovie`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newMovie),
-        });
-  
-        if (!res.ok) throw new Error("Failed to add movie");
-  
-        alert("✅ Movie added successfully!");
-      } catch (error) {
-        console.error(error);
-        alert("❌ Error adding movie.");
-      }
-            */
+    //Normalize start/end dates so formatting is consistent across all documents.
+    const normalizedStartDate = normalizeDate(startDate);
+    const normalizedEndDate = normalizeDate(endDate);
+
+    //Create object
+    const newPromoCode : PromoCode = {
+      name: name,
+      discountMultiplier: discountMultiplier,
+      startDate: normalizedStartDate,
+      endDate: normalizedEndDate,
     };
+
+    console.log(newPromoCode);
+    resetForm();
+
+    try {
+      const res = await fetch(`/api/admin/addpromo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPromoCode),
+      });
+
+      if (!res.ok) throw new Error("Failed to add promo code");
+
+      alert("✅ Promo code added successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("❌ Error adding promo code.");
+    }
+  };
 
   const resetForm = () => {
     setName("");
