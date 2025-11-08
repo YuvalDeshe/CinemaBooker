@@ -74,6 +74,14 @@ const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     const normalizedStartDate = normalizeDate(startDate);
     const normalizedEndDate = normalizeDate(endDate);
 
+    //Validation: startDate is earlier than endDate
+    const areDatesValid : boolean = isSecondDateLaterOrEqual(normalizedStartDate, normalizedEndDate);
+
+    if (!areDatesValid) {
+      alert("❌ ERROR: Start date must be earlier or equal to end date.");
+      return;
+    }
+
     //VERIFICATION: The new promo must not overlap with an existing promo under the same name in the DB.
     try {
       const checkRes = await fetch(`/api/admin/addpromo?name=${encodeURIComponent(name)}`);
@@ -94,15 +102,6 @@ const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     } catch (err) {
       console.error("Error checking promo code:", err);
       alert("❌ Error verifying promo code name.");
-      return;
-    }
-
-
-    //Validation: startDate is earlier than endDate
-    const areDatesValid : boolean = isSecondDateLaterOrEqual(normalizedStartDate, normalizedEndDate);
-
-    if (!areDatesValid) {
-      alert("❌ ERROR: Start date must be earlier or equal to end date.");
       return;
     }
 
