@@ -18,28 +18,7 @@ export default function AddPromo() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-const verifyDate = (date: string): boolean => {
-  console.log(date);
-  // Accepts 1-2 digit month, 1-2 digit day, 4-digit year
-  if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(date)) return false;
-
-  const [monthStr, dayStr, yearStr] = date.split("/");
-  const month = parseInt(monthStr, 10);
-  const day = parseInt(dayStr, 10);
-  const year = parseInt(yearStr, 10);
-
-  if (isNaN(month) || isNaN(day) || isNaN(year)) return false;
-  if (month < 1 || month > 12) return false;
-
-  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-  const daysInMonth = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  if (day < 1 || day > daysInMonth[month - 1]) return false;
-
-  return true;
-};
-
-
-const validateDates = (startDate: string, endDate: string): boolean => {
+const isSecondDateLaterOrEqual = (startDate: string, endDate: string): boolean => {
   // Split dates into components
   const [startMonthStr, startDayStr, startYearStr] = startDate.split("/");
   const [endMonthStr, endDayStr, endYearStr] = endDate.split("/");
@@ -77,29 +56,11 @@ const normalizeDate = (date: string): string => {
 const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    //Checks to see if a code under the same name exists (and doesn't add it if so).
-    //Idk if this is required functionality, so I will comment it out for now until needed.
-
-    /**
-    try {
-      const checkRes = await fetch(`/api/admin/addpromo?name=${encodeURIComponent(name)}`);
-      console.log("CHECKRES CALLED");
-      const { exists } = await checkRes.json();
-
-      if (exists) {
-        alert("❌ ERROR: A promo code with that name already exists.");
-        return;
-      }
-    } catch (err) {
-      console.error("Error checking promo code:", err);
-      alert("❌ Error verifying promo code name.");
-      return;
-    }
-    */
-
 
     //Validation: Discount % provided is a valid number.
+    console.log("DISCOUNT PERCENT: ", discountPercent);
     const discountNumber : number = parseInt(discountPercent);
+    console.log("DISCOUNT NUMBER: ", discountNumber);
     let discountMultiplier: number;
 
     if (isNaN(discountNumber) || (discountNumber < 0 || discountNumber > 100)) {
@@ -113,20 +74,35 @@ const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     const normalizedStartDate = normalizeDate(startDate);
     const normalizedEndDate = normalizeDate(endDate);
 
-    //Tests to see if date normalization worked.
-    if (normalizedEndDate == endDate || normalizedStartDate == startDate) {
-      console.error("ERROR: normalization didn't work");
-      console.log("START DATE: ", startDate )
-      console.log("END DATE: ", endDate )
+    //VERIFICATION: The new promo must not overlap with an existing promo under the same name in the DB.
+    try {
+      const checkRes = await fetch(`/api/admin/addpromo?name=${encodeURIComponent(name)}`);
+      console.log("CHECKRES CALLED");
+      const { exists, promo } = await checkRes.json();
+
+      if (exists) {
+        //If the endDate of the existing promo is LATER than the startDate of the new promo...
+        if (isSecondDateLaterOrEqual(normalizedStartDate, promo.endDate)) {
+          //Then the endDate of the new promo MUST be earlier than the start date of the existing promo to be valid.
+          //If that is NOT the case
+          if(isSecondDateLaterOrEqual(promo.startDate, normalizedEndDate)) {
+            alert("❌ ERROR: A promo code with that name already exists during that timeframe.");
+            return;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error checking promo code:", err);
+      alert("❌ Error verifying promo code name.");
       return;
     }
 
 
     //Validation: startDate is earlier than endDate
-    const areDatesValid : boolean = validateDates(normalizedStartDate, normalizedEndDate);
+    const areDatesValid : boolean = isSecondDateLaterOrEqual(normalizedStartDate, normalizedEndDate);
 
     if (!areDatesValid) {
-      alert("❌ ERROR: Start date must be earlier than end date.");
+      alert("❌ ERROR: Start date must be earlier or equal to end date.");
       return;
     }
 
@@ -174,7 +150,7 @@ const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. NEWPROMO15" className={styles.inputField} name="title" type="text"/>
         <label className={styles.label}>Discount (%)</label>
         <div className={styles.runTimeContainer}>
-          <input maxLength={3} value={discountPercent} onChange={(e) => setDiscountPercent(e.target.value)} required placeholder="0-100" className={styles.tinyInputField} name="title" type="text"/>
+          <input maxLength={3} value={discountPercent} onChange={(e) => setDiscountPercent(e.target.value)} required placeholder="0-100" className={styles.tinyInputField} name="title" type="number"/>
           <p className={styles.percentLabel}>%</p>
         </div>
         <hr className={styles.hr}/>
