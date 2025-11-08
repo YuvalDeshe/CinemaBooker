@@ -55,7 +55,7 @@ const DateInputForm: React.FC<DateInputFormProps> = ({
         <input
           id={id}
           required
-          type="text"
+          type="date"
           name={name}
           className={`${styles.input} ${
             error && touched ? styles.inputError : ""

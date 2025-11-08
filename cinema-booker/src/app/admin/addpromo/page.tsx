@@ -19,6 +19,7 @@ export default function AddPromo() {
   const [endDate, setEndDate] = useState("");
 
 const verifyDate = (date: string): boolean => {
+  console.log(date);
   // Accepts 1-2 digit month, 1-2 digit day, 4-digit year
   if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(date)) return false;
 
@@ -59,32 +60,19 @@ const validateDates = (startDate: string, endDate: string): boolean => {
   const start = new Date(startYear, startMonth - 1, startDay);
   const end = new Date(endYear, endMonth - 1, endDay);
 
-  // ✅ Allow start <= end
+  // start <= end
   return start.getTime() <= end.getTime();
 };
 
 const normalizeDate = (date: string): string => {
-  // Match month/day/year (1–2 digits for month/day, 4 digits for year)
-  const match = date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (!match) return date; // if invalid, return original string
+  // Input format: YYYY-MM-DD
+  // Output format: MM/DD/YYYY
 
-  const [, monthStr, dayStr, yearStr] = match;
-  const month = parseInt(monthStr, 10);
-  const day = parseInt(dayStr, 10);
-  const year = parseInt(yearStr, 10);
-
-  // Basic numeric checks
-  if (isNaN(month) || isNaN(day) || isNaN(year)) return date;
-  if (month < 1 || month > 12) return date;
-
-  const isLeap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-  const daysInMonth = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  if (day < 1 || day > daysInMonth[month - 1]) return date;
-
-  // Always pad with leading zeros
-  const formatted = `${month.toString().padStart(2, "0")}/${day.toString().padStart(2, "0")}/${year}`;
-  return formatted;
+  const [year, month, day] = date.split("-");
+  if (!year || !month || !day) return date; // fallback if format invalid
+  return `${month}/${day}/${year}`;
 };
+
 
 const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -118,32 +106,29 @@ const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       alert("❌ ERROR: Enter a valid discount % (0-100)");
       return;
     } else {
-      discountMultiplier = 1 - (discountNumber * .01);
+      discountMultiplier = ((100 - discountNumber) / 100);
     }
 
+    //Normalize start/end dates so formatting is consistent across all documents.
+    const normalizedStartDate = normalizeDate(startDate);
+    const normalizedEndDate = normalizeDate(endDate);
 
-
-
-    //Validation: Dates are numbers and exist
-    if (!verifyDate(startDate) || !verifyDate(endDate)) {
-      alert("❌ ERROR: Atleast one of the provided dates is not valid or doesn't exist.");
+    //Tests to see if date normalization worked.
+    if (normalizedEndDate == endDate || normalizedStartDate == startDate) {
+      console.error("ERROR: normalization didn't work");
+      console.log("START DATE: ", startDate )
+      console.log("END DATE: ", endDate )
       return;
     }
 
 
-
     //Validation: startDate is earlier than endDate
-    const areDatesValid : boolean = validateDates(startDate, endDate);
+    const areDatesValid : boolean = validateDates(normalizedStartDate, normalizedEndDate);
 
     if (!areDatesValid) {
       alert("❌ ERROR: Start date must be earlier than end date.");
       return;
     }
-
-
-    //Normalize start/end dates so formatting is consistent across all documents.
-    const normalizedStartDate = normalizeDate(startDate);
-    const normalizedEndDate = normalizeDate(endDate);
 
     //Create object
     const newPromoCode : PromoCode = {
