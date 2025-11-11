@@ -1,8 +1,6 @@
 'use client';
 
-import {useRouter} from "next/navigation";
 import React from "react";
-import styles from "./movie.module.css";
 
 type MovieProps = {
   _id: string;
@@ -12,11 +10,7 @@ type MovieProps = {
   isCurrentlyRunning: boolean;
 };
 
-// if we ever have to have individual showtimes per movie, replace this with data from MongoDB
-const SHOWTIMES = ["9:00 a.m.", "12:00 p.m.", "3:00 p.m.", "6:00 p.m.", "9:00 p.m."]
-
 export default function Movie({ _id, title, genre, posterUrl, isCurrentlyRunning }: MovieProps) {
-  const router = useRouter();
 
   return (
     <div className="border rounded shadow p-4 bg-gray-600 flex flex-col items-center w-48">
@@ -42,18 +36,6 @@ export default function Movie({ _id, title, genre, posterUrl, isCurrentlyRunning
           </button>
         </a>
       </div>
-      {isCurrentlyRunning && (<div className="text-cs text-white text-center">
-        <h3>Showtimes:</h3>
-        {SHOWTIMES.map((value, index) => (
-          <button
-            className={styles.showTimeButtons}
-            onClick={() => router.push(`/movie/${_id}?time=${encodeURIComponent(value)}`)}
-            key={`${title} ${index}`}
-          >
-            {value}
-          </button>
-        ))}
-      </div>)}
     </div>
   );
 }
