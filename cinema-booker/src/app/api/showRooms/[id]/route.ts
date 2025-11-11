@@ -4,12 +4,10 @@ import { ObjectId } from 'mongodb';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectMongoDB();
-    
-    const showroomId = params.id;
+    const { id: showroomId } = await params;
 
     if (!showroomId) {
       return NextResponse.json(
@@ -18,13 +16,19 @@ export async function GET(
       );
     }
 
-    // Connect to MongoDB and find the showroom
-    const mongoose = require('mongoose');
-    const db = mongoose.connection.db;
+    // Connect to MongoDB directly using the same pattern as other APIs
+    const { MongoClient } = require('mongodb');
+    const uri = process.env.MONGODB_URI;
     
-    const showroom = await db.collection('ShowRoomDatabase').findOne({
+    const client = new MongoClient(uri);
+    await client.connect();
+    const db = client.db('ShowRoomDatabase');
+    
+    const showroom = await db.collection('ShowRoomCollection').findOne({
       _id: new ObjectId(showroomId)
     });
+
+    await client.close();
 
     if (!showroom) {
       return NextResponse.json(

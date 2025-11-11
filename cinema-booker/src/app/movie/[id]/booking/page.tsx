@@ -14,6 +14,11 @@ function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = useParams();
+
+  // Get URL parameters including showId
+  const showId = searchParams.get("showId");
+  const date = searchParams.get("date");
+  const auditorium = searchParams.get("auditorium");
   const [movie, setMovie] = React.useState<Movie | null>(null);
 
 
@@ -151,7 +156,10 @@ function BookingContent() {
                 adultTickets: adultTickets.toString(),
                 childTickets: childTickets.toString(),
                 seniorTickets: seniorTickets.toString(),
-                showtime: chosenTime
+                showtime: chosenTime,
+                showId: showId || "",
+                date: date || "",
+                auditorium: auditorium || ""
               });
               
               router.push(`/movie/${id}/booking/seats?${params.toString()}`);

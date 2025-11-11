@@ -56,7 +56,8 @@ function SeatMapContent() {
     adultTickets: parseInt(searchParams.get("adultTickets") || "0"),
     childTickets: parseInt(searchParams.get("childTickets") || "0"),
     seniorTickets: parseInt(searchParams.get("seniorTickets") || "0"),
-    showtime: searchParams.get("showtime") || ""
+    showtime: searchParams.get("showtime") || "",
+    showId: searchParams.get("showId") || ""
   };
 
   const totalTickets = bookingDetails.adultTickets + bookingDetails.childTickets + bookingDetails.seniorTickets;
@@ -86,10 +87,20 @@ function SeatMapContent() {
         
         const shows = await showResponse.json();
         console.log('Shows data:', shows);
+        console.log('Looking for showId:', bookingDetails.showId);
         
-        // For now, take the first show that matches
-        // In a real app, you'd match by exact time/date
-        const currentShow = shows[0];
+        // Find the specific show by showId, or fall back to first show
+        let currentShow;
+        if (bookingDetails.showId) {
+          currentShow = shows.find((show: Show) => show._id === bookingDetails.showId);
+          console.log('Found show by ID:', currentShow);
+        }
+        
+        // If no specific show found, fall back to first show
+        if (!currentShow) {
+          console.log('Using first available show as fallback');
+          currentShow = shows[0];
+        }
         
         if (!currentShow) {
           console.error('No show found for this movie');
@@ -102,7 +113,7 @@ function SeatMapContent() {
         
         // Fetch showroom data
         console.log('Fetching showroom data for ID:', currentShow.showRoomID);
-        const roomResponse = await fetch(`/api/showrooms/${currentShow.showRoomID}`);
+        const roomResponse = await fetch(`/api/showRooms/${currentShow.showRoomID}`);
         console.log('Showroom API response status:', roomResponse.status);
         
         if (!roomResponse.ok) {
@@ -112,53 +123,88 @@ function SeatMapContent() {
         
         const roomData = await roomResponse.json();
         console.log('Showroom data:', roomData);
+        console.log('Showroom name:', roomData.roomName);
+        console.log('Seats array length:', roomData.seats ? roomData.seats.length : 'No seats array');
         setShowRoom(roomData);
         
         // Generate seats based on showroom capacity
         const totalSeats = roomData.seats.length;
         console.log('Total seats in showroom:', totalSeats);
+        console.log('Checking if totalSeats === 56:', totalSeats === 56);
+        console.log('Type of totalSeats:', typeof totalSeats);
         
         const reservedSeats = new Set(currentShow.seatReservationArray || []);
         console.log('Reserved seats:', reservedSeats);
         
-        // Calculate grid layout based on total seats
-        let seatsPerRow, numRows;
-        
-        if (totalSeats <= 20) {
-          seatsPerRow = 4; // 4x5 or 5x4
-          numRows = Math.ceil(totalSeats / seatsPerRow);
-        } else if (totalSeats <= 30) {
-          seatsPerRow = 6; // 5x6 or 6x5
-          numRows = Math.ceil(totalSeats / seatsPerRow);
-        } else if (totalSeats <= 40) {
-          seatsPerRow = 8; // 6x8 or similar
-          numRows = Math.ceil(totalSeats / seatsPerRow);
-        } else {
-          seatsPerRow = 10; // Larger auditoriums
-          numRows = Math.ceil(totalSeats / seatsPerRow);
-        }
-        
-        const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'].slice(0, numRows);
-        
+        // Create proper widescreen auditorium layout for 56 seats
         const generatedSeats: Seat[] = [];
         
-        rows.forEach((row, rowIndex) => {
-          const seatsInThisRow = rowIndex === rows.length - 1 
-            ? totalSeats - (rowIndex * seatsPerRow) // Last row might have fewer seats
-            : Math.min(seatsPerRow, totalSeats - (rowIndex * seatsPerRow));
-            
-          for (let seatNum = 1; seatNum <= seatsInThisRow; seatNum++) {
-            const seatId = `${row}${seatNum}`;
-            generatedSeats.push({
-              id: seatId,
-              row: row,
-              number: seatNum,
-              isOccupied: reservedSeats.has(seatId),
-              isSelected: false,
-              type: 'standard'
-            });
+        if (totalSeats === 56) {
+          console.log('Using 56-seat widescreen layout');
+          // Widescreen auditorium layout: 8 rows with increasing seats from front to back
+          const rowLayouts = [
+            { row: 'A', seats: 6 },  // Front row: 6 seats
+            { row: 'B', seats: 6 },  // 6 seats  
+            { row: 'C', seats: 7 },  // 7 seats
+            { row: 'D', seats: 7 },  // 7 seats
+            { row: 'E', seats: 8 },  // 8 seats
+            { row: 'F', seats: 8 },  // 8 seats
+            { row: 'G', seats: 7 },  // 7 seats
+            { row: 'H', seats: 7 }   // Back row: 7 seats
+          ]; // Total: 6+6+7+7+8+8+7+7 = 56 seats
+          
+          rowLayouts.forEach(({ row, seats }) => {
+            for (let seatNum = 1; seatNum <= seats; seatNum++) {
+              const seatId = `${row}${seatNum}`;
+              generatedSeats.push({
+                id: seatId,
+                row: row,
+                number: seatNum,
+                isOccupied: reservedSeats.has(seatId),
+                isSelected: false,
+                type: 'standard'
+              });
+            }
+          });
+        } else {
+          // Fallback for other seat counts - use generic grid
+          console.log('Using fallback generic grid layout for', totalSeats, 'seats');
+          let seatsPerRow, numRows;
+          
+          if (totalSeats <= 20) {
+            seatsPerRow = 4; 
+            numRows = Math.ceil(totalSeats / seatsPerRow);
+          } else if (totalSeats <= 30) {
+            seatsPerRow = 6; 
+            numRows = Math.ceil(totalSeats / seatsPerRow);
+          } else if (totalSeats <= 40) {
+            seatsPerRow = 8; 
+            numRows = Math.ceil(totalSeats / seatsPerRow);
+          } else {
+            seatsPerRow = 10; 
+            numRows = Math.ceil(totalSeats / seatsPerRow);
           }
-        });
+          
+          const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'].slice(0, numRows);
+          
+          rows.forEach((row, rowIndex) => {
+            const seatsInThisRow = rowIndex === rows.length - 1 
+              ? totalSeats - (rowIndex * seatsPerRow)
+              : Math.min(seatsPerRow, totalSeats - (rowIndex * seatsPerRow));
+              
+            for (let seatNum = 1; seatNum <= seatsInThisRow; seatNum++) {
+              const seatId = `${row}${seatNum}`;
+              generatedSeats.push({
+                id: seatId,
+                row: row,
+                number: seatNum,
+                isOccupied: reservedSeats.has(seatId),
+                isSelected: false,
+                type: 'standard'
+              });
+            }
+          });
+        }
 
         console.log('Generated seats:', generatedSeats.length, 'seats');
         setSeats(generatedSeats);
@@ -312,21 +358,28 @@ function SeatMapContent() {
 
             {/* Seats */}
             <div style={{ display: "grid", gap: "12px", justifyItems: "center" }}>
-              {Array.from(new Set(seats.map(seat => seat.row))).map(row => (
-                <div key={row} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <div style={{ 
-                    width: "20px", 
-                    fontSize: "14px", 
-                    fontWeight: "600",
-                    color: "#94a3b8" 
-                  }}>
-                    {row}
-                  </div>
-                  
-                  <div style={{ display: "flex", gap: "6px" }}>
-                    {seats
-                      .filter(seat => seat.row === row)
-                      .map(seat => (
+              {Array.from(new Set(seats.map(seat => seat.row))).map(row => {
+                const rowSeats = seats.filter(seat => seat.row === row);
+                const seatsInRow = rowSeats.length;
+                
+                return (
+                  <div key={row} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ 
+                      width: "20px", 
+                      fontSize: "14px", 
+                      fontWeight: "600",
+                      color: "#94a3b8" 
+                    }}>
+                      {row}
+                    </div>
+                    
+                    <div style={{ 
+                      display: "flex", 
+                      gap: "6px",
+                      justifyContent: "center",
+                      minWidth: "320px" // Ensure consistent width for alignment
+                    }}>
+                      {rowSeats.map(seat => (
                         <button
                           key={seat.id}
                           onClick={() => handleSeatClick(seat)}
@@ -346,9 +399,10 @@ function SeatMapContent() {
                           {seat.number}
                         </button>
                       ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Legend */}
