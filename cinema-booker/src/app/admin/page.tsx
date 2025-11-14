@@ -109,18 +109,18 @@ export default function AdminHomePage() {
       <ul className="flex flex-wrap gap-3 text-sm">
         <li>
           <a
-            href="/admin/movies"
+            href="/admin/addmovie"
             className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
           >
-            Manage Movies
+            Add Movie
           </a>
         </li>
         <li>
           <a
-            href="/admin/promotions"
+            href="/admin/addpromo"
             className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
           >
-            Manage Promotions
+            Add Promotion
           </a>
         </li>
         <li>
