@@ -1,5 +1,6 @@
-import { Movie } from "@/models/MovieModel";
-import { Actor } from "@/models/ActorModel";
+import { useState } from "react";
+import { Movie, MovieModel } from "@/models/MovieModel";
+import { Actor, createActor } from "@/models/ActorModel";
 
 export function checkForOneActor(actors: Actor[]) {
   const hasAtLeastOneActor = actors.some(actor => actor.name.trim() !== "");
@@ -55,4 +56,97 @@ export async function submitMovie(movie: Movie) {
         console.error(error);
         alert("❌ Error adding movie.");
     }
+}
+
+
+export function useAddMovieController() {
+  // All useState logic stays here (controller-side)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [genre, setGenre] = useState("");
+  const [runTimeMinutes, setRunTimeMinutes] = useState("");
+  const [runTimeHours, setRunTimeHours] = useState("");
+  const [rating, setRating] = useState("");
+  const [trailerURL, setTrailerURL] = useState("");
+  const [moviePosterURL, setMoviePosterURL] = useState("");
+  const [director, setDirector] = useState("");
+  const [actorsArray, setActorsArray] = useState<Actor[]>([createActor()]);
+
+  const MAX_ACTORS = 8;
+
+  // Reset all fields
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setGenre("");
+    setRunTimeMinutes("");
+    setRunTimeHours("");
+    setRating("");
+    setTrailerURL("");
+    setMoviePosterURL("");
+    setDirector("");
+    setActorsArray([createActor()]);
+  };
+
+  // Add/remove actors
+  const onActorAdd = () => {
+    setActorsArray(prev => (
+      prev.length >= MAX_ACTORS ? prev : [...prev, createActor()]
+    ));
+  };
+
+  const onActorDelete = (id: string) => {
+    setActorsArray(prev => prev.filter(a => a.id !== id));
+  };
+
+  // Submit handler
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      checkForOneActor(actorsArray);
+      validateTimeValues(runTimeHours, runTimeMinutes);
+
+      const actorsString = combineActors(actorsArray);
+      const runtimeString = formatRuntime(runTimeHours, runTimeMinutes);
+
+      const newMovie = new MovieModel({
+        title,
+        genre,
+        description,
+        png: moviePosterURL,
+        trailer: trailerURL,
+        director,
+        cast: actorsString,
+        rating,
+        runtime: runtimeString,
+        isCurrentlyRunning: false,
+      });
+
+      await submitMovie(newMovie);
+      resetForm();
+      alert("Movie added!");
+
+    } catch (err) {
+      alert(err);
+    }
+  };
+
+  return {
+    // Expose everything needed by the component
+    title, setTitle,
+    description, setDescription,
+    genre, setGenre,
+    runTimeMinutes, setRunTimeMinutes,
+    runTimeHours, setRunTimeHours,
+    rating, setRating,
+    trailerURL, setTrailerURL,
+    moviePosterURL, setMoviePosterURL,
+    director, setDirector,
+    actorsArray, setActorsArray,
+    onActorAdd,
+    onActorDelete,
+    onSubmit,
+    MAX_ACTORS,
+  };
 }

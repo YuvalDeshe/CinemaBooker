@@ -11,6 +11,9 @@ export type Movie = {
   isCurrentlyRunning: boolean;
 };
 
+export const genreArray: string[] = ["Action", "Adventure", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller"];
+export const MPAARatingArray: string[] = ["G", "PG", "PG-13", "R"];
+
 export class MovieModel implements Movie {
   title: string;
   genre: string;
