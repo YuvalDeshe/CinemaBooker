@@ -125,7 +125,6 @@ export function useAddMovieController() {
 
       await submitMovie(newMovie);
       resetForm();
-      alert("Movie added!");
 
     } catch (err) {
       alert(err);
