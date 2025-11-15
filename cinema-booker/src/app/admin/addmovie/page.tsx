@@ -1,31 +1,14 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { MovieModel } from "@/models/MovieModel";
+import { Actor, createActor } from "@/models/ActorModel";
+import { checkForOneActor, combineActors, formatRuntime, submitMovie, validateTimeValues } from "@/controllers/AddMovieController";
 import styles from "./styles.module.css"
 import ActorInfoForm from "@/app/components/ActorInfoForm";
 import CustomDropdown from "@/app/components/CustomDropdown";
 
 export default function AddMovie() {
-  const router = useRouter();
-
-  type Movie = {
-    title: String,
-    genre: String,
-    description: String,
-    png: String,
-    trailer: String,
-    director: String,
-    Cast: String,
-    Rating: String,
-    RunTime: String,
-    isCurrentlyRunning: boolean,
-  }
-  type Actor = { id: string; name: string };
-  let nextId = 0;
-  const createActor = () => ({ id: String(nextId++), name: "" });
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [genre, setGenre] = useState("");
@@ -62,73 +45,40 @@ export default function AddMovie() {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
-      // Validation: ensure at least one actor name is filled in
-      const hasAtLeastOneActor = actorsArray.some(actor => actor.name.trim() !== "");
-      if (!hasAtLeastOneActor) {
-        alert("❌ Please add at least one actor before submitting.");
-        return;
-      }
-
-      // Validation: Ensure Runtime values are valid numbers
-      const hours = parseInt(runTimeHours, 10);
-      const minutes = parseInt(runTimeMinutes, 10);
-
-      if (isNaN(hours) || isNaN(minutes)) {
-        alert("❌ Runtime hours and minutes must be valid numbers.");
-        return;
-      }
-
-      if (minutes < 0 || minutes > 59) {
-        alert("❌ Runtime minutes must be between 0 and 59.");
-        return;
-}
-
-      let actorsString: String = "";
-
-      //Turn array of actors into a combined string (assigned to actorsString)
-      actorsArray.forEach(function(element, index) {
-        actorsString = actorsString + element.name;
-
-        if (!(index == actorsArray.length - 1)) {
-          actorsString = actorsString + ", "
-        }
-      });
-
-      //Trim leading 0s of runTime strings and combine them in a formatted string.
-      const hoursTrimmed = runTimeHours.replace(/^0+/, '') || "0";
-      const minutesTrimmed = runTimeMinutes.replace(/^0+/, '') || "0";
-
-      const runtimeString = `${hoursTrimmed}h ${minutesTrimmed}m`;
-
-  
-      const newMovie : Movie = {
-        title: title,
-        genre: genre,
-        description: description,
-        png: moviePosterURL,
-        trailer: trailerURL,
-        director: director,
-        Cast: actorsString,
-        Rating: rating,
-        RunTime: runtimeString,
-        isCurrentlyRunning: false,
-      };
-
-      console.log(newMovie);
-      resetForm();
       try {
-        const res = await fetch(`/api/admin/addmovie`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newMovie),
-        });
-  
-        if (!res.ok) throw new Error("Failed to add movie");
-  
-        alert("✅ Movie added successfully!");
+
+        // Validation: ensure at least one actor name is filled in
+        checkForOneActor(actorsArray);
+
+        // Validation: Ensure Runtime values are valid numbers
+        validateTimeValues(runTimeHours, runTimeMinutes)
+
+        //Turn array of actors into a combined string (assigned to actorsString)
+        const actorsString = combineActors(actorsArray);
+
+        //Trim leading 0s of runTime strings and combine them in a formatted string.
+        const runtimeString = formatRuntime(runTimeHours, runTimeMinutes)
+        
+        const newMovie = new MovieModel({
+          title: title,
+          genre: genre,
+          description: description,
+          png: moviePosterURL,
+          trailer: trailerURL,
+          director: director,
+          cast: actorsString,
+          rating: rating,
+          runtime: runtimeString,
+          isCurrentlyRunning: false,
+        })
+
+        console.log(newMovie);
+        resetForm();
+
+        submitMovie(newMovie);
       } catch (error) {
-        console.error(error);
-        alert("❌ Error adding movie.");
+          alert(error);
+          return;
       }
     };
 

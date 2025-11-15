@@ -31,9 +31,9 @@ export async function POST(request) {
             png: newMovie.png,
             trailer: newMovie.trailer,
             director: newMovie.director,
-            Cast: newMovie.Cast,
-            Rating: newMovie.Rating,
-            RunTime: newMovie.RunTime,
+            Cast: newMovie.cast,
+            Rating: newMovie.rating,
+            RunTime: newMovie.runtime,
             isCurrentlyRunning: newMovie.isCurrentlyRunning,
         };
 
