@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Movie, MovieModel } from "@/models/MovieModel";
 import { Actor, createActor } from "@/models/ActorModel";
+import { useRouter } from "next/navigation";
 
 export function checkForOneActor(actors: Actor[]) {
   const hasAtLeastOneActor = actors.some(actor => actor.name.trim() !== "");
@@ -60,6 +61,8 @@ export async function submitMovie(movie: Movie) {
 
 
 export function useAddMovieController() {
+  const router = useRouter();
+
   // All useState logic stays here (controller-side)
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -73,20 +76,6 @@ export function useAddMovieController() {
   const [actorsArray, setActorsArray] = useState<Actor[]>([createActor()]);
 
   const MAX_ACTORS = 8;
-
-  // Reset all fields
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setGenre("");
-    setRunTimeMinutes("");
-    setRunTimeHours("");
-    setRating("");
-    setTrailerURL("");
-    setMoviePosterURL("");
-    setDirector("");
-    setActorsArray([createActor()]);
-  };
 
   // Add/remove actors
   const onActorAdd = () => {
@@ -124,7 +113,7 @@ export function useAddMovieController() {
       });
 
       await submitMovie(newMovie);
-      resetForm();
+      router.push('/');
 
     } catch (err) {
       alert(err);

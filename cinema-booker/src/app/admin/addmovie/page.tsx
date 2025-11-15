@@ -31,7 +31,7 @@ export default function AddMovie() {
         <CustomDropdown options={MPAARatingArray} value={c.rating} onChange={value => c.setRating(value)}/>
         <hr className={styles.hr}/>
         <label className={styles.label}>Trailer URL</label>
-        <input value={c.trailerURL} onChange={(e) => c.setTrailerURL(e.target.value)} required placeholder="www.youtube.com/..." className={styles.inputURL} name="trailerurl" type="url"/>
+        <input value={c.trailerURL} onChange={(e) => c.setTrailerURL(e.target.value)} required placeholder="https://www.youtube.com/..." className={styles.inputURL} name="trailerurl" type="url"/>
         <label className={styles.label}>Movie Poster Image URL</label>
         <input value={c.moviePosterURL} onChange={(e) => c.setMoviePosterURL(e.target.value)} required placeholder="https://i.imgur.com/..." className={styles.inputURL} name="movieposterurl" type="url"/>
         <hr className={styles.hr}/>
