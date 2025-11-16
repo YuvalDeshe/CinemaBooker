@@ -1,4 +1,5 @@
 import { PromoCode } from "@/models/PromoCodeModel";
+import { useState } from "react";
 
 export const normalizeDate = (date: string): string => {
   const [year, month, day] = date.split("-");
@@ -82,4 +83,76 @@ export const submitPromo = async (
   if (!res.ok) throw new Error("Failed to add promo code");
 
   return promo;
+};
+
+
+export const useAddPromoController = () => {
+  const [name, setName] = useState("");
+  const [discountPercent, setDiscountPercent] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const resetForm = () => {
+    setName("");
+    setDiscountPercent("");
+    setStartDate("");
+    setEndDate("");
+  };
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      // Validate discount
+      const multiplier = validateDiscount(discountPercent);
+      if (multiplier === null) {
+        throw new Error("Enter a valid discount % (0-100)");
+      }
+
+      // Normalize dates
+      const normalizedStart = normalizeDate(startDate);
+      const normalizedEnd = normalizeDate(endDate);
+
+      // Validate date order
+      if (!isSecondDateLaterOrEqual(normalizedStart, normalizedEnd)) {
+        throw new Error("Start date must be earlier or equal to end date.");
+      }
+
+      // Check overlap
+      const overlaps = await checkPromoOverlap(name, normalizedStart, normalizedEnd);
+      if (overlaps) {
+        throw new Error("A promo with that name exists during the given timeframe.");
+      }
+
+      // Create model instance
+      const newPromo = new PromoCode({
+        name,
+        discountMultiplier: multiplier,
+        startDate: normalizedStart,
+        endDate: normalizedEnd,
+      });
+
+      // POST request
+      const res = await fetch(`/api/admin/addpromo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPromo),
+      });
+
+      if (!res.ok) throw new Error("Failed to add promo code");
+
+      alert("✅ Promo code added successfully!");
+      resetForm();
+    } catch (err: any) {
+      alert(`❌ ERROR: ${err.message}`);
+    }
+  };
+
+  return {
+    name, setName,
+    discountPercent, setDiscountPercent,
+    startDate, setStartDate,
+    endDate, setEndDate,
+    submitHandler,
+  };
 };
