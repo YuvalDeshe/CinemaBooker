@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Movie, MovieModel } from "@/models/MovieModel";
+import { Movie } from "@/models/MovieModel";
 import { Actor, createActor } from "@/models/ActorModel";
 import { useRouter } from "next/navigation";
 
@@ -99,7 +99,7 @@ export function useAddMovieController() {
       const actorsString = combineActors(actorsArray);
       const runtimeString = formatRuntime(runTimeHours, runTimeMinutes);
 
-      const newMovie = new MovieModel({
+      const newMovie = new Movie({
         title,
         genre,
         description,
