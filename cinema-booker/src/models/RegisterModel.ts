@@ -20,7 +20,7 @@ interface UserRegistrationPayload {
     isRegisteredForPromos: boolean;
 }
 
-export class RegisterService {
+export class RegisterModel {
 
     private static createPayload(user: User): UserRegistrationPayload {
         let paymentCard: any[] | undefined = undefined;
@@ -62,7 +62,7 @@ export class RegisterService {
     }
 
     public static async registerUser(user: User): Promise<void> {
-        const userPayload = RegisterService.createPayload(user);
+        const userPayload = RegisterModel.createPayload(user);
 
         console.log("Attempting to register user with payload:", userPayload);
 
