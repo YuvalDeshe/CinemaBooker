@@ -4,51 +4,22 @@ import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import CardInfoForum from "@/app/components/CardInfoForum";
 import AddressInfoForum from "@/app/components/AddressInfoForum";
+import ExistingCard from "@/app/components/ExistingCard";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import ExistingCard from "@/app/components/ExistingCard";
-import bcrypt from "bcryptjs";
-
-type PaymentCard = {
-  cardType: string;
-  cardNumber: string;
-  expMonth: string;
-  expYear: string;
-  lastFour: string;
-  isNew: boolean;
-  _tempId?: string;
-};
-
-type Address = {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-};
-
-type User = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  password?: string;
-  homeAddress: Address;
-  paymentCard: PaymentCard[];
-  email: string;
-  isRegisteredForPromos: boolean;
-  userType: string;
-  userStatus: string;
-};
+import EditProfileModel from "@/models/EditProfileModel";
+import EditProfileController from "@/controllers/EditProfileController";
+import PaymentCard from "@/models/PaymentCardModel";
+import Address from "@/models/AddressModel";
+import User from "@/models/UserModel";
 
 export default function EditProfile() {
   const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
-  let initialCards: PaymentCard[];
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Form states
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [homeAddress, setHomeAddress] = useState<Address>({ street: "", city: "", state: "", zip: "" });
@@ -58,86 +29,66 @@ export default function EditProfile() {
   const [newPassword, setNewPassword] = useState("");
   const [addressForumVisible, setAddressForumVisible] = useState(false);
 
-  // only allow users to edit their own profiles
+  const model = new EditProfileModel();
+  const controller = new EditProfileController(model);
+
+  // Only allow users to edit their own profiles
   useEffect(() => {
     if (session?.user && session.user.id !== params.id) {
       router.push(`/user/${session.user.id}/profile/edit`);
     }
   }, [session, params, router]);
 
-  // Fetch user data from backend
+  // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const res = await fetch(`/api/users/${params.id}`);
-        if (!res.ok) throw new Error("Failed to fetch user");
-        const data = await res.json();
-
+      setLoading(true);
+      const data = await model.fetchUser(String(params.id!));
+      if (data) {
         setUser(data);
         setFirstName(data.firstName);
         setLastName(data.lastName);
         setHomeAddress(data.homeAddress);
-        console.log('payment cards: ', data.paymentCard);
-        console.log('data: ', data);
-        setCardsList(data.paymentCard.map((card: PaymentCard) => ({
+        setCardsList(data.paymentCard.map((card) => ({
           ...card,
-          _tempId: crypto.randomUUID(), // ✅ give each card a stable unique key
+          _tempId: crypto.randomUUID(),
         })));
         setIsRegisteredForPromos(data.isRegisteredForPromos);
         setAddressForumVisible(!!data.homeAddress?.street);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     };
 
     if (params.id) fetchUser();
   }, [params.id]);
 
+  // Handle form submission
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
 
-    // Validate password if changing
-    let updatedPassword = user.password;
-    console.log(`newPassword: ${newPassword.trim()}\nuser.password: ${user.password}\noldPassword: ${oldPassword}`)
-    if (newPassword.trim() !== "" && user.password) {
-      // if (oldPassword !== user.password) { // bcrypt.compare
-      const isSamePassword = await bcrypt.compare(oldPassword, user.password);
-      console.log(isSamePassword);
-      if (!isSamePassword) {
+    if (newPassword.trim() !== "" && user.password !== undefined) {
+      const isValid = await controller.validatePassword(oldPassword, user.password);
+      if (!isValid) {
         alert("❌ Old password is incorrect. No changes saved.");
         return;
       }
-      updatedPassword = newPassword;
     }
 
-    //
-
-    const updatedUser = {
-      ...user,
+    const success = await controller.saveUser(
+      user,
       firstName,
       lastName,
       homeAddress,
-      paymentCard: cardsList,
+      cardsList,
       isRegisteredForPromos,
-      password: updatedPassword,
-    };
+      newPassword
+    );
 
-    try {
-      const res = await fetch(`/api/users/${user._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedUser),
-      });
-
-      if (!res.ok) throw new Error("Failed to update profile");
-
+    if (success) {
       alert("✅ Profile updated successfully!");
       router.push(`/`);
-    } catch (error) {
-      console.error(error);
+    } else {
       alert("❌ Error updating profile.");
     }
   };
@@ -178,14 +129,18 @@ export default function EditProfile() {
           />
         )}
         {!addressForumVisible && (
-          <button className={styles.addAddressButton} onClick={() => setAddressForumVisible(true)}>
+          <button
+            className={styles.addAddressButton}
+            onClick={(e) => { e.preventDefault(); setAddressForumVisible(true); }}
+          >
             <p>Add Address</p>
           </button>
         )}
         {addressForumVisible && (
           <button
             className={styles.deleteAddressButton}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               setAddressForumVisible(false);
               setHomeAddress({ street: "", city: "", state: "", zip: "" });
             }}
@@ -210,44 +165,26 @@ export default function EditProfile() {
         {cardsList?.map((card) =>
           !card.isNew ? (
             <ExistingCard
-              key={card._tempId} // ✅ use stable key
+              key={card._tempId}
               {...card}
-              onDelete={() =>
-                setCardsList((prev) => prev.filter((c) => c._tempId !== card._tempId))
-              }
-              onChange={(updatedCard: PaymentCard) =>
-                setCardsList((prev) =>
-                  prev.map((c) =>
-                    c._tempId === card._tempId ? { ...updatedCard, _tempId: card._tempId } : c
-                  )
-                )
-              }
+              onDelete={() => setCardsList(controller.removeCard(cardsList, card._tempId ?? ''))}
+              onChange={(updatedCard) => setCardsList(controller.updateCard(cardsList, updatedCard))}
             />
           ) : (
             <CardInfoForum
-              key={card._tempId} // ✅ use stable key
+              key={card._tempId}
               {...card}
-              onDelete={() =>
-                setCardsList((prev) => prev.filter((c) => c._tempId !== card._tempId))
-              }
-              onChange={(updatedCard: PaymentCard) =>
-                setCardsList((prev) =>
-                  prev.map((c) =>
-                    c._tempId === card._tempId ? { ...updatedCard, _tempId: card._tempId } : c
-                  )
-                )
-              }
+              onDelete={() => setCardsList(controller.removeCard(cardsList, card._tempId ?? ''))}
+              onChange={(updatedCard) => setCardsList(controller.updateCard(cardsList, updatedCard))}
             />
           )
         )}
-
 
         <button
           className={cardsList?.length >= 3 ? styles.addCardButtonDisabled : styles.addCardButton}
           onClick={(e) => {
             e.preventDefault();
-            if (cardsList.length < 3)
-              setCardsList([...cardsList, { cardType: "", cardNumber: "", lastFour: "", expMonth: "", expYear: "", isNew: true, _tempId: crypto.randomUUID(), }]);
+            setCardsList(controller.addCard(cardsList));
           }}
           disabled={cardsList?.length >= 3}
         >
