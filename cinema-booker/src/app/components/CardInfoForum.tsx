@@ -1,38 +1,27 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import styles from "./cardinfoforum.module.css";
-import PaymentCard from "@/models/PaymentCardModel";
+import CardModel from "@/models/CardModel";
+import CardController from "@/controllers/CardController";
 
-type CardProps = PaymentCard & {
+type Props = {
+  card: CardModel;
   onDelete: () => void;
-  onChange: (updatedCard: PaymentCard) => void;
+  onChange: (updatedCard: CardModel) => void;
 };
 
-export default function CardInfoForum({ cardType = "debit", cardNumber = "", expMonth = "", expYear = "", isNew = true, _tempId, onDelete, onChange }: CardProps) {
-  const [card, setCard] = useState({
-    cardType,
-    cardNumber,
-    expMonth,
-    expYear,
-    lastFour: cardNumber.slice(-4) || "",
-    isNew,
-    _tempId
-  });
+export default function CardInfoForum({ card, onDelete, onChange }: Props) {
+  const controller = new CardController();
+  const [stateCard, setStateCard] = useState<CardModel>(card);
 
-  // Only notify parent when actual changes occur
   useEffect(() => {
-    onChange(card);
-  }, [card]);
+    onChange(stateCard);
+  }, [stateCard]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let { name, value } = e.target;
-    if (name.startsWith("cardType")) name = "cardType";
-
-    setCard((prev) => ({
-      ...prev,
-      [name]: value,
-      lastFour: name === "cardNumber" ? value.slice(-4) : prev.lastFour
-    }));
+    const { name, value } = e.target;
+    const updated = controller.updateCard({ ...stateCard }, name, value);
+    setStateCard(updated);
   };
 
   return (
@@ -41,62 +30,51 @@ export default function CardInfoForum({ cardType = "debit", cardNumber = "", exp
       <input
         required
         placeholder="1234 1234 1234 1234"
+        value={stateCard.cardNumber}
         onChange={handleChange}
-        value={card.cardNumber}
-        className={styles.inputField}
-        type="text"
         name="cardNumber"
+        className={styles.inputField}
       />
 
       <div>
-        <div>
-          <label>Card Type:</label>
-          <input
-            type="radio"
-            required
-            checked={card.cardType === 'debit'} // ✅ use state
-            onChange={handleChange}
-            name="cardType"
-            value="debit"
-            className="h-4 w-4 m-2"
-          /> Debit
-          <input
-            type="radio"
-            required
-            checked={card.cardType === 'credit'} // ✅ use state
-            onChange={handleChange}
-            name="cardType"
-            value="credit"
-            className="h-4 w-4 ml-2"
-          /> Credit
-        </div>
-        <div>
-          <label>Exp. Date:</label>
-          <input
-            required
-            onChange={handleChange}
-            value={card.expMonth}
-            placeholder="MM"
-            className={styles.inputField}
-            type="text"
-            name="expMonth"
-          />
-          / 
-          <input
-            required
-            onChange={handleChange}
-            value={card.expYear}
-            placeholder="YYYY"
-            className={styles.inputField}
-            type="text"
-            name="expYear"
-          />
-        </div>
+        <label>Card Type:</label>
+        <input
+          type="radio"
+          checked={stateCard.cardType === 'debit'}
+          onChange={handleChange}
+          name="cardType"
+          value="debit"
+        /> Debit
+        <input
+          type="radio"
+          checked={stateCard.cardType === 'credit'}
+          onChange={handleChange}
+          name="cardType"
+          value="credit"
+        /> Credit
       </div>
 
-      <button type="button" className={styles.deleteButton} onClick={onDelete}>
-        Delete
-      </button>
+      <div>
+        <label>Exp. Date:</label>
+        <input
+          required
+          value={stateCard.expMonth}
+          placeholder="MM"
+          onChange={handleChange}
+          name="expMonth"
+          className={styles.inputField}
+        /> / 
+        <input
+          required
+          value={stateCard.expYear}
+          placeholder="YYYY"
+          onChange={handleChange}
+          name="expYear"
+          className={styles.inputField}
+        />
+      </div>
+
+      <button type="button" className={styles.deleteButton} onClick={onDelete}>Delete</button>
     </div>
   );
 }

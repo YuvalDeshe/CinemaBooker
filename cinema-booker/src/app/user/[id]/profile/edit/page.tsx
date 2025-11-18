@@ -12,6 +12,8 @@ import EditProfileController from "@/controllers/EditProfileController";
 import PaymentCard from "@/models/PaymentCardModel";
 import Address from "@/models/AddressModel";
 import User from "@/models/UserModel";
+import ExistingCardModel from "@/models/ExistingCardModel";
+import CardModel from "@/models/CardModel";
 
 export default function EditProfile() {
   const { data: session } = useSession();
@@ -166,14 +168,14 @@ export default function EditProfile() {
           !card.isNew ? (
             <ExistingCard
               key={card._tempId}
-              {...card}
+              card={new ExistingCardModel(card)}
               onDelete={() => setCardsList(controller.removeCard(cardsList, card._tempId ?? ''))}
               onChange={(updatedCard) => setCardsList(controller.updateCard(cardsList, updatedCard))}
             />
           ) : (
             <CardInfoForum
               key={card._tempId}
-              {...card}
+              card={new CardModel(card)}
               onDelete={() => setCardsList(controller.removeCard(cardsList, card._tempId ?? ''))}
               onChange={(updatedCard) => setCardsList(controller.updateCard(cardsList, updatedCard))}
             />

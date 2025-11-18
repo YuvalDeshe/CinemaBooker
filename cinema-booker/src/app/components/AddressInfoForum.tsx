@@ -1,38 +1,40 @@
 'use client';
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./addressinfoforum.module.css";
+import AddressModel from "@/models/AddressModel";
+import AddressController from "@/controllers/AddressController";
 
-type Address = {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
+type Props = {
+  address: AddressModel;
+  onChange: (updatedAddress: AddressModel) => void;
 };
 
-type BillingAddressFormProps = {
-  address: Address;
-  onChange: (updatedAddress: Address) => void;
-};
+export default function AddressInfoForum({ address, onChange }: Props) {
+  const controller = new AddressController();
+  const [stateAddress, setStateAddress] = useState(address);
 
-export default function AddressInfoForum({ address, onChange }: BillingAddressFormProps) {
+  useEffect(() => {
+    onChange(stateAddress);
+  }, [stateAddress]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    onChange({ ...address, [name]: value });
+    const updated = controller.updateField({ ...stateAddress }, name, value);
+    setStateAddress(updated);
   };
 
   return (
     <div className={styles.billingAddressContainer}>
       <label className={styles.subLabel}>Street Address:</label>
-      <input onChange={handleChange} value={address.street} name="street" className={styles.addressInputField} type="text" required/>
+      <input value={stateAddress.street} name="street" onChange={handleChange} required className={styles.addressInputField} type="text" />
+      
       <div className={styles.addressSubField}>
         <label className={styles.subLabel}>City:</label>
-        <input onChange={handleChange} value={address.city} name="city" className={styles.subInputField} type="text" required/>
+        <input value={stateAddress.city} name="city" onChange={handleChange} required className={styles.subInputField} type="text" />
         <label className={styles.subLabel}>State:</label>
-        <input onChange={handleChange} value={address.state} name="state" className={styles.subInputField} type="text" required/>
+        <input value={stateAddress.state} name="state" onChange={handleChange} required className={styles.subInputField} type="text" />
         <label className={styles.subLabel}>Zipcode:</label>
-        <input onChange={handleChange} value={address.zip} name="zip" className={styles.subInputField} type="text" required/>
+        <input value={stateAddress.zip} name="zip" onChange={handleChange} required className={styles.subInputField} type="text" />
       </div>
     </div>
   );
