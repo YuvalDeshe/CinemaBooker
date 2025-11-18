@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import User from "@/types/User";
-import { RegisterService } from "@/models/RegisterService";
+import { RegisterModel } from "@/models/RegisterModel";
 
 export const initialFormData = {
     firstName: "",
@@ -34,7 +34,7 @@ export const useRegisterController = () => {
         setIsLoading(true);
 
         try {
-            await RegisterService.registerUser(user);
+            await RegisterModel.registerUser(user);
 
             setSuccess("Registration successful! Redirecting to login...");
             router.push('/login');
