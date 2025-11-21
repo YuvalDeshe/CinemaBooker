@@ -48,9 +48,16 @@ export async function fetchShowTimesByMovie(movieId: string): Promise<{
   const shows: ShowTime[] = await res.json();
 
   const dates = [...new Set(shows.map((show) => show.date))].sort();
-  const defaultDate = dates.length > 0 ? dates[0] : "";
 
-  return { shows, availableDates: dates, defaultDate };
+  const today = new Date();
+  const formattedToday = today.toISOString().split("T")[0]
+  const modernDates = filterAvailableDates(formattedToday, dates)
+  console.log("AVAILABLE DATES: ", dates);
+  console.log("UPDATED AVAILABLE DATES: ", modernDates)
+
+  const defaultDate = modernDates.length > 0 ? modernDates[0] : "";
+
+  return { shows, availableDates: modernDates, defaultDate };
 }
 
 export function buildActorsList(castList: string[] | string): string {
@@ -98,4 +105,18 @@ export function getShowTimesForDate(
   selectedDate: string
 ): ShowTime[] {
   return showTimes.filter((show) => show.date === selectedDate);
+}
+
+export function filterAvailableDates(todaysDate : string, dateList : string[]) : string[] {
+  const today = new Date(todaysDate);
+  let updatedDateList : string[] = [];
+
+  for (const date of dateList) {
+    const current = new Date(date)
+
+    if (current.getTime() >= today.getTime()) {
+      updatedDateList.push(date);
+    }
+  }
+  return updatedDateList;
 }
