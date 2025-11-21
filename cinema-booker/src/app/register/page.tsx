@@ -27,9 +27,6 @@ export default function RegisterPage() {
                     <RegisterForm
                         handleRegister={handleRegister}
                     />
-                    <p className="mt-4 text-center">
-                            Already have an account? <Link href="/login" className="text-blue-500 hover:underline">Login</Link>
-                    </p>
             </>
         );
 }

@@ -81,18 +81,35 @@ export async function POST(request) {
         const { db } = await connectToDatabase();
         const showsCollection = db.collection('ShowCollection');
 
-        const newShow = await request.json();
+        let newShow;
+        try {
+            newShow = await request.json();
+        } catch (error_) {
+            console.warn('Failed to parse JSON body for /api/shows POST', error_);
+            return new Response(JSON.stringify({ message: "Invalid or missing JSON body." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
 
-        if (!newShow.movieID || !newShow.showRoomID || !newShow.time || !newShow.date || !newShow.seatReservationArray) {
+        if (!newShow || !newShow.movieID || !newShow.showRoomID || newShow.time === undefined || !newShow.date || !newShow.seatReservationArray) {
             return new Response(JSON.stringify({ message: "Missing required show fields." }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
+        // Validate IDs
+        if (!ObjectId.isValid(newShow.movieID) || !ObjectId.isValid(newShow.showRoomID)) {
+            return new Response(JSON.stringify({ message: "Invalid movieID or showRoomID format." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const showToInsert = {
-            movieID: ObjectId.createFromHexString(newShow.movieID),
-            showRoomID: ObjectId.createFromHexString(newShow.showRoomID),
+            movieID: new ObjectId(newShow.movieID),
+            showRoomID: new ObjectId(newShow.showRoomID),
             movieTitle: newShow.movieTitle,
             showRoomName: newShow.showRoomName,
             time: newShow.time,
@@ -104,13 +121,13 @@ export async function POST(request) {
 
         const responseShow = {
             _id: result.insertedId,
-            movieID: result.movieID,
-            showRoomID: result.showRoomID,
-            movieTitle: result.movieTitle,
-            showRoomName: result.showRoomName,
-            time: result.time,
-            date: result.date,
-            seatReservationArray: result.seatReservationArray,
+            movieID: showToInsert.movieID,
+            showRoomID: showToInsert.showRoomID,
+            movieTitle: showToInsert.movieTitle,
+            showRoomName: showToInsert.showRoomName,
+            time: showToInsert.time,
+            date: showToInsert.date,
+            seatReservationArray: showToInsert.seatReservationArray,
             message: 'Show scheduling successful!',
         };
 

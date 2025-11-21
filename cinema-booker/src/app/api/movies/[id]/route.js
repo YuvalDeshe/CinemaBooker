@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
 
-const uri = "mongodb+srv://parkertheoutlaw_db_user:FC6qKAalpje0bIUU@cluster0.levqaeh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
 
 // Declare a variable for the client outside the handler
 let client;
@@ -75,4 +75,74 @@ export async function GET(request, { params }) {
         });
     }
     // REMOVED: The finally block with await client.close();
+}
+
+export async function PATCH(request, { params }) {
+    try {
+        const { db } = await connectToDatabase();
+        const moviesCollection = db.collection('MoviesCollection');
+        const { id } = await params;
+
+        if (!ObjectId.isValid(id)) {
+            return new Response(JSON.stringify({ message: "Invalid movie ID format" }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const updateData = await request.json();
+        const updateDoc = {};
+
+        // only update isCurrentlyRunning for now
+        // add more fields if needed in the future
+        if (updateData.isCurrentlyRunning) {
+            updateDoc.isCurrentlyRunning = updateData.isCurrentlyRunning;
+        }
+
+        // ✅ Fetch existing movie from DB
+        const movie = await moviesCollection.findOne({ _id: ObjectId.createFromHexString(id) });
+        if (!movie) {
+            return new Response(JSON.stringify({ error: "Movie not found" }), { status: 404 });
+        }
+
+        if (Object.keys(updateDoc).length === 0) {
+            return new Response(JSON.stringify({ message: "No valid fields provided for update." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const result = await moviesCollection.updateOne(
+            { _id: ObjectId.createFromHexString(id) },
+            { $set: updateDoc }
+        );
+
+        if (result.matchedCount === 0) {
+            return new Response(JSON.stringify({ message: "Movie not found." }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        if (result.modifiedCount === 0) {
+            return new Response(JSON.stringify({ message: "Update successful, but no fields were modified as the values were the same." }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        return new Response(JSON.stringify({
+            message: "Movie updated successfully.",
+            updatedFields: updateDoc
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error("Failed to update movie:", error);
+        return new Response(JSON.stringify({ message: "An error occurred during update.", error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
 }
