@@ -3,41 +3,47 @@
 import { useState } from "react";
 import BackgroundReel from "@/app/components/BackgroundReel";
 import Link from "next/link";
+import { PasswordResetController } from "@/controllers/PasswordResetController";
+import { PasswordResetFormState } from "@/types/PasswordReset";
 
 export default function ResetPassword() {
-    const [email, setEmail] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+    const [formState, setFormState] = useState<PasswordResetFormState>({
+        email: "",
+        isLoading: false,
+        message: "",
+        error: "",
+    });
+
+    const handleInputChange = (email: string) => {
+        setFormState(prev => ({
+            ...prev,
+            email,
+            error: "", // Clear error when user types
+            message: "", // Clear message when user types
+        }));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
-        setMessage("");
-        setIsLoading(true);
+        
+        // Set loading state
+        setFormState(prev => ({
+            ...prev,
+            isLoading: true,
+            error: "",
+            message: "",
+        }));
 
-        try {
-            const response = await fetch('/api/reset-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-            });
+        // Use controller to handle the business logic
+        const result = await PasswordResetController.requestPasswordReset(formState.email);
 
-            const data = await response.json();
-
-            if (response.ok) {
-                setMessage("If an account with that email exists, we've sent you a password reset link. Please check your email.");
-            } else {
-                setError(data.message || "An error occurred. Please try again.");
-            }
-        } catch (error) {
-            setError("An error occurred. Please try again.");
-            console.error("Reset password error:", error);
-        } finally {
-            setIsLoading(false);
-        }
+        // Update form state based on result
+        setFormState(prev => ({
+            ...prev,
+            isLoading: false,
+            message: result.success ? result.message : "",
+            error: result.success ? "" : result.message,
+        }));
     };
 
     return (
@@ -51,15 +57,15 @@ export default function ResetPassword() {
                         Enter your email address and we&apos;ll send you a link to reset your password.
                     </p>
 
-                    {error && (
+                    {formState.error && (
                         <div className="mb-4 rounded-md border border-red-500/60 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-                            {error}
+                            {formState.error}
                         </div>
                     )}
 
-                    {message && (
+                    {formState.message && (
                         <div className="mb-4 rounded-md border border-green-500/60 bg-green-500/10 px-3 py-2 text-sm text-green-200">
-                            {message}
+                            {formState.message}
                         </div>
                     )}
 
@@ -75,17 +81,17 @@ export default function ResetPassword() {
                                 autoComplete="email"
                                 className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 placeholder="Enter your email address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                value={formState.email}
+                                onChange={(e) => handleInputChange(e.target.value)}
                             />
                         </div>
 
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={formState.isLoading}
                             className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-md transition-all duration-200"
                         >
-                            {isLoading ? "Sending..." : "Send Reset Link"}
+                            {formState.isLoading ? "Sending..." : "Send Reset Link"}
                         </button>
                     </form>
 
