@@ -164,13 +164,7 @@ export default function MoviePage() {
       </div>
       <p className={styles.description}>{movie.description}</p>
       <hr className={styles.hr}/>
-      <h3 className={styles.subSectionHeading}>Director:</h3>
-      <p className={styles.subSectionItems}>{movie.director}</p>
-      <hr className={styles.hr}/>
-      <h3 className={styles.subSectionHeading}>Cast:</h3>
-      <p className={styles.subSectionItems}>{actorsList}</p>
-      <hr className={styles.hr}/>
-      <h3 className={styles.subSectionHeading}>Showtimes:</h3>
+            <h3 className={styles.subSectionHeading}>Showtimes:</h3>
       {!session && movie.isCurrentlyRunning && availableDates.length > 0 && (
         <p className={styles.subSectionItems} style={{marginBottom: '10px', color: '#fbbf24'}}>
           Sign in to book tickets for these showtimes:
@@ -244,6 +238,12 @@ export default function MoviePage() {
       ) : (
         <p className={styles.subSectionItems}>Showtimes will be available when the movie is running.</p>
       )}
+      <hr className={styles.hr}/>
+      <h3 className={styles.subSectionHeading}>Director:</h3>
+      <p className={styles.subSectionItems}>{movie.director}</p>
+      <hr className={styles.hr}/>
+      <h3 className={styles.subSectionHeading}>Cast:</h3>
+      <p className={styles.subSectionItems}>{actorsList}</p>
     </div>
   );
 }
