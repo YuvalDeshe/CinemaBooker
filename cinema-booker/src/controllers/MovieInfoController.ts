@@ -1,4 +1,6 @@
 import { Movie } from "@/models/MovieModel";
+import React from "react";
+import { useRouter } from "next/navigation";
 
 export type ShowTime = {
   _id: string;
@@ -107,4 +109,101 @@ export function filterAvailableDates(todaysDate : string, dateList : string[]) :
     }
   }
   return updatedDateList;
+}
+
+export function useMoviePageController(params: any, sessionData: any) {
+  const { id } = params;
+  const session = sessionData?.data;
+  const router = useRouter();
+
+  const [movie, setMovie] = React.useState<Movie | null>(null);
+  const [showTimes, setShowTimes] = React.useState<ShowTime[]>([]);
+  const [availableDates, setAvailableDates] = React.useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
+
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+  const calendarRef = React.useRef<HTMLDivElement>(null);
+
+  // close calendar on outside click
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(e.target as Node))
+        setIsCalendarOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // fetch movie
+  React.useEffect(() => {
+    if (!id) return;
+    (async () => {
+      const data = await fetchMovieById(`${id}`);
+      if (data) setMovie(new Movie(data));
+    })();
+  }, [id]);
+
+  // fetch showtimes
+  React.useEffect(() => {
+    if (!id) return;
+    (async () => {
+      setLoading(true);
+      const { shows, availableDates, defaultDate } =
+        await fetchShowTimesByMovie(`${id}`);
+      setShowTimes(shows);
+      setAvailableDates(availableDates);
+      if (defaultDate) setSelectedDate(defaultDate);
+      setLoading(false);
+    })();
+  }, [id]);
+
+  const embedLink = React.useMemo(
+    () => (movie ? buildEmbedLink(movie.trailer) : ""),
+    [movie]
+  );
+
+  const showTimesForDate = React.useMemo(
+    () => getShowTimesForDate(showTimes, selectedDate),
+    [showTimes, selectedDate]
+  );
+
+  const toggleCalendar = () => setIsCalendarOpen((v) => !v);
+
+  const goToBooking = (show: ShowTime) => {
+    if (!session)
+      return router.push(
+        `/login?redirect=/movie/${id}/booking&showId=${show._id}`
+      );
+
+    if (!session.user.isEmailVerified)
+      return alert("Verify your email before booking.");
+
+    const timeLabel = formatTime(show.time);
+
+    router.push(
+      `/movie/${id}/booking?showId=${show._id}&time=${encodeURIComponent(
+        timeLabel
+      )}&date=${encodeURIComponent(show.date)}&auditorium=${encodeURIComponent(
+        show.showRoomName
+      )}`
+    );
+  };
+
+  return {
+    movie,
+    loading,
+    availableDates,
+    selectedDate,
+    setSelectedDate,
+    showTimesForDate,
+    isCalendarOpen,
+    toggleCalendar,
+    calendarRef,
+    embedLink,
+    goToBooking,
+    formatTime,
+    formatSelectedDate,
+    session,
+  };
 }
