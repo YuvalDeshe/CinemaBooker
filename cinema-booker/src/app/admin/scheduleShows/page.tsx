@@ -1,7 +1,6 @@
 'use client';
-import ScheduleShowsForm from "@/app/components/ScheduleShowsForm";
+import ScheduleShowsForm, { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
 import { useState } from "react";
-import { Movie, ShowRoom } from "@/app/components/ScheduleShowsForm";
 
 type Show = {
     movieID: String,
@@ -13,11 +12,6 @@ type Show = {
 export default function ScheduleShows() {
     const [error, setError] = useState<string>("");
 
-    /* TODO: add functionality 
-        - add the show to the DB
-        - if the movie is not currently running, set isCurrentlyRunning to true in the DB
-        - make sure date & time are in the future
-        */
     async function scheduleShow(data: FormData, movies: Movie[], showRooms: ShowRoom[]) {
         try {
             // console.log('schedule show function');
@@ -133,7 +127,6 @@ export default function ScheduleShows() {
                         time: time, // stored in 24 hour time, hour only (e.g. 3PM = 15)
                         date: showDate, // MM/DD/YYYY
                         seatReservationArray: seats,
-                        // duration not specified; implied duration <= 3hrs
                     }
                     console.log('showPayload: ', showPayload);
                     const response = await fetch('/api/shows', {
@@ -144,23 +137,60 @@ export default function ScheduleShows() {
                         body: JSON.stringify(showPayload),
                     });
 
-                    const data = await response.json();
+                    // Attempt to parse JSON only when there is a body
+                    let data = null;
+                    try {
+                        data = await response.json();
+                    } catch (error_) {
+                        console.warn('No JSON body returned from /api/shows or invalid JSON', error_);
+                    }
 
                     if (response.ok) {
                         console.log('scheduleShows page success');
                         console.log("Show scheduling successful!", data);
-                        window.location.href = '/admin';
-
+                        // return true so callers can await this function
+                        globalThis.location.href = '/admin';
+                        return true;
                     } else {
-                        console.error("Show scheduling failed:", data.message);
+                        const msg = data?.message ?? 'Unknown error';
+                        console.error("Show scheduling failed:", msg);
+                        setError(msg);
+                        return false;
                     }
                 } catch (e) {
                     setError(String(e));
-                    console.error("Network or unexpected error during Show scheduling:", error);
+                    console.error("Network or unexpected error during Show scheduling:", e);
+                    return false;
                 }
             }
 
-            addShowToDB();
+            async function updateMovieRunning() {
+                if (movie === undefined) throw new Error('Movie is undefined');
+                const moviePayload = {
+                    isCurrentlyRunning: true
+                }
+                try {
+                    const res = await fetch(`/api/movies/${movie._id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(moviePayload),
+                    });
+                    if (!res.ok) throw new Error("Failed to update movie");
+                    return true;
+                } catch (error) {
+                    console.error(error);
+                    return false;
+                }
+
+            }
+
+            // Await the DB add first to ensure the POST completes before updating the movie
+            const added = await addShowToDB();
+            if (added) {
+                if (!movie.isCurrentlyRunning) await updateMovieRunning();
+            } else {
+                console.error('Show was not added to DB; skipping movie update.');
+            }
 
         } catch (e) {
             setError(String(e));
