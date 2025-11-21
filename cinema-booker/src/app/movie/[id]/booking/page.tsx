@@ -3,12 +3,9 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import styles from "../styles.module.css";
+import { Movie } from "@/models/MovieModel";
 
 // Only fetch the relevant info for the booking page
-type Movie = {
-  title: string;
-  posterUrl?: string;
-}
 
 function BookingContent() {
   const router = useRouter();
@@ -110,8 +107,8 @@ function BookingContent() {
                 border: "1px solid #374151",
               }}
             >
-              {movie.posterUrl ? (
-                <img src={movie.posterUrl} alt={`${movie.title} poster`} className="w-full h-full object-cover rounded" />
+              {movie.png ? (
+                <img src={movie.png} alt={`${movie.title} poster`} className="w-full h-full object-cover rounded" />
               ) : (
                 <span className="text-gray-500">No Image</span>
               )}
