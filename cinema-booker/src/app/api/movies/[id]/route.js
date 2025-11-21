@@ -39,14 +39,6 @@ export async function GET(request, { params }) {
             });
         }
 
-        // Normalize castList and other fields (rest of your logic remains the same)
-        let castList = [];
-        if (Array.isArray(movie.Cast)) {
-            castList = movie.Cast;
-        } else if (typeof movie.Cast === "string") {
-            castList = movie.Cast.split(",").map(actor => actor.trim());
-        }
-
         const formattedMovie = {
             _id: movie._id,
             title: movie.title,
@@ -55,7 +47,7 @@ export async function GET(request, { params }) {
             png: movie.png,
             trailer: movie.trailer,
             director: movie.director,
-            castList,
+            cast: movie.Cast,
             rating: movie.Rating,
             runtime: movie.RunTime,
             isCurrentlyRunning: movie.isCurrentlyRunning,

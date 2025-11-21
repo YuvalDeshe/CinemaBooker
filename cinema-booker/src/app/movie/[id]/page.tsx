@@ -116,6 +116,9 @@ export default function MoviePage() {
   // Get showtimes for the selected date
   const showTimesForDate = getShowTimesForDate(showTimes, selectedDate);
 
+  console.log(movie);
+
+
   return (
     <div className={styles.mainDiv}>
       <h1 className={styles.movieTitle}>{movie.title}</h1>
