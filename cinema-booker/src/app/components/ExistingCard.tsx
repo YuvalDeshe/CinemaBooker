@@ -1,56 +1,38 @@
 'use client';
-
 import React from "react";
 import styles from "./cardinfoforum.module.css";
-import { useState, useEffect } from "react";
+import ExistingCardModel from "@/models/ExistingCardModel";
 
-type CardProps = {
-  cardType: string,
-  cardNumber: string,
-  expMonth: string,
-  expYear: string,
-  lastFour: string,
+type Props = {
+  card: ExistingCardModel;
   onDelete: () => void;
-  onChange: (updatedCard: { cardType: string; cardNumber: string; expMonth: string, expYear: string, lastFour: string, isNew: boolean }) => void;
+  onChange: (updatedCard: ExistingCardModel) => void;
 };
 
-
-export default function ExistingCard({ cardType, cardNumber, expMonth, expYear, lastFour, onDelete, onChange }: CardProps) {
-  const isNew = false;
-  const [card, setCard] = useState({ cardType, cardNumber, expMonth, expYear, lastFour, isNew });
-
-  // Whenever local state changes, notify parent
-  useEffect(() => {
-    onChange(card);
-  }, [card]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCard((prev) => ({ ...prev, [name]: value }));
-  };
-
-
+export default function ExistingCard({ card, onDelete }: Props) {
   return (
     <div className={styles.mainDiv}>
       <h1 className="text-lg underline">Existing Card:</h1>
       <label className={styles.label}>Card Number:</label>
-      <input disabled placeholder="1234 1234 1234 1234" required onChange={handleChange} value={`●●●●●●●●●●●● ${card.lastFour}`} className={styles.inputField} type="text" id="cardNumber" name="cardNumber" />
+      <input
+        disabled
+        value={`●●●● ●●●● ●●●● ${card.lastFour}`}
+        className={styles.inputField}
+        type="text"
+      />
+
       <div>
-        <div>
-          <label>Card Type:</label>
-          <input disabled placeholder={card.cardType} type="radio" required checked={cardType === 'debit'} onChange={handleChange} name="cardType" value="debit" className="h-4 w-4 m-2" />
-          Debit
-          <label className="inline-flex items-center gap-2 text-gray-200">
-            <input disabled type="radio" required checked={cardType === 'credit'} onChange={handleChange} name="cardType" value="credit" className="h-4 w-4 ml-2" />
-            Credit
-          </label>
-        </div>
-        <div>
-          <label>Exp. Date:</label>
-          <input disabled required onChange={handleChange} value={card.expMonth} placeholder="MM" className={styles.inputField} type="text" id="expDate" name="expMonth" />
-          / <input disabled required onChange={handleChange} value={card.expYear} placeholder="YYYY" className={styles.inputField} type="text" id="expDate" name="expYear" />
-        </div>
+        <label>Card Type:</label>
+        <input disabled type="radio" checked={card.cardType === 'debit'} /> Debit
+        <input disabled type="radio" checked={card.cardType === 'credit'} /> Credit
       </div>
+
+      <div>
+        <label>Exp. Date:</label>
+        <input disabled value={card.expMonth} className={styles.inputField} /> / 
+        <input disabled value={card.expYear} className={styles.inputField} />
+      </div>
+
       <button type="button" className={styles.deleteButton} onClick={onDelete}>Delete</button>
     </div>
   );

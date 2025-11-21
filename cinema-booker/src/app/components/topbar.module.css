@@ -86,9 +86,26 @@
 
 .loginButton:hover {
     transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(56, 102, 255, 0.67);
 }
 
 .loginButton > p {
-    font-size: 32px;
+    font-size: 16px;
+}
+
+.registerButton {
+    border-radius: 10px;
+    border-width: 2px;
+    margin-right: 16px;
+    padding: 10px 20px;
+    transition: 0.1s;
+}
+
+.registerButton:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 75, 75, 0.67);
+}
+
+.registerButton > p {
+    font-size: 16px;
 }

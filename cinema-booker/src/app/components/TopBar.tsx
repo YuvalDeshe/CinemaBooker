@@ -16,6 +16,7 @@ export default function TopBar() {
   const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const isAdmin = session?.user?.userType === "ADMIN";
 
   //**NOTE**: Using session status to control dynamic rendering of profile icon vs login button
 
@@ -27,6 +28,11 @@ export default function TopBar() {
   //Navigate to Login Page
   const loginHandler = () => {
     router.push('/login')
+  }
+
+  //Navigate to Login Page
+  const registerHandler = () => {
+    router.push('/register')
   }
 
   //Handler for Profile Button, toggles visibility of dropdown menu.
@@ -47,6 +53,10 @@ export default function TopBar() {
     console.log("Logout Clicked!")
     signOut();
     // globalThis.location.reload();
+  }
+
+  const adminPageHandler = () => {
+    router.push('/admin');
   }
 
   //**NOTE**: Edit the URL of this to reflect the User ID of the currently logged-in user.
@@ -94,9 +104,15 @@ export default function TopBar() {
         </button>
       )}
       {status === "unauthenticated" && (
+        <div>
+        <button className={styles.registerButton} onClick={registerHandler} ref={buttonRef} id='buttonID'>
+          <p className={styles.buttonText}>Register</p>
+        </button>
         <button className={styles.loginButton} onClick={loginHandler} ref={buttonRef} id='buttonID'>
           <p className={styles.buttonText}>Login</p>
-        </button>)}
+        </button>
+        </div>
+        )}
       {status === "loading" && (
         <p>Loading session...</p>
       )}
@@ -107,6 +123,9 @@ export default function TopBar() {
           ref={menuRef}
         >
           <ul className={styles.dropdownMenuContainer}>
+            {isAdmin && (<button className={styles.dropdownMenuButtons} onClick={adminPageHandler}>
+              <p>Admin Controls</p>
+            </button>)}
             <button className={styles.dropdownMenuButtons} onClick={editProfileHandler}>
               <p>Edit Profile</p>
             </button>

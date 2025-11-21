@@ -9,10 +9,17 @@ import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import TopBar from "@/app/components/TopBar";
-
-
-//Array of hardcoded showtimes, loaded into the page dynamically.
-const SHOWTIMES = ["9:00 a.m.", "12:00 p.m.", "3:00 p.m.", "6:00 p.m.", "9:00 p.m."]
+import Calendar from "@/app/components/Calendar";
+import {
+  fetchMovieById,
+  fetchShowTimesByMovie,
+  buildActorsList,
+  buildEmbedLink,
+  formatTime,
+  formatSelectedDate,
+  getShowTimesForDate,
+  ShowTime
+} from "@/controllers/MovieInfoController";
 
 //This is the defined movie type, which has all the info we talked about Tuesday night.
 type Movie = {
@@ -29,6 +36,8 @@ type Movie = {
   _id: string;
 }
 
+type LocalShowTime = ShowTime;
+
 
 
 export default function MoviePage() {
@@ -36,44 +45,85 @@ export default function MoviePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [movie, setMovie] = React.useState<Movie | null>(null);
+  const [showTimes, setShowTimes] = React.useState<LocalShowTime[]>([]);
+  const [availableDates, setAvailableDates] = React.useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = React.useState<string>("");
+  const [loading, setLoading] = React.useState(true);
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+  const calendarRef = React.useRef<HTMLDivElement>(null);
 
+  // Close calendar when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+        setIsCalendarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Fetch movie details
   React.useEffect(() => { 
     if (!id) return;
-    fetch(`/api/movies/${id}`)
-      .then(res => res.json())
-      .then(data => setMovie(data));
+
+    const loadMovie = async () => {
+      try {
+        const movieData = await fetchMovieById(`${id}`);
+        setMovie(movieData);
+      } catch (error) {
+        console.error("Error fetching movie:", error);
+      }
+    };
+
+    loadMovie();
   }, [id]);
 
-  if (!movie) return <div className={styles.mainDiv}>Loading...</div>;
+  // Fetch showtimes for this movie
+  React.useEffect(() => {
+    if (!id) return;
+    
+    const loadShowTimes = async () => {
+      try {
+        setLoading(true);
+        const { shows, availableDates, defaultDate } = await fetchShowTimesByMovie(`${id}`);
+        
+        setShowTimes(shows);
+        setAvailableDates(availableDates);
+        
+        // Set the first available date as default
+        if (defaultDate) {
+          setSelectedDate(defaultDate);
+        }
+      } catch (error) {
+        console.error('Error fetching showtimes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadShowTimes();
+  }, [id]);
+
+  if (!movie || loading) return <div className={styles.mainDiv}>Loading...</div>;
 
   //array of cast members to string
-  let actorsList: string = "";
-  if (Array.isArray(movie.castList)) {
-    actorsList = movie.castList.join(", ");
-  } else if (typeof movie.castList === "string") {
-    actorsList = movie.castList;
-  }
+  const actorsList: string = buildActorsList(movie.castList);
 
   // embedded links # fixed error issue with db
-  let embedLink: string = "";
-  if (movie.trailerLink && typeof movie.trailerLink === "string") {
-    const lastEq = movie.trailerLink.lastIndexOf("=");
-    embedLink =
-      "https://www.youtube.com/embed/" +
-      (lastEq !== -1
-        ? movie.trailerLink.substring(lastEq + 1)
-        : movie.trailerLink);
-  }
-
+  const embedLink: string = buildEmbedLink(movie.trailerLink);
 
   const returnHandler = () => {
     router.push('/');
   };
 
-  const goToBooking = (timeLabel: string) => {
+  const goToBooking = (show: LocalShowTime) => {
     if (!session) {
       // Redirect to login with a return URL
-      router.push(`/login?redirect=/movie/${id}/booking&time=${encodeURIComponent(timeLabel)}`);
+      router.push(`/login?redirect=/movie/${id}/booking&showId=${show._id}`);
       return;
     }
     
@@ -83,9 +133,13 @@ export default function MoviePage() {
       return;
     }
     
-    // Proceed to booking
-    router.push(`/movie/${id}/booking?time=${encodeURIComponent(timeLabel)}`);
+    // Proceed to booking with showtime info
+    const timeLabel = formatTime(show.time);
+    router.push(`/movie/${id}/booking?showId=${show._id}&time=${encodeURIComponent(timeLabel)}&date=${encodeURIComponent(show.date)}&auditorium=${encodeURIComponent(show.showRoomName)}`);
   };
+
+  // Get showtimes for the selected date
+  const showTimesForDate = getShowTimesForDate(showTimes, selectedDate);
 
 
   return (
@@ -117,26 +171,77 @@ export default function MoviePage() {
       <p className={styles.subSectionItems}>{actorsList}</p>
       <hr className={styles.hr}/>
       <h3 className={styles.subSectionHeading}>Showtimes:</h3>
-      {!session && movie.isCurrentlyRunning && (
+      {!session && movie.isCurrentlyRunning && availableDates.length > 0 && (
         <p className={styles.subSectionItems} style={{marginBottom: '10px', color: '#fbbf24'}}>
           Sign in to book tickets for these showtimes:
         </p>
       )}
-      {movie.isCurrentlyRunning && (
-        <div className={styles.buttonsContainer}>
-          {SHOWTIMES.map((value, index) =>(
+      {movie.isCurrentlyRunning && availableDates.length > 0 ? (
+        <div>
+          {/* Date Selector with Calendar */}
+          <div ref={calendarRef} style={{ marginBottom: '20px', position: 'relative' }}>
+            <label className={styles.subSectionItems} style={{ display: 'block', marginBottom: '8px' }}>
+              Select Date:
+            </label>
             <button
-              className={styles.showTimeButtons}
-              onClick={() => goToBooking(value)}
-              key={index}
+              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '8px',
+                border: '1px solid #374151',
+                backgroundColor: '#1f2937',
+                color: '#f9fafb',
+                fontSize: '14px',
+                minWidth: '280px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                position: 'relative'
+              }}
             >
-              {value}
-              {!session && <span style={{fontSize: '10px', display: 'block'}}>Sign in to book</span>}
+              <span>
+                {selectedDate ? formatSelectedDate(selectedDate) : 'Choose a date'}
+              </span>
+              <span style={{ fontSize: '12px' }}>
+                {isCalendarOpen ? '▲' : '▼'}
+              </span>
             </button>
-          ))}
+            
+            <Calendar
+              availableDates={availableDates}
+              selectedDate={selectedDate}
+              onDateSelect={(date) => setSelectedDate(date)}
+              isOpen={isCalendarOpen}
+              onToggle={() => setIsCalendarOpen(!isCalendarOpen)}
+            />
+          </div>
+
+          {/* Showtimes for Selected Date */}
+          {showTimesForDate.length > 0 ? (
+            <div className={styles.buttonsContainer}>
+              {showTimesForDate.map((show) => (
+                <button
+                  className={styles.showTimeButtons}
+                  onClick={() => goToBooking(show)}
+                  key={show._id}
+                >
+                  {formatTime(show.time)}
+                  <span style={{fontSize: '10px', display: 'block', color: '#9ca3af'}}>
+                    {show.showRoomName}
+                  </span>
+                  {!session && <span style={{fontSize: '10px', display: 'block'}}>Sign in to book</span>}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className={styles.subSectionItems}>No showtimes available for this date.</p>
+          )}
         </div>
-      )}
-      {!movie.isCurrentlyRunning && (
+      ) : movie.isCurrentlyRunning ? (
+        <p className={styles.subSectionItems}>Loading showtimes...</p>
+      ) : (
         <p className={styles.subSectionItems}>Showtimes will be available when the movie is running.</p>
       )}
     </div>

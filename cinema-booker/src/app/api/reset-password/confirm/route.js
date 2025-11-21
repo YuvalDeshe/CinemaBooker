@@ -1,0 +1,109 @@
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
+import connectMongoDB from '@/app/mongodb';
+import User from '@/models/userSchema';
+import { isTokenExpired } from '@/lib/tokens';
+import { MongoClient } from 'mongodb';
+
+const uri = process.env.MONGODB_URI ?? '';
+const client = new MongoClient(uri);
+const dbName = 'UserDatabase';
+
+async function connectToDatabase() {
+  if (!client.topology?.isConnected()) {
+    await client.connect();
+  }
+  const db = client.db(dbName);
+  return db;
+}
+
+export async function POST(request) {
+  try {
+    const { token, password } = await request.json();
+
+    if (!token || !password) {
+      return NextResponse.json(
+        { message: 'Token and password are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return NextResponse.json(
+        { message: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      );
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      return NextResponse.json(
+        { message: 'Password must contain uppercase, lowercase, and numeric characters' },
+        { status: 400 }
+      );
+    }
+
+    await connectMongoDB();
+
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('UserCollection');
+
+    // Find user with matching reset token
+    const user = await usersCollection.findOne({
+      passwordResetToken: token,
+    })
+    // .select('+passwordResetToken +passwordResetExpires +password');
+
+    await console.log('reset password user: ', user);
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Invalid or expired reset token' },
+        { status: 400 }
+      );
+    }
+
+    // Check if token has expired
+    if (user.passwordResetExpires) console.log('expired? ', isTokenExpired(user.passwordResetExpires))
+    if (!user.passwordResetExpires || isTokenExpired(user.passwordResetExpires)) {
+      // Clear expired token
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save();
+
+      return NextResponse.json(
+        { message: 'Reset token has expired. Please request a new password reset.' },
+        { status: 400 }
+      );
+    }
+
+    // Hash the new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Update user password and clear reset token
+    user.password = hashedPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await usersCollection.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: hashedPassword,
+          passwordResetToken: token,
+        },
+      }
+    );
+
+    return NextResponse.json(
+      { message: 'Password has been successfully reset' },
+      { status: 200 }
+    );
+
+  } catch (error) {
+    console.error('Password reset confirmation error:', error);
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

@@ -105,6 +105,52 @@ export default function AdminHomePage() {
         </div>
       </div>
 
+    <nav className="mx-auto max-w-6xl px-4 mt-4">
+      <ul className="flex flex-wrap gap-3 text-sm">
+        <li>
+          <a
+            href="/admin/addmovie"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            Add Movie
+          </a>
+        </li>
+        <li>
+          <a
+            href="/admin/addpromo"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            Add Promotion
+          </a>
+        </li>
+        <li>
+          <a
+            href="/admin/users"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            Manage Users
+          </a>
+        </li>
+        <li>
+          <a
+            href="/admin/showtimes"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            Manage Showtimes
+          </a>
+
+        </li>
+        <li>
+          <a
+            href="/admin/scheduleShows"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            Schedule Movie Shows
+          </a>
+        </li>
+      </ul>
+    </nav>
+
       <div className="mx-auto max-w-6xl px-4 py-6 space-y-8">
         {/* bookings */}
         <section>
@@ -201,6 +247,7 @@ export default function AdminHomePage() {
             )}
           </ul>
         </section>
+
       </div>
     </main>
   );
