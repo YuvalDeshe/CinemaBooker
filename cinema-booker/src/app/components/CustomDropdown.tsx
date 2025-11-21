@@ -2,18 +2,11 @@
 
 import React from 'react';
 import styles from './customdropdown.module.css';
-
-interface CustomDropdownProps {
-  options: string[];
-  value: string;
-  onChange?: (value: string) => void;
-}
+import { useCustomDropdownController } from '@/controllers/CustomDropdownController';
+import { CustomDropdownProps } from '@/models/CustomDropdownPropsInterface';
 
 export default function CustomDropdown({ options, value, onChange }: CustomDropdownProps) {
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newValue = event.target.value;
-    if (onChange) onChange(newValue);
-  };
+  const { handleChange } = useCustomDropdownController(onChange);
 
   return (
     <div className={styles.dropdownContainer}>

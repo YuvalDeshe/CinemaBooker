@@ -10,6 +10,16 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import TopBar from "@/app/components/TopBar";
 import Calendar from "@/app/components/Calendar";
+import {
+  fetchMovieById,
+  fetchShowTimesByMovie,
+  buildActorsList,
+  buildEmbedLink,
+  formatTime,
+  formatSelectedDate,
+  getShowTimesForDate,
+  ShowTime
+} from "@/controllers/MovieInfoController";
 
 //This is the defined movie type, which has all the info we talked about Tuesday night.
 type Movie = {
@@ -26,16 +36,7 @@ type Movie = {
   _id: string;
 }
 
-type ShowTime = {
-  _id: string;
-  movieID: string;
-  showRoomID: string;
-  movieTitle: string;
-  showRoomName: string;
-  time: number;
-  date: string;
-  seatReservationArray: string[];
-}
+type LocalShowTime = ShowTime;
 
 
 
@@ -44,7 +45,7 @@ export default function MoviePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [movie, setMovie] = React.useState<Movie | null>(null);
-  const [showTimes, setShowTimes] = React.useState<ShowTime[]>([]);
+  const [showTimes, setShowTimes] = React.useState<LocalShowTime[]>([]);
   const [availableDates, setAvailableDates] = React.useState<string[]>([]);
   const [selectedDate, setSelectedDate] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
@@ -68,69 +69,58 @@ export default function MoviePage() {
   // Fetch movie details
   React.useEffect(() => { 
     if (!id) return;
-    fetch(`/api/movies/${id}`)
-      .then(res => res.json())
-      .then(data => setMovie(data));
+
+    const loadMovie = async () => {
+      try {
+        const movieData = await fetchMovieById(`${id}`);
+        setMovie(movieData);
+      } catch (error) {
+        console.error("Error fetching movie:", error);
+      }
+    };
+
+    loadMovie();
   }, [id]);
 
   // Fetch showtimes for this movie
   React.useEffect(() => {
     if (!id) return;
     
-    const fetchShowTimes = async () => {
+    const loadShowTimes = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/shows?movieId=${id}`);
-        const shows: ShowTime[] = await response.json();
+        const { shows, availableDates, defaultDate } = await fetchShowTimesByMovie(`${id}`);
         
         setShowTimes(shows);
-        
-        // Get unique dates from the shows
-        const dates = [...new Set(shows.map(show => show.date))].sort();
-        setAvailableDates(dates);
+        setAvailableDates(availableDates);
         
         // Set the first available date as default
-        if (dates.length > 0) {
-          setSelectedDate(dates[0]);
+        if (defaultDate) {
+          setSelectedDate(defaultDate);
         }
-        
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching showtimes:', error);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchShowTimes();
+    loadShowTimes();
   }, [id]);
 
   if (!movie || loading) return <div className={styles.mainDiv}>Loading...</div>;
 
   //array of cast members to string
-  let actorsList: string = "";
-  if (Array.isArray(movie.castList)) {
-    actorsList = movie.castList.join(", ");
-  } else if (typeof movie.castList === "string") {
-    actorsList = movie.castList;
-  }
+  const actorsList: string = buildActorsList(movie.castList);
 
   // embedded links # fixed error issue with db
-  let embedLink: string = "";
-  if (movie.trailerLink && typeof movie.trailerLink === "string") {
-    const lastEq = movie.trailerLink.lastIndexOf("=");
-    embedLink =
-      "https://www.youtube.com/embed/" +
-      (lastEq !== -1
-        ? movie.trailerLink.substring(lastEq + 1)
-        : movie.trailerLink);
-  }
-
+  const embedLink: string = buildEmbedLink(movie.trailerLink);
 
   const returnHandler = () => {
     router.push('/');
   };
 
-  const goToBooking = (show: ShowTime) => {
+  const goToBooking = (show: LocalShowTime) => {
     if (!session) {
       // Redirect to login with a return URL
       router.push(`/login?redirect=/movie/${id}/booking&showId=${show._id}`);
@@ -148,28 +138,8 @@ export default function MoviePage() {
     router.push(`/movie/${id}/booking?showId=${show._id}&time=${encodeURIComponent(timeLabel)}&date=${encodeURIComponent(show.date)}&auditorium=${encodeURIComponent(show.showRoomName)}`);
   };
 
-  // Helper function to format time (assuming time is in 24-hour format)
-  const formatTime = (time: number): string => {
-    const hour = time;
-    if (hour === 0) return "12:00 AM";
-    if (hour < 12) return `${hour}:00 AM`;
-    if (hour === 12) return "12:00 PM";
-    return `${hour - 12}:00 PM`;
-  };
-
-  // Format selected date for display
-  const formatSelectedDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
   // Get showtimes for the selected date
-  const showTimesForDate = showTimes.filter(show => show.date === selectedDate);
+  const showTimesForDate = getShowTimesForDate(showTimes, selectedDate);
 
 
   return (
