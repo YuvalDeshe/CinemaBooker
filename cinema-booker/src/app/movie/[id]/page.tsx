@@ -1,40 +1,20 @@
 'use client';
 
-import Movie from "@/app/components/Movie";
 import React from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHouse } from "@fortawesome/free-solid-svg-icons";
 import styles from "./styles.module.css"
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
-import TopBar from "@/app/components/TopBar";
 import Calendar from "@/app/components/Calendar";
 import {
   fetchMovieById,
   fetchShowTimesByMovie,
-  buildActorsList,
   buildEmbedLink,
   formatTime,
   formatSelectedDate,
   getShowTimesForDate,
   ShowTime
 } from "@/controllers/MovieInfoController";
-
-//This is the defined movie type, which has all the info we talked about Tuesday night.
-type Movie = {
-  title: string;
-  genre: string; //Maybe we could make this an enum or something, but not required.
-  description: string;
-  posterUrl: string;
-  trailerLink: string;
-  director: string;
-  castList: string[]; //Idk what this data type will be, but Im assuming a String array for now.
-  rating: string; //also could be an enum
-  runTime: string;
-  isCurrentlyRunning: boolean;
-  _id: string;
-}
+import { Movie } from "@/models/MovieModel";
 
 type LocalShowTime = ShowTime;
 
@@ -73,7 +53,8 @@ export default function MoviePage() {
     const loadMovie = async () => {
       try {
         const movieData = await fetchMovieById(`${id}`);
-        setMovie(movieData);
+        if (!movieData) return; // ensure not null
+        setMovie(new Movie(movieData));  
       } catch (error) {
         console.error("Error fetching movie:", error);
       }
@@ -110,15 +91,9 @@ export default function MoviePage() {
 
   if (!movie || loading) return <div className={styles.mainDiv}>Loading...</div>;
 
-  //array of cast members to string
-  const actorsList: string = buildActorsList(movie.castList);
-
   // embedded links # fixed error issue with db
-  const embedLink: string = buildEmbedLink(movie.trailerLink);
-
-  const returnHandler = () => {
-    router.push('/');
-  };
+  console.log("MOVIE.TRAILER: ", movie.trailer)
+  const embedLink: string = buildEmbedLink(movie.trailer);
 
   const goToBooking = (show: LocalShowTime) => {
     if (!session) {
@@ -141,12 +116,11 @@ export default function MoviePage() {
   // Get showtimes for the selected date
   const showTimesForDate = getShowTimesForDate(showTimes, selectedDate);
 
-
   return (
     <div className={styles.mainDiv}>
       <h1 className={styles.movieTitle}>{movie.title}</h1>
       <div className={styles.primaryMovieDiv}>
-        <img className={styles.moviePoster} src={movie.posterUrl}></img>
+        <img className={styles.moviePoster} src={movie.png}></img>
         <iframe className={styles.trailer}
           src= {embedLink}
           title="YouTube video player"
@@ -156,7 +130,7 @@ export default function MoviePage() {
         </iframe>
       </div>
       <div className={styles.movieInfo}>
-        <p className={styles.movieInfoItems}>{movie.runTime}</p>
+        <p className={styles.movieInfoItems}>{movie.runtime}</p>
         <p className={styles.movieInfoItems}>|</p>
         <p className={styles.movieInfoItems}>{movie.genre}</p>
         <p className={styles.movieInfoItems}>|</p>
@@ -243,7 +217,7 @@ export default function MoviePage() {
       <p className={styles.subSectionItems}>{movie.director}</p>
       <hr className={styles.hr}/>
       <h3 className={styles.subSectionHeading}>Cast:</h3>
-      <p className={styles.subSectionItems}>{actorsList}</p>
+      <p className={styles.subSectionItems}>{movie.cast}</p>
     </div>
   );
 }

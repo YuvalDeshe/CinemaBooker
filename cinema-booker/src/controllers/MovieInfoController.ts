@@ -1,16 +1,4 @@
-export type Movie = {
-  title: string;
-  genre: string;
-  description: string;
-  posterUrl: string;
-  trailerLink: string;
-  director: string;
-  castList: string[] | string;
-  rating: string;
-  runTime: string;
-  isCurrentlyRunning: boolean;
-  _id: string;
-};
+import { Movie } from "@/models/MovieModel";
 
 export type ShowTime = {
   _id: string;
