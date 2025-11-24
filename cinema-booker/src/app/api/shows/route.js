@@ -144,3 +144,69 @@ export async function POST(request) {
         });
     }
 }
+
+export async function PUT(request) {
+    try {
+        const { db } = await connectToDatabase();
+        const showsCollection = db.collection('ShowCollection');
+
+        let updateData;
+        try {
+            updateData = await request.json();
+        } catch (error_) {
+            console.warn('Failed to parse JSON body for /api/shows PUT', error_);
+            return new Response(JSON.stringify({ message: "Invalid or missing JSON body." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const { showId, seatReservationArray } = updateData;
+
+        if (!showId || !seatReservationArray) {
+            return new Response(JSON.stringify({ message: "Missing showId or seatReservationArray." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Validate showId
+        if (!ObjectId.isValid(showId)) {
+            return new Response(JSON.stringify({ message: "Invalid showId format." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Update the show's seat reservation array
+        const result = await showsCollection.updateOne(
+            { _id: new ObjectId(showId) },
+            { $set: { seatReservationArray: seatReservationArray } }
+        );
+
+        if (result.matchedCount === 0) {
+            return new Response(JSON.stringify({ message: "Show not found." }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Fetch the updated show
+        const updatedShow = await showsCollection.findOne({ _id: new ObjectId(showId) });
+
+        return new Response(JSON.stringify({ 
+            message: 'Seat reservations updated successfully!',
+            show: updatedShow
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+    } catch (error) {
+        console.error("Failed to update seat reservations:", error);
+        return new Response(JSON.stringify({ message: "An error occurred while updating seat reservations.", error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}

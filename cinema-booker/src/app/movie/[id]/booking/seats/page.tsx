@@ -41,7 +41,7 @@ type Seat = {
   number: number;
   isOccupied: boolean;
   isSelected: boolean;
-  type: 'standard' | 'premium';
+  type: 'standard' | 'premium' | 'occupied-by-other';
 }
 
 function SeatMapContent() {
@@ -268,9 +268,9 @@ function SeatMapContent() {
     
     if (seat.isOccupied) {
       return {
-        backgroundColor: '#ef4444',
+        backgroundColor: '#374151', // Darker gray for occupied seats
         cursor: 'not-allowed',
-        opacity: 0.7
+        opacity: 0.8
       };
     }
     
@@ -287,15 +287,52 @@ function SeatMapContent() {
     };
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedSeats.length !== totalTickets) {
       alert(`Please select exactly ${totalTickets} seat(s)`);
       return;
     }
 
-    // For now, show confirmation
-    const seatNumbers = selectedSeats.map(seat => seat.id).join(', ');
-    alert(`Booking confirmed!\nSeats: ${seatNumbers}\nCustomer: ${bookingDetails.name}\nEmail: ${bookingDetails.email}`);
+    if (!show) {
+      alert('Show information is not available');
+      return;
+    }
+
+    try {
+      // Get the selected seat IDs
+      const selectedSeatIds = selectedSeats.map(seat => seat.id);
+      
+      // Merge with existing reservations
+      const updatedReservations = [...show.seatReservationArray, ...selectedSeatIds];
+
+      // Update the show's seat reservations in the database
+      const response = await fetch('/api/shows', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          showId: show._id,
+          seatReservationArray: updatedReservations
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update seat reservations');
+      }
+
+      const result = await response.json();
+      
+      // Show confirmation
+      const seatNumbers = selectedSeatIds.join(', ');
+      alert(`Booking confirmed!\nSeats: ${seatNumbers}\nCustomer: ${bookingDetails.name}\nEmail: ${bookingDetails.email}`);
+      
+      // Optionally redirect to a confirmation page or back to home
+      // router.push('/');
+    } catch (error) {
+      console.error('Error confirming booking:', error);
+      alert('Failed to confirm booking. Please try again.');
+    }
   };
 
   if (!movie || loading) {
@@ -430,6 +467,16 @@ function SeatMapContent() {
                   borderRadius: "4px"
                 }}></div>
                 <span>Selected</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{
+                  width: "16px",
+                  height: "16px",
+                  backgroundColor: "#374151",
+                  borderRadius: "4px",
+                  opacity: 0.8
+                }}></div>
+                <span>Occupied</span>
               </div>
             </div>
           </div>

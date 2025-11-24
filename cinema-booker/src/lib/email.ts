@@ -469,3 +469,226 @@ Cinema Booker © 2025. All rights reserved.
 This is an automated message, please do not reply to this email.
   `;
 }
+
+// PROMOTIONAL EMAIL FUNCTIONS
+export function generatePromotionalEmailHtml(
+  userName: string, 
+  promoCode: string, 
+  discountPercent: number,
+  startDate: string,
+  endDate: string
+) {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Exclusive Discount - Cinema Booker</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background: white;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                border-bottom: 2px solid #e74c3c;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #e74c3c;
+                margin-bottom: 10px;
+            }
+            .promo-banner {
+                background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 10px;
+                text-align: center;
+                margin: 30px 0;
+                box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            }
+            .discount-amount {
+                font-size: 48px;
+                font-weight: bold;
+                margin: 10px 0;
+            }
+            .promo-code {
+                background: white;
+                color: #e74c3c;
+                padding: 15px 30px;
+                border-radius: 8px;
+                font-size: 28px;
+                font-weight: bold;
+                letter-spacing: 3px;
+                margin: 20px 0;
+                display: inline-block;
+                border: 3px dashed #e74c3c;
+            }
+            .button {
+                display: inline-block;
+                padding: 15px 40px;
+                background-color: #e74c3c;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                margin: 20px 0;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .button:hover {
+                background-color: #c0392b;
+            }
+            .date-info {
+                background-color: #fff3cd;
+                border: 1px solid #ffeaa7;
+                color: #856404;
+                padding: 15px;
+                border-radius: 5px;
+                margin: 20px 0;
+                text-align: center;
+            }
+            .features {
+                margin: 20px 0;
+            }
+            .features ul {
+                list-style: none;
+                padding: 0;
+            }
+            .features li {
+                padding: 10px 0;
+                border-bottom: 1px solid #eee;
+            }
+            .features li:before {
+                content: "🎬 ";
+                margin-right: 10px;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+            }
+            .unsubscribe {
+                color: #999;
+                font-size: 11px;
+                margin-top: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">Cinema Booker</div>
+                <h1>🎉 Exclusive Discount Just For You!</h1>
+            </div>
+            
+            <p>Hi ${userName}!</p>
+            
+            <p>Great news! As a valued Cinema Booker member, you've been selected to receive an exclusive discount on your next movie booking.</p>
+            
+            <div class="promo-banner">
+                <div style="font-size: 20px; margin-bottom: 10px;">Save Big on Your Next Movie!</div>
+                <div class="discount-amount">${discountPercent}% OFF</div>
+                <div style="font-size: 18px; margin-top: 10px;">Use promo code:</div>
+                <div class="promo-code">${promoCode}</div>
+            </div>
+            
+            <div class="date-info">
+                <strong>⏰ Limited Time Offer!</strong><br>
+                Valid from ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" class="button">Book Your Tickets Now</a>
+            </div>
+            
+            <div class="features">
+                <h3>How to Use Your Discount:</h3>
+                <ul>
+                    <li>Browse our latest movies and select your showtime</li>
+                    <li>Choose your seats and proceed to checkout</li>
+                    <li>Enter promo code <strong>${promoCode}</strong> at checkout</li>
+                    <li>Enjoy ${discountPercent}% off your ticket price!</li>
+                </ul>
+            </div>
+            
+            <p style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #e74c3c;">
+                <strong>Pro Tip:</strong> This discount can be used multiple times during the promotion period, so invite your friends and family for the ultimate cinema experience!
+            </p>
+            
+            <p>Don't miss out on this amazing offer! Book your tickets today and enjoy the magic of cinema at a discounted price.</p>
+            
+            <div class="footer">
+                <p>Thank you for being a valued Cinema Booker member!</p>
+                <p>Cinema Booker &copy; 2025. All rights reserved.</p>
+                <div class="unsubscribe">
+                    <p>You're receiving this email because you opted in to receive promotional offers.</p>
+                    <p>To manage your email preferences, visit your account settings.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+export function generatePromotionalEmailText(
+  userName: string, 
+  promoCode: string, 
+  discountPercent: number,
+  startDate: string,
+  endDate: string
+) {
+  return `
+Cinema Booker - Exclusive Discount Just For You!
+
+Hi ${userName}!
+
+Great news! As a valued Cinema Booker member, you've been selected to receive an exclusive discount on your next movie booking.
+
+*** SPECIAL OFFER ***
+${discountPercent}% OFF YOUR NEXT BOOKING!
+
+USE PROMO CODE: ${promoCode}
+
+VALID FROM: ${new Date(startDate).toLocaleDateString()}
+VALID UNTIL: ${new Date(endDate).toLocaleDateString()}
+
+HOW TO USE YOUR DISCOUNT:
+1. Browse our latest movies and select your showtime
+2. Choose your seats and proceed to checkout
+3. Enter promo code ${promoCode} at checkout
+4. Enjoy ${discountPercent}% off your ticket price!
+
+PRO TIP: This discount can be used multiple times during the promotion period, so invite your friends and family for the ultimate cinema experience!
+
+Book your tickets now at: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}
+
+Don't miss out on this amazing offer!
+
+Thank you for being a valued Cinema Booker member!
+
+Cinema Booker © 2025. All rights reserved.
+
+---
+You're receiving this email because you opted in to receive promotional offers.
+To manage your email preferences, visit your account settings.
+  `;
+}

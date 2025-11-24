@@ -125,6 +125,14 @@ export default function AdminHomePage() {
         </li>
         <li>
           <a
+            href="/admin/send-promo"
+            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
+          >
+            📧 Send Promotional Email
+          </a>
+        </li>
+        <li>
+          <a
             href="/admin/users"
             className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
           >
