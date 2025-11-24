@@ -422,11 +422,11 @@ function SeatMapContent() {
                           onClick={() => handleSeatClick(seat)}
                           disabled={seat.isOccupied}
                           style={{
-                            width: "32px",
-                            height: "32px",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "10px",
+                           width: "44px",
+height: "44px",
+fontSize: "13px",
+borderRadius: "8px",
+                            fontSize: "13px",
                             fontWeight: "600",
                             color: "white",
                             ...getSeatStyle(seat)

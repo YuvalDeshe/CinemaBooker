@@ -105,158 +105,68 @@ export default function AdminHomePage() {
         </div>
       </div>
 
-    <nav className="mx-auto max-w-6xl px-4 mt-4">
-      <ul className="flex flex-wrap gap-3 text-sm">
-        <li>
-          <a
-            href="/admin/addmovie"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            Add Movie
-          </a>
-        </li>
-        <li>
-          <a
-            href="/admin/addpromo"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            Add Promotion
-          </a>
-        </li>
-        <li>
-          <a
-            href="/admin/send-promo"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            📧 Send Promotional Email
-          </a>
-        </li>
-        <li>
-          <a
-            href="/admin/users"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            Manage Users
-          </a>
-        </li>
-        <li>
-          <a
-            href="/admin/showtimes"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            Manage Showtimes
-          </a>
 
-        </li>
-        <li>
-          <a
-            href="/admin/scheduleShows"
-            className="border border-neutral-700 rounded px-3 py-1.5 hover:bg-neutral-900 transition"
-          >
-            Schedule Movie Shows
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-      <div className="mx-auto max-w-6xl px-4 py-6 space-y-8">
-        {/* bookings */}
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold">Recent bookings</h2>
-            <button className="text-sm border border-neutral-700 px-3 py-1.5 rounded hover:bg-neutral-900">
-              Refresh
-            </button>
-          </div>
-
-          <div className="overflow-x-auto border border-neutral-800 rounded">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-900 text-neutral-300">
-                <tr>
-                  <th className="px-3 py-2 text-left">ID</th>
-                  <th className="px-3 py-2 text-left">User</th>
-                  <th className="px-3 py-2 text-left">Movie</th>
-                  <th className="px-3 py-2 text-left">Showtime</th>
-                  <th className="px-3 py-2 text-left">Seats</th>
-                  <th className="px-3 py-2 text-left">Total</th>
-                  <th className="px-3 py-2 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((b) => (
-                  <tr
-                    key={b.id}
-                    className="border-t border-neutral-800 hover:bg-neutral-900"
-                  >
-                    <td className="px-3 py-2 font-medium">{b.id}</td>
-                    <td className="px-3 py-2">{b.user}</td>
-                    <td className="px-3 py-2">{b.movie}</td>
-                    <td className="px-3 py-2">{b.showtime}</td>
-                    <td className="px-3 py-2">{b.seats}</td>
-                    <td className="px-3 py-2">${b.total.toFixed(2)}</td>
-                    <td className="px-3 py-2">
-                      <span className={statusBadge(b.status)}>{b.status}</span>
-                    </td>
-                  </tr>
-                ))}
-                {bookings.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-3 py-10 text-center text-neutral-400"
-                    >
-                      No bookings to show.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* moderation */}
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold">Moderation queue</h2>
-            <a
-              href="/admin/reports"
-              className="text-sm text-neutral-300 hover:underline"
-            >
-              View all
-            </a>
-          </div>
-
-          <ul className="border border-neutral-800 rounded divide-y divide-neutral-800">
-            {reports.map((r) => (
-              <li key={r.id} className="p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="font-medium">{r.movie}</div>
-                    <div className="text-xs text-neutral-400">
-                      {r.user} • {r.submittedAt}
-                    </div>
-                    <div className="mt-1 text-sm">{r.reason}</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="border border-neutral-700 px-3 py-1.5 rounded hover:bg-neutral-900">
-                      Approve
-                    </button>
-                    <button className="border border-neutral-700 px-3 py-1.5 rounded hover:bg-neutral-900">
-                      Reject
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-            {reports.length === 0 && (
-              <li className="p-6 text-center text-neutral-400">
-                No reports pending.
-              </li>
-            )}
-          </ul>
-        </section>
-
+<section className="mx-auto max-w-6xl px-4 mt-8 grid gap-6 md:grid-cols-2">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
+        <h2 className="text-base font-semibold mb-2">Manage promo codes</h2>
+        <p className="text-sm text-neutral-400 mb-4">
+          Create and update promo codes that can be applied at checkout.
+        </p>
+        <a
+          href="/admin/addpromo"
+          className="inline-flex items-center rounded-md border border-emerald-500 px-3 py-1.5 text-sm font-medium hover:bg-emerald-500/10"
+        >
+          Add promotion
+        </a>
       </div>
+
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
+        <h2 className="text-base font-semibold mb-2">Send promotion emails</h2>
+        <p className="text-sm text-neutral-400 mb-4">
+          Email active promo codes to users who opted in to marketing.
+        </p>
+        <a
+          href="/admin/send-promo"
+          className="inline-flex items-center rounded-md border border-sky-500 px-3 py-1.5 text-sm font-medium hover:bg-sky-500/10"
+        >
+          Send Promotional Email
+        </a>
+      </div>
+
+
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
+        <h2 className="text-base font-semibold mb-2">Add New Movie</h2>
+        <p className="text-sm text-neutral-400 mb-4">
+           Add a new movie title, description, cast, poster, and details.
+        </p>
+        <a
+          href="/admin/addmovie"
+          className="inline-flex items-center rounded-md border border-sky-500 px-3 py-1.5 text-sm font-medium hover:bg-sky-500/10"
+        >
+          Add Movie
+        </a>
+      </div>
+
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
+        <h2 className="text-base font-semibold mb-2">Schedule Movie Shows</h2>
+        <p className="text-sm text-neutral-400 mb-4">
+          Manage showtimes, assign auditoriums, and schedule upcoming screenings.
+        </p>
+        <a
+          href="/admin/scheduleShows"
+          className="inline-flex items-center rounded-md border border-emerald-500 px-3 py-1.5 text-sm font-medium hover:bg-sky-500/10"
+        >
+          Schedule Movie Shows
+        </a>
+      </div>
+      
+
+
+
+
+
+
+    </section>
     </main>
   );
 }
