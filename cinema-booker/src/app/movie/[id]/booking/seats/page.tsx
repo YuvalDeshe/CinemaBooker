@@ -9,13 +9,13 @@ type Movie = {
 }
 
 type BookingDetails = {
-  name: string;
-  email: string;
   adultTickets: number;
   childTickets: number;
   seniorTickets: number;
   showtime: string;
   showId?: string;
+  date: string;
+  auditorium: string;
 }
 
 type Show = {
@@ -48,16 +48,16 @@ function SeatMapContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { id } = useParams();
-  
+
   // Get booking details from URL params
   const bookingDetails: BookingDetails = {
-    name: searchParams.get("name") || "",
-    email: searchParams.get("email") || "",
     adultTickets: parseInt(searchParams.get("adultTickets") || "0"),
     childTickets: parseInt(searchParams.get("childTickets") || "0"),
     seniorTickets: parseInt(searchParams.get("seniorTickets") || "0"),
     showtime: searchParams.get("showtime") || "",
-    showId: searchParams.get("showId") || ""
+    showId: searchParams.get("showId") || "",
+    date: searchParams.get("date") || "",
+    auditorium: searchParams.get("auditorium") || "",
   };
 
   const totalTickets = bookingDetails.adultTickets + bookingDetails.childTickets + bookingDetails.seniorTickets;
@@ -75,70 +75,70 @@ function SeatMapContent() {
       try {
         setLoading(true);
         console.log('Fetching show data for movie ID:', id);
-        
+
         // Fetch shows for this movie
         const showResponse = await fetch(`/api/shows?movieId=${id}`);
         console.log('Show API response status:', showResponse.status);
-        
+
         if (!showResponse.ok) {
           console.error('Show API failed:', showResponse.statusText);
           throw new Error(`Show API failed: ${showResponse.statusText}`);
         }
-        
+
         const shows = await showResponse.json();
         console.log('Shows data:', shows);
         console.log('Looking for showId:', bookingDetails.showId);
-        
+
         // Find the specific show by showId, or fall back to first show
         let currentShow;
         if (bookingDetails.showId) {
           currentShow = shows.find((show: Show) => show._id === bookingDetails.showId);
           console.log('Found show by ID:', currentShow);
         }
-        
+
         // If no specific show found, fall back to first show
         if (!currentShow) {
           console.log('Using first available show as fallback');
           currentShow = shows[0];
         }
-        
+
         if (!currentShow) {
           console.error('No show found for this movie');
           setLoading(false);
           return;
         }
-        
+
         console.log('Current show:', currentShow);
         setShow(currentShow);
-        
+
         // Fetch showroom data
         console.log('Fetching showroom data for ID:', currentShow.showRoomID);
         const roomResponse = await fetch(`/api/showRooms/${currentShow.showRoomID}`);
         console.log('Showroom API response status:', roomResponse.status);
-        
+
         if (!roomResponse.ok) {
           console.error('Showroom API failed:', roomResponse.statusText);
           throw new Error(`Showroom API failed: ${roomResponse.statusText}`);
         }
-        
+
         const roomData = await roomResponse.json();
         console.log('Showroom data:', roomData);
         console.log('Showroom name:', roomData.roomName);
         console.log('Seats array length:', roomData.seats ? roomData.seats.length : 'No seats array');
         setShowRoom(roomData);
-        
+
         // Generate seats based on showroom capacity
         const totalSeats = roomData.seats.length;
         console.log('Total seats in showroom:', totalSeats);
         console.log('Checking if totalSeats === 56:', totalSeats === 56);
         console.log('Type of totalSeats:', typeof totalSeats);
-        
+
         const reservedSeats = new Set(currentShow.seatReservationArray || []);
         console.log('Reserved seats:', reservedSeats);
-        
+
         // Create proper widescreen auditorium layout for 56 seats
         const generatedSeats: Seat[] = [];
-        
+
         if (totalSeats === 56) {
           console.log('Using 56-seat widescreen layout');
           // Widescreen auditorium layout: 8 rows with increasing seats from front to back
@@ -152,7 +152,7 @@ function SeatMapContent() {
             { row: 'G', seats: 7 },  // 7 seats
             { row: 'H', seats: 7 }   // Back row: 7 seats
           ]; // Total: 6+6+7+7+8+8+7+7 = 56 seats
-          
+
           rowLayouts.forEach(({ row, seats }) => {
             for (let seatNum = 1; seatNum <= seats; seatNum++) {
               const seatId = `${row}${seatNum}`;
@@ -170,28 +170,28 @@ function SeatMapContent() {
           // Fallback for other seat counts - use generic grid
           console.log('Using fallback generic grid layout for', totalSeats, 'seats');
           let seatsPerRow, numRows;
-          
+
           if (totalSeats <= 20) {
-            seatsPerRow = 4; 
+            seatsPerRow = 4;
             numRows = Math.ceil(totalSeats / seatsPerRow);
           } else if (totalSeats <= 30) {
-            seatsPerRow = 6; 
+            seatsPerRow = 6;
             numRows = Math.ceil(totalSeats / seatsPerRow);
           } else if (totalSeats <= 40) {
-            seatsPerRow = 8; 
+            seatsPerRow = 8;
             numRows = Math.ceil(totalSeats / seatsPerRow);
           } else {
-            seatsPerRow = 10; 
+            seatsPerRow = 10;
             numRows = Math.ceil(totalSeats / seatsPerRow);
           }
-          
+
           const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'].slice(0, numRows);
-          
+
           rows.forEach((row, rowIndex) => {
-            const seatsInThisRow = rowIndex === rows.length - 1 
+            const seatsInThisRow = rowIndex === rows.length - 1
               ? totalSeats - (rowIndex * seatsPerRow)
               : Math.min(seatsPerRow, totalSeats - (rowIndex * seatsPerRow));
-              
+
             for (let seatNum = 1; seatNum <= seatsInThisRow; seatNum++) {
               const seatId = `${row}${seatNum}`;
               generatedSeats.push({
@@ -215,7 +215,7 @@ function SeatMapContent() {
         console.log('Using fallback seat layout');
         const defaultSeats: Seat[] = [];
         const rows = ['A', 'B', 'C', 'D', 'E'];
-        
+
         rows.forEach(row => {
           for (let seatNum = 1; seatNum <= 5; seatNum++) {
             const seatId = `${row}${seatNum}`;
@@ -229,7 +229,7 @@ function SeatMapContent() {
             });
           }
         });
-        
+
         console.log('Fallback seats generated:', defaultSeats.length);
         setSeats(defaultSeats);
         setLoading(false);
@@ -265,7 +265,7 @@ function SeatMapContent() {
 
   const getSeatStyle = (seat: Seat) => {
     const isSelected = selectedSeats.some(s => s.id === seat.id);
-    
+
     if (seat.isOccupied) {
       return {
         backgroundColor: '#374151', // Darker gray for occupied seats
@@ -273,14 +273,14 @@ function SeatMapContent() {
         opacity: 0.8
       };
     }
-    
+
     if (isSelected) {
       return {
         backgroundColor: '#10b981',
         cursor: 'pointer'
       };
     }
-    
+
     return {
       backgroundColor: '#6b7280',
       cursor: 'pointer'
@@ -301,7 +301,7 @@ function SeatMapContent() {
     try {
       // Get the selected seat IDs
       const selectedSeatIds = selectedSeats.map(seat => seat.id);
-      
+
       // Merge with existing reservations
       const updatedReservations = [...show.seatReservationArray, ...selectedSeatIds];
 
@@ -322,13 +322,26 @@ function SeatMapContent() {
       }
 
       const result = await response.json();
-      
+
       // Show confirmation
       const seatNumbers = selectedSeatIds.join(', ');
-      alert(`Booking confirmed!\nSeats: ${seatNumbers}\nCustomer: ${bookingDetails.name}\nEmail: ${bookingDetails.email}`);
-      
-      // Optionally redirect to a confirmation page or back to home
+      // alert(`Booking confirmed!\nSeats: ${seatNumbers}\nCustomer: ${bookingDetails.name}\nEmail: ${bookingDetails.email}`);
+
+      // Redirect to checkout page
       // router.push('/');
+      const params = new URLSearchParams({
+        adultTickets: bookingDetails.adultTickets.toString(),
+        childTickets: bookingDetails.childTickets.toString(),
+        seniorTickets: bookingDetails.seniorTickets.toString(),
+        showtime: bookingDetails.showtime,
+        showId: bookingDetails.showId || "",
+        date: bookingDetails.date || "",
+        auditorium: bookingDetails.auditorium || "",
+        selectedSeats: selectedSeatIds.join(",")
+      });
+
+      router.push(`/movie/${id}/booking/seats/checkout?${params.toString()}`);
+
     } catch (error) {
       console.error('Error confirming booking:', error);
       alert('Failed to confirm booking. Please try again.');
@@ -337,11 +350,11 @@ function SeatMapContent() {
 
   if (!movie || loading) {
     return (
-      <div style={{ 
-        minHeight: "100vh", 
-        backgroundColor: "#0f172a", 
-        display: "flex", 
-        alignItems: "center", 
+      <div style={{
+        minHeight: "100vh",
+        backgroundColor: "#0f172a",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
         color: "#e2e8f0"
       }}>
@@ -351,16 +364,16 @@ function SeatMapContent() {
   }
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      backgroundColor: "#0f172a", 
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "#0f172a",
       color: "#e2e8f0",
       padding: "16px"
     }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Header */}
-        <header style={{ 
-          padding: "20px 0", 
+        <header style={{
+          padding: "20px 0",
           borderBottom: "1px solid #334155",
           marginBottom: "24px"
         }}>
@@ -398,20 +411,20 @@ function SeatMapContent() {
               {Array.from(new Set(seats.map(seat => seat.row))).map(row => {
                 const rowSeats = seats.filter(seat => seat.row === row);
                 const seatsInRow = rowSeats.length;
-                
+
                 return (
                   <div key={row} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={{ 
-                      width: "20px", 
-                      fontSize: "14px", 
+                    <div style={{
+                      width: "20px",
+                      fontSize: "14px",
                       fontWeight: "600",
-                      color: "#94a3b8" 
+                      color: "#94a3b8"
                     }}>
                       {row}
                     </div>
-                    
-                    <div style={{ 
-                      display: "flex", 
+
+                    <div style={{
+                      display: "flex",
                       gap: "6px",
                       justifyContent: "center",
                       minWidth: "320px" // Ensure consistent width for alignment
@@ -422,10 +435,10 @@ function SeatMapContent() {
                           onClick={() => handleSeatClick(seat)}
                           disabled={seat.isOccupied}
                           style={{
-                           width: "44px",
-height: "44px",
-fontSize: "13px",
-borderRadius: "8px",
+                            width: "44px",
+                            height: "44px",
+                            fontSize: "13px",
+                            borderRadius: "8px",
                             fontSize: "13px",
                             fontWeight: "600",
                             color: "white",
@@ -443,10 +456,10 @@ borderRadius: "8px",
             </div>
 
             {/* Legend */}
-            <div style={{ 
-              marginTop: "32px", 
-              display: "flex", 
-              gap: "24px", 
+            <div style={{
+              marginTop: "32px",
+              display: "flex",
+              gap: "24px",
               justifyContent: "center",
               fontSize: "14px"
             }}>
@@ -492,14 +505,14 @@ borderRadius: "8px",
               <h3 style={{ margin: "0 0 16px 0", fontSize: "1.1rem" }}>
                 Booking Summary
               </h3>
-              
+
               <div style={{ display: "grid", gap: "8px", fontSize: "14px" }}>
                 <div><strong>Movie:</strong> {movie.title}</div>
                 <div><strong>Showtime:</strong> {bookingDetails.showtime}</div>
                 <div><strong>Customer:</strong> {bookingDetails.name}</div>
                 <div><strong>Email:</strong> {bookingDetails.email}</div>
                 <hr style={{ border: "none", borderTop: "1px solid #334155", margin: "12px 0" }} />
-                
+
                 {bookingDetails.adultTickets > 0 && (
                   <div>Adult tickets: {bookingDetails.adultTickets}</div>
                 )}
@@ -509,11 +522,11 @@ borderRadius: "8px",
                 {bookingDetails.seniorTickets > 0 && (
                   <div>Senior tickets: {bookingDetails.seniorTickets}</div>
                 )}
-                
+
                 <div style={{ fontWeight: "600", marginTop: "8px" }}>
                   Total tickets: {totalTickets}
                 </div>
-                
+
                 {selectedSeats.length > 0 && (
                   <>
                     <hr style={{ border: "none", borderTop: "1px solid #334155", margin: "12px 0" }} />
@@ -525,11 +538,11 @@ borderRadius: "8px",
                 )}
               </div>
 
-              <div style={{ 
-                marginTop: "24px", 
-                display: "flex", 
-                gap: "12px", 
-                flexDirection: "column" 
+              <div style={{
+                marginTop: "24px",
+                display: "flex",
+                gap: "12px",
+                flexDirection: "column"
               }}>
                 <button
                   onClick={() => router.back()}
@@ -546,7 +559,7 @@ borderRadius: "8px",
                 >
                   Back to Details
                 </button>
-                
+
                 <button
                   onClick={handleContinue}
                   disabled={selectedSeats.length !== totalTickets}
@@ -561,8 +574,8 @@ borderRadius: "8px",
                     fontWeight: "600"
                   }}
                 >
-                  {selectedSeats.length === totalTickets 
-                    ? "Confirm Booking" 
+                  {selectedSeats.length === totalTickets
+                    ? "Confirm Booking"
                     : `Select ${totalTickets - selectedSeats.length} more seat(s)`
                   }
                 </button>
@@ -578,11 +591,11 @@ borderRadius: "8px",
 export default function SeatMapPage() {
   return (
     <Suspense fallback={
-      <div style={{ 
-        minHeight: "100vh", 
-        backgroundColor: "#0f172a", 
-        display: "flex", 
-        alignItems: "center", 
+      <div style={{
+        minHeight: "100vh",
+        backgroundColor: "#0f172a",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
         color: "#e2e8f0"
       }}>
