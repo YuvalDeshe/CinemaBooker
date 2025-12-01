@@ -19,7 +19,11 @@ const { data: session } = useSession();
 const firstName : string = "Jane"
 const lastName : string = "Doe"
 const email : string = "janedoe415@gmail.com"
-const bookings: Booking[] = [];
+const bookings: Booking[] = [{movie: "MovieTitle", date: "10/12/2025", ticketCount: 3, ticketTypes: ["Child", "Adult", "Child"], orderTotal: 27.95}, {movie: "MovieTitle", date: "10/12/2025", ticketCount: 3, ticketTypes: ["Child", "Adult", "Child"], orderTotal: 27.95}];
+
+const numChildTickets : number = 2;
+const numAdultTickets : number = 1;
+const numSeniorTickets : number = 0;
 
 const editProfileHandler = () => {
     console.log('Edit Profile clicked. Session:', session);
@@ -55,16 +59,20 @@ return (
                 ) : (
                     <div className="space-y-4">
                     {bookings.map((booking, index) => (
-                        <div key={index} className="border border-gray-700 p-4 rounded-lg bg-gray-850">
+                        <div key={index} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-850">
                             <p className="text-xl font-semibold">{booking.movie}</p>
-                            <p className="text-gray-300">Date: {booking.date}</p>
-                            <p className="text-gray-300">Tickets: {booking.ticketCount}</p>
-                            <p className="text-gray-300">Types: {booking.ticketTypes.join(", ")}</p>
-                            <p className="text-gray-200 font-medium mt-2">Order Total: ${booking.orderTotal.toFixed(2)}</p>
+                            <p className="text-gray-300 mt-2 text-lg">Date: {booking.date}</p>
+                            <p className="text-gray-300 mt-2 text-lg">Tickets: {booking.ticketCount}</p>
+                            <ul className="text-gray-300 list-disc text-base">
+                                {numChildTickets !== 0 && <li className="ml-6">{numChildTickets}x Child Ticket{numChildTickets != 1 && "s"}</li>}
+                                {numAdultTickets !== 0 && <li className="ml-6">{numAdultTickets}x Adult Ticket{numAdultTickets != 1 && "s"}</li>}
+                                {numSeniorTickets !== 0 && <li className="ml-6">{numSeniorTickets}x Senior Ticket{numSeniorTickets != 1 && "s"}</li>}
+                            </ul>
+                            <p className="text-gray-200 font-medium mt-2 text-lg">Order Total: ${booking.orderTotal.toFixed(2)}</p>
                         </div>
                     ))}
                     </div>
-                    )}
+                )}
             </div>
         </div>
     </div>
