@@ -27,6 +27,7 @@ export default function CheckoutPage() {
     const [selectedCard, setSelectedCard] = useState('');
     const [promo, setPromo] = useState('');
     const session = useSession();
+    console.log('session: ', session);
     const c = useMoviePageController(useParams(), useSession());
     const searchParams = useSearchParams();
     const { id } = useParams();
@@ -63,10 +64,10 @@ export default function CheckoutPage() {
     };
     const changePromo = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPromo(event.target.value);
+        console.log(promo);
     }
 
 
-    // setUser(fetchUser(session?.data?.user.id || ''));
     console.log('user: ', user);
     const cardsList: PaymentCard[] = user?.paymentCard || [];
     // make an api call for promos here
@@ -255,9 +256,18 @@ export default function CheckoutPage() {
                                 seats: selectedSeats, 
                                 tickets: tickets
                             }
+                            console.log('bookingData: ', bookingData);
                             const booking = new BookingModel(bookingData)
-                            // const booking = new BookingModel(movieID, promoCodeID, showID, userID, bookingDate, orderTotal, seats, tickets)
-                            // api call to add to database
+                            /* TODO:
+                            - add api calls specified above
+                            - create a new Booking in the DB with the booking object
+                            - if that succeeds, update the reserved seats for the show in the DB
+                                - there is code in movie/[id]/booking/seats that does that; you can steal it and put it here
+                            - if everything was successful & user selected to enter new card, add it to the DB
+                            - show a confirmation page after booking is complete
+                            - send a confirmation email
+                            - 
+                            */
                             console.log('booking: ', booking);
                             router.push('/');
 
