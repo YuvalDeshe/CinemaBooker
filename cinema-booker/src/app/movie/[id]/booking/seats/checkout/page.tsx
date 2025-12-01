@@ -263,10 +263,10 @@ export default function CheckoutPage() {
                             - create a new Booking in the DB with the booking object
                             - if that succeeds, update the reserved seats for the show in the DB
                                 - there is code in movie/[id]/booking/seats that does that; you can steal it and put it here
+                                - make sure you remove it from there when you add it here
                             - if everything was successful & user selected to enter new card, add it to the DB
                             - show a confirmation page after booking is complete
                             - send a confirmation email
-                            - 
                             */
                             console.log('booking: ', booking);
                             router.push('/');
