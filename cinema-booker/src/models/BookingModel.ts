@@ -4,6 +4,7 @@ export interface BookingData {
     promoCodeID: string;
     showID: string;
     userID: string;
+    paymentCardUsed: string;
     bookingDate: string;
     orderTotal: number;
     seats: string[];
@@ -20,6 +21,7 @@ export default class BookingModel {
     promoCodeID: string;
     showID: string;
     userID: string;
+    paymentCardUsed: string;
     bookingDate: string;
     orderTotal: number;
     seats: string[];
@@ -35,6 +37,7 @@ export default class BookingModel {
         this.promoCodeID = data.promoCodeID;
         this.showID = data.showID;
         this.userID = data.userID;
+        this.paymentCardUsed = data.paymentCardUsed;
         this.bookingDate = data.bookingDate;
         this.orderTotal = data.orderTotal;
         this.seats = data.seats;

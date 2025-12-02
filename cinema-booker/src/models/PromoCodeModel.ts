@@ -1,22 +1,26 @@
 export class PromoCode {
+  _id?: string;
   name: string;
-  discountMultiplier: number;
+  priceMultiplier: number;
   startDate: string;
   endDate: string;
 
   constructor({
+    _id,
     name,
-    discountMultiplier,
+    priceMultiplier,
     startDate,
     endDate,
   }: {
+    _id?: string;
     name: string;
-    discountMultiplier: number;
+    priceMultiplier: number;
     startDate: string;
     endDate: string;
   }) {
+    this._id = _id;
     this.name = name;
-    this.discountMultiplier = discountMultiplier;
+    this.priceMultiplier = priceMultiplier;
     this.startDate = startDate;
     this.endDate = endDate;
   }

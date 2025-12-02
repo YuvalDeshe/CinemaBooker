@@ -305,6 +305,8 @@ function SeatMapContent() {
       // Merge with existing reservations
       const updatedReservations = [...show.seatReservationArray, ...selectedSeatIds];
 
+      console.log('selectedseats: ', selectedSeats);
+      console.log('updatedreservations: ', updatedReservations);
       // Update the show's seat reservations in the database
       const response = await fetch('/api/shows', {
         method: 'PUT',
@@ -325,10 +327,7 @@ function SeatMapContent() {
 
       // Show confirmation
       const seatNumbers = selectedSeatIds.join(', ');
-      // alert(`Booking confirmed!\nSeats: ${seatNumbers}\nCustomer: ${bookingDetails.name}\nEmail: ${bookingDetails.email}`);
 
-      // Redirect to checkout page
-      // router.push('/');
       const params = new URLSearchParams({
         adultTickets: bookingDetails.adultTickets.toString(),
         childTickets: bookingDetails.childTickets.toString(),
@@ -340,6 +339,7 @@ function SeatMapContent() {
         selectedSeats: selectedSeatIds.join(",")
       });
 
+      // Redirect to checkout page
       router.push(`/movie/${id}/booking/seats/checkout?${params.toString()}`);
 
     } catch (error) {

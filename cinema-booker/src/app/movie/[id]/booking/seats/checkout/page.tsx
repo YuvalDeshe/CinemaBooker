@@ -1,20 +1,43 @@
 "use client";
 
 import { useSearchParams, useParams, useRouter } from "next/navigation";
-import { userAgent } from "next/server";
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useMoviePageController } from "@/controllers/MovieInfoController";
 import styles from "@/app/movie/[id]/styles.module.css"
 import PaymentCard from "@/models/PaymentCardModel";
 import BookingModel from "@/models/BookingModel";
+import { PromoCode } from "@/models/PromoCodeModel";
+import { Ticket } from "@/models/TicketModel";
+import User from "@/models/UserModel";
 
 async function fetchUser(userId: string) {
     try {
         const res = await fetch(`/api/users/${userId}`);
         if (!res.ok) throw new Error("Failed to fetch user");
-        const data = await res.json();
-        return data;
+        return await res.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+async function fetchPromos() {
+    try {
+        const res = await fetch(`/api/promo`);
+        if (!res.ok) throw new Error("Failed to fetch promos");
+        return await res.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+async function fetchTickets() {
+    try {
+        const res = await fetch(`/api/ticket`);
+        if (!res.ok) throw new Error("Failed to fetch tickets");
+        return await res.json();
     } catch (error) {
         console.error(error);
         return null;
@@ -23,17 +46,21 @@ async function fetchUser(userId: string) {
 
 
 export default function CheckoutPage() {
-    const [user, setUser] = useState()
+    const [user, setUser] = useState<any>();
     const [selectedCard, setSelectedCard] = useState('');
     const [promo, setPromo] = useState('');
+    const [promos, setPromos] = useState<PromoCode[]>([]);
+    const [promoApplied, setPromoApplied] = useState([false, 1]);
+    const [promoMessage, setPromoMessage] = useState('');
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+
     const session = useSession();
-    console.log('session: ', session);
     const c = useMoviePageController(useParams(), useSession());
     const searchParams = useSearchParams();
     const { id } = useParams();
     const router = useRouter();
 
-    // Extract booking data from URL
+    // Extract booking data
     const adultTickets = Number.parseInt(searchParams.get("adultTickets") || "0");
     const childTickets = Number.parseInt(searchParams.get("childTickets") || "0");
     const seniorTickets = Number.parseInt(searchParams.get("seniorTickets") || "0");
@@ -43,20 +70,41 @@ export default function CheckoutPage() {
     const date = searchParams.get("date") || "";
     const auditorium = searchParams.get("auditorium") || "";
 
+    const adultTicket = tickets.find(t => t.ticketType === 'ADULT');
+    const childTicket = tickets.find(t => t.ticketType === 'CHILD');
+    const seniorTicket = tickets.find(t => t.ticketType === 'SENIOR');
+
+    const adultPrice = adultTicket?.ticketPrice ?? 0;
+    const childPrice = childTicket?.ticketPrice ?? 0;
+    const seniorPrice = seniorTicket?.ticketPrice ?? 0;
+    const orderTotal = (childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice);
+
     // Seats (comma separated from seats page)
     const selectedSeatsParam = searchParams.get("selectedSeats") || "";
     const selectedSeats = selectedSeatsParam.split(",").filter(s => s.trim().length > 0);
 
     const totalTickets = adultTickets + childTickets + seniorTickets;
 
-    // API Calls!!! Replace these when the facade is implemented!!!
+    // API Call!!! Replace this when the facade is implemented!!!
     useEffect(() => {
         async function loadUser() {
             if (!session?.data?.user.id) return;
             const u = await fetchUser(session.data.user.id);
             setUser(u);
         }
+
+        async function loadPromos() {
+            const p = await fetchPromos();
+            setPromos(p);
+        }
+
+        async function loadTickets() {
+            const t = await fetchTickets();
+            setTickets(t);
+        }
         loadUser();
+        loadPromos();
+        loadTickets();
     }, [session]);
 
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -70,7 +118,32 @@ export default function CheckoutPage() {
 
     console.log('user: ', user);
     const cardsList: PaymentCard[] = user?.paymentCard || [];
-    // make an api call for promos here
+
+    console.log('promos: ', promos);
+
+    const applyPromo = () => {
+        const enteredPromoCode = promos.find(p => p.name.toUpperCase() === promo.toUpperCase());
+        if (promo !== '' && enteredPromoCode === undefined) {
+            setPromoMessage('Invalid promo code!');
+            return;
+        } 
+        const [endMonth, endDay, endYear] = enteredPromoCode?.endDate.split("/").map(Number) ?? [1, 1, 1];
+        const endDate = new Date(endYear, endMonth - 1, endDay);
+        const [startMonth, startDay, startYear] = enteredPromoCode?.startDate.split('/').map(Number) ?? [1, 1, 1];
+        const startDate = new Date(startYear, startMonth - 1, startDay);
+
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        endDate.setHours(0, 0, 0, 0);
+        startDate.setHours(0, 0, 0, 0);
+        if (startDate > currentDate || endDate < currentDate) {
+            setPromoMessage('The entered promo code is inactive.');
+            return;
+        }
+
+        const promoMultiplier = enteredPromoCode?.priceMultiplier ?? 1;
+        if (enteredPromoCode) setPromoApplied([true, promoMultiplier]);
+    }
 
     if (c.loading || !c.movie) return <div className={styles.mainDiv}>Loading...</div>;
     else return (
@@ -124,11 +197,22 @@ export default function CheckoutPage() {
 
                         <hr style={{ borderColor: "#334155" }} />
 
+                        <div><strong>Order total:</strong></div>
+                        <div>
+                            <div>{`Adult tickets: $${adultPrice} * ${adultTickets}`}</div>
+                            <div>{`Child tickets: $${childPrice} * ${childTickets}`}</div>
+                            <div className='mb-4'>{`Senior tickets: $${seniorPrice} * ${seniorTickets}`}</div>
+                            <div>Promotion discount: {`${(1 - Number(promoApplied[1])) * 100}%`}</div>
+                            <div><strong>Order total: </strong>{`$${Math.trunc((orderTotal * Number(promoApplied[1])) * 100) / 100}`}</div>
+                        </div>
+
+                        <hr style={{ borderColor: "#334155" }} />
+
                         <label htmlFor="cardSelector"><strong>Select a payment card:</strong></label>
                         <select defaultValue='default' name="cardSelector" className="bg-white text-black rounded-md p-1" onChange={handleChange}>
                             <option disabled hidden value='default'>Select a card</option>
                             {cardsList?.map((card: PaymentCard) =>
-                                <option value={`card${cardsList.indexOf(card) + 1}`} key={`${card.lastFour}`}
+                                <option value={`${cardsList.indexOf(card)}`} key={`${card.lastFour}`}
                                     className="text-black">●●●● ●●●● ●●●● {card.lastFour}</option>
                             )}
                             {cardsList?.length < 3 ?
@@ -178,13 +262,15 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
                         )}
-                    
-                    <div>
-                        Enter a promo code:
-                        <br></br>
-                        <input type='text' id='promo' className='p-1 bg-white rounded-md text-black' onChange={changePromo}></input>
 
-                    </div>
+                        <div>
+                            Enter a promo code:
+                            <br></br>
+                            <input type='text' id='promo' className='p-1 bg-white rounded-md text-black' onChange={changePromo}></input>
+                            <button className='m-2 bg-emerald-800 rounded-md p-2' onClick={applyPromo}>Apply Promo</button>
+                            {promoMessage !== '' && <div className='text-red-500'>{`${promoMessage}`}</div>}
+
+                        </div>
                     </div>
 
                     {/* RIGHT COLUMN — MOVIE POSTER */}
@@ -226,51 +312,89 @@ export default function CheckoutPage() {
                     </button>
 
                     <button
-                        onClick={() => { 
-                            // api call to confirm the entered promo code is valid
-                            const promoID = 'change this value!';
-                            const userID: string = user.id || '';
-                            const date = String(new Date());
-                            // api call to get ticket prices from the database
-                            // prices are in TicketDatabase/TicketCollection
-                            // change these values based on DB response!
-                            const adultPrice = 10;
-                            const childPrice = 10;
-                            const seniorPrice = 10;
-                            const orderTotal = (childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice);
+                        onClick={async () => {
+                            try {
+                                const enteredPromoCode = promos.find(p => p.name.toUpperCase() === promo.toUpperCase());
+                                if (promo !== '' && enteredPromoCode === undefined) {
+                                    throw new Error('Invalid promo code!');
+                                }
 
-                            const tickets = {
-                                child: childTickets,
-                                adult: adultTickets,
-                                senior: seniorTickets
+                                const promoMultiplier = enteredPromoCode?.priceMultiplier ?? 1;
+                                if (enteredPromoCode) setPromoApplied([true, promoMultiplier]);
+                                const orderTotal = ((childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice)) * promoMultiplier;
+
+                                const promoID = enteredPromoCode?._id ?? '';
+                                const userID: string = user.id || '';
+                                const date = String(new Date());
+
+                                if (adultPrice == 0 || childPrice == 0 || seniorPrice == 0) {
+                                    throw new Error('Invalid ticket price. Were tickets fetched correctly?');
+                                }
+
+
+                                const ticketCount = {
+                                    child: childTickets,
+                                    adult: adultTickets,
+                                    senior: seniorTickets
+                                }
+
+                                let cardLastFour = '';
+                                if (selectedCard === '') {
+                                    throw new Error('No card selected');
+                                } else if (selectedCard === 'new-card') {
+                                    /* TODO: 
+                                    - create a new card and save it to the user in the DB
+                                    - store its lastFour in cardLastFour (will be sent to Booking DB)
+                                    - use the imported PaymentCard class
+                                    - change newCard to store this data
+                                    */
+                                    const newCard = null;
+
+                                    const newCardsList = [...user.paymentCard, newCard];
+                                    const userUpdateData = {
+                                        _id: user._id,
+                                        paymentCard: newCardsList
+                                    }
+
+                                    // update the user in the DB
+                                    const res = await fetch(`/api/users/${user._id}`, {
+                                        method: "PATCH",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify(userUpdateData),
+                                    });
+                                    if (!res.ok) throw new Error("Failed to update profile");
+
+                                } else {
+                                    const c = cardsList[Number(selectedCard)]
+                                    cardLastFour = c.lastFour;
+                                }
+
+                                const bookingData = {
+                                    movieID: String(id),
+                                    promoCode: promo,
+                                    promoCodeID: promoID,
+                                    showID: showId,
+                                    userID: userID,
+                                    paymentCardUsed: cardLastFour,
+                                    bookingDate: date,
+                                    orderTotal: Math.trunc((orderTotal*100)/100),
+                                    seats: selectedSeats,
+                                    tickets: ticketCount
+                                }
+                                console.log('bookingData: ', bookingData);
+                                const booking = new BookingModel(bookingData)
+                                console.log('booking: ', booking);
+                                router.push('/');
+
+                                /* TODO: if everything is successful, update the seats array in the DB
+                                - this is currently done in movie/[id]/booking/seats (PUT request)
+                                - the way it's done is kind of funky, but make sure that this has the same result
+                                - when you add it here, make sure you remove it from there */
                             }
-
-                            const bookingData = {
-                                movieID: String(id), 
-                                promoCode: promo, 
-                                promoCodeID: promoID, 
-                                showID: showId, 
-                                userID: userID, 
-                                bookingDate: date, 
-                                orderTotal: orderTotal, 
-                                seats: selectedSeats, 
-                                tickets: tickets
+                            catch (e) {
+                                console.error(e);
+                                return null;
                             }
-                            console.log('bookingData: ', bookingData);
-                            const booking = new BookingModel(bookingData)
-                            /* TODO:
-                            - add api calls specified above
-                            - create a new Booking in the DB with the booking object
-                            - if that succeeds, update the reserved seats for the show in the DB
-                                - there is code in movie/[id]/booking/seats that does that; you can steal it and put it here
-                                - make sure you remove it from there when you add it here
-                            - if everything was successful & user selected to enter new card, add it to the DB
-                            - show a confirmation page after booking is complete
-                            - send a confirmation email
-                            */
-                            console.log('booking: ', booking);
-                            router.push('/');
-
                         }}
                         style={{
                             padding: "10px 16px",
@@ -285,6 +409,6 @@ export default function CheckoutPage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
