@@ -287,66 +287,39 @@ function SeatMapContent() {
     };
   };
 
-  const handleContinue = async () => {
-    if (selectedSeats.length !== totalTickets) {
-      alert(`Please select exactly ${totalTickets} seat(s)`);
-      return;
-    }
+const handleContinue = async () => {
+  if (selectedSeats.length !== totalTickets) {
+    alert(`Please select exactly ${totalTickets} seat(s)`);
+    return;
+  }
 
-    if (!show) {
-      alert('Show information is not available');
-      return;
-    }
+  if (!show) {
+    alert('Show information is not available');
+    return;
+  }
 
-    try {
-      // Get the selected seat IDs
-      const selectedSeatIds = selectedSeats.map(seat => seat.id);
+  try {
+    // Just collect selected seat IDs and pass them to checkout via query params
+    const selectedSeatIds = selectedSeats.map(seat => seat.id);
 
-      // Merge with existing reservations
-      const updatedReservations = [...show.seatReservationArray, ...selectedSeatIds];
+    const params = new URLSearchParams({
+      adultTickets: bookingDetails.adultTickets.toString(),
+      childTickets: bookingDetails.childTickets.toString(),
+      seniorTickets: bookingDetails.seniorTickets.toString(),
+      showtime: bookingDetails.showtime,
+      showId: bookingDetails.showId || "",
+      date: bookingDetails.date || "",
+      auditorium: bookingDetails.auditorium || "",
+      selectedSeats: selectedSeatIds.join(","),
+    });
 
-      console.log('selectedseats: ', selectedSeats);
-      console.log('updatedreservations: ', updatedReservations);
-      // Update the show's seat reservations in the database
-      const response = await fetch('/api/shows', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          showId: show._id,
-          seatReservationArray: updatedReservations
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update seat reservations');
-      }
-
-      const result = await response.json();
-
-      // Show confirmation
-      const seatNumbers = selectedSeatIds.join(', ');
-
-      const params = new URLSearchParams({
-        adultTickets: bookingDetails.adultTickets.toString(),
-        childTickets: bookingDetails.childTickets.toString(),
-        seniorTickets: bookingDetails.seniorTickets.toString(),
-        showtime: bookingDetails.showtime,
-        showId: bookingDetails.showId || "",
-        date: bookingDetails.date || "",
-        auditorium: bookingDetails.auditorium || "",
-        selectedSeats: selectedSeatIds.join(",")
-      });
-
-      // Redirect to checkout page
-      router.push(`/movie/${id}/booking/seats/checkout?${params.toString()}`);
-
-    } catch (error) {
-      console.error('Error confirming booking:', error);
-      alert('Failed to confirm booking. Please try again.');
-    }
-  };
+    // Redirect to checkout page (no DB update here anymore)
+    router.push(`/movie/${id}/booking/seats/checkout?${params.toString()}`);
+  } catch (error) {
+    console.error('Error confirming booking:', error);
+    alert('Failed to confirm booking. Please try again.');
+  }
+};
 
   if (!movie || loading) {
     return (

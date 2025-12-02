@@ -348,8 +348,34 @@ export default function CheckoutPage() {
                                     - use the imported PaymentCard class
                                     - change newCard to store this data
                                     */
-                                    const newCard = null;
+                                    const cardNumberInput = document.getElementById("cardNumber") as HTMLInputElement | null;
+                                    const expMonthInput = document.getElementById("expMonth") as HTMLInputElement | null;
+                                    const expYearInput = document.getElementById("expYear") as HTMLInputElement | null;
+                                    const cardTypeInput = document.querySelector('input[name="cardType"]:checked') as HTMLInputElement | null;
 
+                                    if (!cardNumberInput || !expMonthInput || !expYearInput || !cardTypeInput) {
+                                        throw new Error("Please fill in all card details.");
+                                    }
+
+                                    // Normalize and validate card number
+                                    const rawCardNumber = cardNumberInput.value.replace(/\s+/g, "");
+                                    if (rawCardNumber.length < 4) {
+                                        throw new Error("Card number is invalid.");
+                                    }
+
+                                    const lastFour = rawCardNumber.slice(-4);
+                                    cardLastFour = lastFour;
+
+                                    // Create a new PaymentCard instance
+                                    const newCard = new PaymentCard({
+                                        cardType: cardTypeInput.value,      
+                                        cardNumber: rawCardNumber,          
+                                        expMonth: expMonthInput.value,
+                                        expYear: expYearInput.value,
+                                        lastFour,
+                                        isNew: true,                        
+                                        _tempId: crypto.randomUUID(),       
+                                    });
                                     const newCardsList = [...user.paymentCard, newCard];
                                     const userUpdateData = {
                                         _id: user._id,
@@ -384,6 +410,38 @@ export default function CheckoutPage() {
                                 console.log('bookingData: ', bookingData);
                                 const booking = new BookingModel(bookingData)
                                 console.log('booking: ', booking);
+                                try {
+                                    const showResponse = await fetch(`/api/shows?movieId=${id}`);
+                                    if (!showResponse.ok) {
+                                        throw new Error('Failed to fetch show data for seat update');
+                                    }
+
+                                    const shows: any[] = await showResponse.json();
+                                    const currentShow = shows.find((s: any) => s._id === showId);
+
+                                    if (!currentShow) {
+                                        throw new Error('Show not found when updating seat reservations');
+                                    }
+
+                                    const existingReservations: string[] = currentShow.seatReservationArray || [];
+                                    const selectedSeatIds = selectedSeats; // already an array of strings like ["A3", "A4", ...]
+                                    const updatedReservations = [...existingReservations, ...selectedSeatIds];
+
+                                    const seatUpdateRes = await fetch('/api/shows', {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                        showId: showId,
+                                        seatReservationArray: updatedReservations,
+                                        }),
+                                    });
+                                    if (!seatUpdateRes.ok) {
+                                        throw new Error('Failed to update seat reservations');
+                                    }
+                                } catch (seatError) {
+                                    console.error('Error updating seat reservations after booking:', seatError);
+                                    
+                                }
                                 router.push('/');
 
                                 /* TODO: if everything is successful, update the seats array in the DB
