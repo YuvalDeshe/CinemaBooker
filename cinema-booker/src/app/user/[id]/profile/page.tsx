@@ -40,12 +40,13 @@ type Show = {
 }
 
 /** TO-DO
- * 1. Fix time to display correct value
- * 2. Change booking fetch to only get bookings that belong to user.
+ * (DONE) 1. Fix time to display correct value
+ * (DONE) 2. Change booking fetch to only get bookings that belong to user.
  * 3. Potentially edit CSS to look nicer
- * 4. Clean up middleware
+ * 4. Clean up middleware (and make sure other users cant see the profiles of others)!
  * 5. Refactor to MVC
  * 6. Test everything (including edit profile)!
+ * (DONE) 7. Sort booking history by time. 
  */
 
 
@@ -61,34 +62,32 @@ async function fetchUser(userId: string): Promise<User | null> {
     }
   }
 
-
-async function fetchBookingsFromApi(): Promise<Booking[] | null> {
-    try {
-        const response = await fetch("/api/users/profile/bookings");
-        if (!response.ok) throw new Error("Failed to fetch bookings.");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-  }
-
-  async function fetchShowFromApi(_id : string): Promise<Show | null> {
-    try {
-        const response = await fetch(`/api/users/profile/shows/${_id}`);
-        if (!response.ok) throw new Error("Failed to fetch shows.");
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-  }
-
 function toCommaSeparatedList(arr: string[]): string {
-  return arr.join(", ");
+    return arr.join(", ");
 }
+
+//Takes a time value from a booking and displays it as a readable time.
+function formatTime(time : number) : string {
+    if (time < 12) {
+        return time + ":00 a.m."
+    } else if (time == 12) {
+        return time + ":00 p.m."
+    } else {
+        return time - 12 + ":00 p.m."
+    }
+}
+
+async function fetchCompleteBookings(userID: string) {
+  try {
+    const res = await fetch(`/api/users/profile/complete/${userID}`);
+    if (!res.ok) throw new Error("Failed to fetch complete bookings");
+    return await res.json();
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
   
 export default function UserProfilePage() {
 const router = useRouter();
@@ -97,43 +96,33 @@ const { data: session } = useSession();
 const [user, setUser] = useState<User | null>(null);
 const [bookings, setBookings] = useState<Booking[] | null>(null);
 const [completeBookings, setCompleteBookings] = useState<CompleteBooking[]>([]);
+const [bookingsLoaded, setBookingsLoaded] = useState<boolean>(false);
 
 
-// Load user + bookings when the session loads
+
 useEffect(() => {
   if (!session?.user?.id) return;
 
   const load = async () => {
     const fetchedUser = await fetchUser(session.user.id || "");
-    setUser(fetchedUser);
+    const fetchedComplete = await fetchCompleteBookings(session.user.id || "");
 
-    const fetchedBookings = await fetchBookingsFromApi();
-    setBookings(fetchedBookings);
+    // Sort BEFORE setting state
+    const sorted = [...(fetchedComplete ?? [])].sort(
+      (a, b) =>
+        new Date(b.booking.bookingDate).getTime() -
+        new Date(a.booking.bookingDate).getTime()
+    );
+
+    setUser(fetchedUser);
+    setCompleteBookings(sorted);
+    setBookingsLoaded(true);
   };
 
   load();
 }, [session?.user?.id]);
 
 
-useEffect(() => {
-  if (!bookings || bookings.length === 0) return;
-
-  const loadShows = async () => {
-    const shows = await Promise.all(
-      bookings.map(b => fetchShowFromApi(b.showID))
-    );
-
-    // Combine booking + show
-    const finalList: CompleteBooking[] = bookings.map((b, i) => ({
-      booking: b,
-      show: shows[i]!, // non-null assertion because API guarantees it
-    }));
-
-    setCompleteBookings(finalList);
-  };
-
-  loadShows();
-}, [bookings]);
 
 
 
@@ -169,16 +158,18 @@ return (
 
             <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
                 <h2 className="text-2xl font-semibold mb-4">Booking History</h2>
-                {bookings?.length === 0 ? (
+                {(completeBookings?.length === 0 && !bookingsLoaded) && <p className="text-gray-400">Loading bookings...</p>}
+                {completeBookings?.length === 0 && bookingsLoaded ? (
                     <p className="text-gray-400">No bookings found.</p>
                 ) : (
                     <div className="space-y-4">
                     {completeBookings?.map((completeBooking, index) => (
                         <div key={index} className="border-2 border-gray-700 p-4 rounded-lg bg-gray-850">
                             <p className="text-xl font-semibold">{completeBooking?.show.movieTitle}</p>
+                            <hr className="border-gray-700 mt-2 border-2 rounded-xl"></hr>
                             <p className="text-gray-300 mt-2 text-lg">Booking Placed: {completeBooking?.booking.bookingDate}</p>
                             <p className="text-gray-300 mt-2 text-lg">Theater: {completeBooking?.show.showRoomName}</p>
-                            <p className="text-gray-300 mt-2 text-lg">Showtime: {completeBooking?.show.date} @ {completeBooking?.show.time}</p>
+                            <p className="text-gray-300 mt-2 text-lg">Showtime: {completeBooking?.show.date} @ {formatTime(completeBooking?.show.time)}</p>
                             <p className="text-gray-300 mt-2 text-lg">Tickets: {completeBooking?.booking.tickets.child + completeBooking?.booking?.tickets.senior + completeBooking?.booking?.tickets.adult}</p>
                             <ul className="text-gray-300 list-disc text-base">
                                 {completeBooking?.booking.tickets.child !== 0 && <li className="ml-6">{completeBooking?.booking.tickets.child}x Child Ticket{completeBooking?.booking.tickets.child != 1 && "s"}</li>}
@@ -187,6 +178,7 @@ return (
                             </ul>
                             {completeBooking?.booking.promoCode !== "" && <p className="text-gray-300 mt-2 text-lg">Promo-Code Used: {completeBooking?.booking.promoCode}</p>}
                             <p className="text-gray-300 mt-2 text-lg">Reserved Seats: {toCommaSeparatedList(completeBooking?.booking.seats)}</p>
+                            <hr className="border-gray-700 mt-2 border-2 rounded-xl"></hr>
                             <p className="text-gray-200 font-medium mt-2 text-lg">Order Total: ${completeBooking?.booking.orderTotal.toFixed(2)}</p>
                         </div>
                     ))}
