@@ -141,7 +141,7 @@ export default function SendPromoEmailPage() {
       <div className={styles.contentWrapper}>
         <div className={styles.formSection}>
           <div className={styles.infoBox}>
-            <h3>📧 Promotional Email Campaign</h3>
+            <h3>Promotional Email Campaign</h3>
             <p>
               Select a promo code below to send promotional emails to all users
               who have opted in to receive promotions.
@@ -207,7 +207,7 @@ export default function SendPromoEmailPage() {
 
             {promoCodes.length === 0 && (
               <div className={styles.warningBox}>
-                <p>⚠️ No promo codes available. Please create a promo code first.</p>
+                <p>No promo codes available. Please create a promo code first.</p>
                 <button
                   type="button"
                   onClick={() => router.push("/admin/addpromo")}
@@ -220,7 +220,7 @@ export default function SendPromoEmailPage() {
 
             {error && (
               <div className={styles.errorBox}>
-                <p>❌ {error}</p>
+                <p>{error}</p>
               </div>
             )}
 
@@ -235,7 +235,7 @@ export default function SendPromoEmailPage() {
                   Sending Emails...
                 </>
               ) : (
-                "📧 Send Promotional Emails"
+                "Send Promotional Emails"
               )}
             </button>
           </form>
@@ -244,7 +244,7 @@ export default function SendPromoEmailPage() {
         {result && (
           <div className={styles.resultSection}>
             <div className={styles.successBox}>
-              <h3>✅ {result.message}</h3>
+              <h3>{result.message}</h3>
               <div className={styles.stats}>
                 <div className={styles.statItem}>
                   <span className={styles.statNumber}>{result.emailsSent}</span>
@@ -283,7 +283,7 @@ export default function SendPromoEmailPage() {
                     >
                       <span className={styles.resultEmail}>{res.email}</span>
                       <span className={styles.resultStatus}>
-                        {res.status === "sent" ? "✓ Sent" : "✗ Failed"}
+                        {res.status === "sent" ? "Sent" : "Failed"}
                       </span>
                       {res.error && (
                         <span className={styles.resultError}>{res.error}</span>

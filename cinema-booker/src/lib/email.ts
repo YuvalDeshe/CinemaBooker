@@ -574,7 +574,7 @@ export function generatePromotionalEmailHtml(
                 border-bottom: 1px solid #eee;
             }
             .features li:before {
-                content: "🎬 ";
+                content: "• ";
                 margin-right: 10px;
             }
             .footer {
@@ -596,7 +596,7 @@ export function generatePromotionalEmailHtml(
         <div class="container">
             <div class="header">
                 <div class="logo">Cinema Booker</div>
-                <h1>🎉 Exclusive Discount Just For You!</h1>
+                <h1>Exclusive Discount Just For You!</h1>
             </div>
             
             <p>Hi ${userName}!</p>
@@ -611,7 +611,7 @@ export function generatePromotionalEmailHtml(
             </div>
             
             <div class="date-info">
-                <strong>⏰ Limited Time Offer!</strong><br>
+                <strong>Limited Time Offer!</strong><br>
                 Valid from ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}
             </div>
             
@@ -690,5 +690,335 @@ Cinema Booker © 2025. All rights reserved.
 ---
 You're receiving this email because you opted in to receive promotional offers.
 To manage your email preferences, visit your account settings.
+  `;
+}
+
+// BOOKING CONFIRMATION EMAIL FUNCTIONS
+export function generateBookingConfirmationEmailHtml(
+  userName: string,
+  bookingDetails: {
+    bookingId: string;
+    movieTitle: string;
+    showtime: string;
+    date: string;
+    auditorium: string;
+    seats: string[];
+    adultTickets: number;
+    childTickets: number;
+    seniorTickets: number;
+    orderTotal: number;
+    promoCode?: string;
+    bookingDate: string;
+  }
+) {
+  const { bookingId, movieTitle, showtime, date, auditorium, seats, adultTickets, childTickets, seniorTickets, orderTotal, promoCode, bookingDate } = bookingDetails;
+  const totalTickets = adultTickets + childTickets + seniorTickets;
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Booking Confirmation - Cinema Booker</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f4f4f4;
+            }
+            .container {
+                background: white;
+                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                border-bottom: 2px solid #10b981;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #e74c3c;
+                margin-bottom: 10px;
+            }
+            .success-icon {
+                font-size: 64px;
+                margin: 10px 0;
+            }
+            .booking-id {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                margin: 20px 0;
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            }
+            .booking-id-label {
+                font-size: 12px;
+                opacity: 0.9;
+                margin-bottom: 8px;
+            }
+            .booking-id-value {
+                font-size: 24px;
+                font-weight: bold;
+                font-family: monospace;
+                letter-spacing: 2px;
+            }
+            .details-section {
+                margin: 25px 0;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #10b981;
+            }
+            .details-section h3 {
+                margin-top: 0;
+                color: #059669;
+                font-size: 18px;
+            }
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+            .detail-label {
+                color: #6b7280;
+                font-weight: 500;
+            }
+            .detail-value {
+                font-weight: 600;
+                color: #1f2937;
+            }
+            .seats-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            .seat-badge {
+                background-color: #10b981;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 14px;
+            }
+            .total-section {
+                background-color: #f0fdf4;
+                border: 2px solid #10b981;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 25px 0;
+            }
+            .total-amount {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 24px;
+                font-weight: bold;
+                color: #059669;
+            }
+            .promo-badge {
+                background-color: #fef3c7;
+                color: #92400e;
+                padding: 8px 16px;
+                border-radius: 6px;
+                display: inline-block;
+                margin: 10px 0;
+                font-weight: 600;
+            }
+            .important-info {
+                background-color: #fff7ed;
+                border: 1px solid #fed7aa;
+                color: #9a3412;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 25px 0;
+            }
+            .important-info h4 {
+                margin-top: 0;
+                color: #9a3412;
+            }
+            .important-info ul {
+                margin-bottom: 0;
+                padding-left: 20px;
+            }
+            .important-info li {
+                margin: 8px 0;
+            }
+            .footer {
+                margin-top: 30px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                font-size: 12px;
+                color: #666;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">Cinema Booker</div>
+                <h1 style="margin: 0; color: #10b981;">Booking Confirmed!</h1>
+                <p style="margin: 8px 0 0 0; color: #6b7280;">Your tickets are ready</p>
+            </div>
+            
+            <p>Hi ${userName}!</p>
+            
+            <p>Great news! Your movie tickets have been successfully booked. We're excited to see you at the cinema!</p>
+            
+            <div class="booking-id">
+                <div class="booking-id-label">YOUR BOOKING ID</div>
+                <div class="booking-id-value">${bookingId}</div>
+            </div>
+            
+            <div class="details-section">
+                <h3>Movie Information</h3>
+                <div class="detail-row">
+                    <span class="detail-label">Movie:</span>
+                    <span class="detail-value">${movieTitle}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${date}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Showtime:</span>
+                    <span class="detail-value">${showtime}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Auditorium:</span>
+                    <span class="detail-value">${auditorium}</span>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h3>Ticket Information</h3>
+                ${adultTickets > 0 ? `
+                <div class="detail-row">
+                    <span class="detail-label">Adult Tickets:</span>
+                    <span class="detail-value">${adultTickets}</span>
+                </div>` : ''}
+                ${childTickets > 0 ? `
+                <div class="detail-row">
+                    <span class="detail-label">Child Tickets:</span>
+                    <span class="detail-value">${childTickets}</span>
+                </div>` : ''}
+                ${seniorTickets > 0 ? `
+                <div class="detail-row">
+                    <span class="detail-label">Senior Tickets:</span>
+                    <span class="detail-value">${seniorTickets}</span>
+                </div>` : ''}
+                <div class="detail-row" style="border-top: 2px solid #d1d5db; margin-top: 8px; padding-top: 12px;">
+                    <span class="detail-label">Total Tickets:</span>
+                    <span class="detail-value">${totalTickets}</span>
+                </div>
+            </div>
+            
+            <div class="details-section">
+                <h3>Your Seats</h3>
+                <div class="seats-container">
+                    ${seats.map(seat => `<span class="seat-badge">${seat}</span>`).join('')}
+                </div>
+            </div>
+            
+            <div class="total-section">
+                ${promoCode ? `<div class="promo-badge">Promo Code Applied: ${promoCode}</div>` : ''}
+                <div class="total-amount">
+                    <span>Total Paid:</span>
+                    <span>$${orderTotal.toFixed(2)}</span>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin: 30px 0;">
+                <strong>Need to make changes?</strong><br>
+                Contact our support team or visit your account dashboard.
+            </p>
+            
+            <p>Thank you for choosing Cinema Booker. Enjoy the show!</p>
+            
+            <div class="footer">
+                <p>Booking made on ${new Date(bookingDate).toLocaleString()}</p>
+                <p>Cinema Booker &copy; 2025. All rights reserved.</p>
+                <p>This is an automated confirmation email.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+export function generateBookingConfirmationEmailText(
+  userName: string,
+  bookingDetails: {
+    bookingId: string;
+    movieTitle: string;
+    showtime: string;
+    date: string;
+    auditorium: string;
+    seats: string[];
+    adultTickets: number;
+    childTickets: number;
+    seniorTickets: number;
+    orderTotal: number;
+    promoCode?: string;
+    bookingDate: string;
+  }
+) {
+  const { bookingId, movieTitle, showtime, date, auditorium, seats, adultTickets, childTickets, seniorTickets, orderTotal, promoCode, bookingDate } = bookingDetails;
+  const totalTickets = adultTickets + childTickets + seniorTickets;
+
+  return `
+Cinema Booker - Booking Confirmation
+
+Hi ${userName}!
+
+Great news! Your movie tickets have been successfully booked. We're excited to see you at the cinema!
+
+========================================
+YOUR BOOKING ID: ${bookingId}
+========================================
+
+MOVIE INFORMATION:
+------------------
+Movie: ${movieTitle}
+Date: ${date}
+Showtime: ${showtime}
+Auditorium: ${auditorium}
+
+TICKET INFORMATION:
+-------------------
+${adultTickets > 0 ? `Adult Tickets: ${adultTickets}\n` : ''}${childTickets > 0 ? `Child Tickets: ${childTickets}\n` : ''}${seniorTickets > 0 ? `Senior Tickets: ${seniorTickets}\n` : ''}Total Tickets: ${totalTickets}
+
+YOUR SEATS:
+-----------
+${seats.join(', ')}
+
+PAYMENT SUMMARY:
+----------------
+${promoCode ? `Promo Code Applied: ${promoCode}\n` : ''}Total Paid: $${orderTotal.toFixed(2)}
+
+Need to make changes?
+Contact our support team or visit your account dashboard.
+
+Thank you for choosing Cinema Booker. Enjoy the show!
+
+Booking made on ${new Date(bookingDate).toLocaleString()}
+Cinema Booker © 2025. All rights reserved.
+This is an automated confirmation email.
   `;
 }

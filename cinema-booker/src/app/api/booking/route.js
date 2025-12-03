@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from 'mongodb';
+import { sendEmail, generateBookingConfirmationEmailHtml, generateBookingConfirmationEmailText } from '@/lib/email';
 
 const uri = process.env.MONGODB_URI;
 
@@ -44,7 +45,63 @@ export async function POST(request) {
         if (newBooking.userID == '') throw new Error('Invalid UserID');
         const result = await BookingCollection.insertOne(bookingToInsert);
 
-        return new Response(JSON.stringify(result), {
+        // Send confirmation email
+        if (newBooking.userEmail && newBooking.userName) {
+            try {
+                const emailHtml = generateBookingConfirmationEmailHtml(
+                    newBooking.userName,
+                    {
+                        bookingId: result.insertedId.toString(),
+                        movieTitle: newBooking.movieTitle || 'Movie',
+                        showtime: newBooking.showtime || '',
+                        date: newBooking.date || '',
+                        auditorium: newBooking.auditorium || '',
+                        seats: newBooking.seats || [],
+                        adultTickets: newBooking.tickets?.adult || 0,
+                        childTickets: newBooking.tickets?.child || 0,
+                        seniorTickets: newBooking.tickets?.senior || 0,
+                        orderTotal: newBooking.orderTotal || 0,
+                        promoCode: newBooking.promoCode || '',
+                        bookingDate: newBooking.bookingDate
+                    }
+                );
+
+                const emailText = generateBookingConfirmationEmailText(
+                    newBooking.userName,
+                    {
+                        bookingId: result.insertedId.toString(),
+                        movieTitle: newBooking.movieTitle || 'Movie',
+                        showtime: newBooking.showtime || '',
+                        date: newBooking.date || '',
+                        auditorium: newBooking.auditorium || '',
+                        seats: newBooking.seats || [],
+                        adultTickets: newBooking.tickets?.adult || 0,
+                        childTickets: newBooking.tickets?.child || 0,
+                        seniorTickets: newBooking.tickets?.senior || 0,
+                        orderTotal: newBooking.orderTotal || 0,
+                        promoCode: newBooking.promoCode || '',
+                        bookingDate: newBooking.bookingDate
+                    }
+                );
+
+                await sendEmail({
+                    to: newBooking.userEmail,
+                    subject: `Booking Confirmation - ${newBooking.movieTitle || 'Your Movie'}`,
+                    text: emailText,
+                    html: emailHtml
+                });
+
+                console.log('Booking confirmation email sent to:', newBooking.userEmail);
+            } catch (emailError) {
+                console.error('Failed to send booking confirmation email:', emailError);
+                // Don't fail the booking if email fails
+            }
+        }
+
+        return new Response(JSON.stringify({
+            ...result,
+            bookingId: result.insertedId.toString()
+        }), {
             status: 201,
             headers: { 'Content-Type': 'application/json' },
         });

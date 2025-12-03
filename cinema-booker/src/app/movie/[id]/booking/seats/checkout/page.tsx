@@ -112,7 +112,7 @@ export default function CheckoutPage() {
 
             const formData = new FormData(event.currentTarget as HTMLFormElement);
 
-            await bookingFacade.confirmAndPay(
+            const result = await bookingFacade.confirmAndPay(
                 formData,
                 user,
                 selectedCard,
@@ -124,11 +124,32 @@ export default function CheckoutPage() {
                     promo: validation.promo,
                     adultTickets, childTickets, seniorTickets,
                     adultPrice, childPrice, seniorPrice,
-                    selectedSeats
+                    selectedSeats,
+                    movieTitle: c.movie?.title,
+                    showtime: showtime,
+                    date: date,
+                    auditorium: auditorium
                 }
             );
 
-            router.push('/');
+            // Redirect to confirmation page with booking details
+            const confirmationParams = new URLSearchParams({
+                bookingId: result.bookingId,
+                movieTitle: c.movie?.title || '',
+                showtime: showtime,
+                date: date,
+                auditorium: auditorium,
+                seats: selectedSeats.join(','),
+                adultTickets: adultTickets.toString(),
+                childTickets: childTickets.toString(),
+                seniorTickets: seniorTickets.toString(),
+                orderTotal: finalOrderTotal.toString(),
+                userEmail: user.email || '',
+                promoCode: promo,
+                bookingDate: result.bookingData.bookingDate
+            });
+
+            router.push(`/movie/${movieId}/booking/confirmation?${confirmationParams.toString()}`);
 
         } catch (e: any) {
             console.error("Booking Error:", e);

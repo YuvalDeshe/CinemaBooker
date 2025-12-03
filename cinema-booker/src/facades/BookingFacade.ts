@@ -152,11 +152,15 @@ export class BookingFacade {
             childPrice: number;
             seniorPrice: number;
             selectedSeats: string[];
+            movieTitle?: string;
+            showtime?: string;
+            date?: string;
+            auditorium?: string;
         }
-    ): Promise<void> {
+    ): Promise<{ bookingId: string; bookingData: any }> {
         const {
             movieId, showId, promoCode, promo, adultTickets, childTickets, seniorTickets,
-            adultPrice, childPrice, seniorPrice, selectedSeats
+            adultPrice, childPrice, seniorPrice, selectedSeats, movieTitle, showtime, date, auditorium
         } = bookingDetails;
 
         if (adultPrice === 0 || childPrice === 0 || seniorPrice === 0) {
@@ -189,6 +193,8 @@ export class BookingFacade {
         const initialOrderTotal = (childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice);
         const finalOrderTotal = Math.trunc((initialOrderTotal * promoMultiplier) * 100) / 100;
 
+        const bookingDate = new Date().toISOString();
+
         const bookingData = {
             movieID: movieId,
             promoCode: promoCode ?? '',
@@ -196,14 +202,21 @@ export class BookingFacade {
             showID: showId,
             userID: user._id,
             paymentCardUsed: cardLastFour,
-            bookingDate: String(new Date()),
+            bookingDate: bookingDate,
             orderTotal: finalOrderTotal,
             seats: selectedSeats,
             tickets: {
                 child: childTickets,
                 adult: adultTickets,
                 senior: seniorTickets
-            }
+            },
+            // Additional fields for email
+            userEmail: user.email,
+            userName: user.firstName || user.username || 'Customer',
+            movieTitle: movieTitle,
+            showtime: showtime,
+            date: date,
+            auditorium: auditorium
         };
 
         await this.updateShowSeatReservations(showId, movieId, selectedSeats);
@@ -219,6 +232,14 @@ export class BookingFacade {
             console.error("Booking failed:", data.message);
             throw new Error(data.message || "Booking failed due to an unknown error.");
         }
+
+        return {
+            bookingId: data.bookingId,
+            bookingData: {
+                ...bookingData,
+                bookingId: data.bookingId
+            }
+        };
     }
 }
 
