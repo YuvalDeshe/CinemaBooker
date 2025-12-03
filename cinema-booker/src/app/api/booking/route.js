@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const uri = process.env.MONGODB_URI;
 
@@ -24,20 +24,24 @@ export async function POST(request) {
 
         const newBooking = await request.json();
 
+        console.log('promocodeid: ', newBooking.promoCodeID);
+        const promoCodeID = (newBooking.promoCodeID === '' || newBooking.promoCodeID === undefined) ? null : ObjectId.createFromHexString(newBooking.promoCodeID);
+
         const bookingToInsert = {
-        movieID: newBooking.movieID,
+        movieID: ObjectId.createFromHexString(newBooking.movieID),
         promoCode: newBooking.promoCode,
-        promoCodeID: newBooking.promoCodeID,
-        showID: newBooking.showID,
-        userID: newBooking.userID,
+        promoCodeID: promoCodeID,
+        showID: ObjectId.createFromHexString(newBooking.showID),
+        userID: ObjectId.createFromHexString(newBooking.userID),
+        // userID: newBooking.userID,
         paymentCardUsed: newBooking.paymentCardUsed,
         bookingDate: newBooking.bookingDate,
         orderTotal: newBooking.orderTotal,
         seats: newBooking.seats,
         tickets: newBooking.tickets,
-
         };
 
+        if (newBooking.userID == '') throw new Error('Invalid UserID');
         const result = await BookingCollection.insertOne(bookingToInsert);
 
         return new Response(JSON.stringify(result), {

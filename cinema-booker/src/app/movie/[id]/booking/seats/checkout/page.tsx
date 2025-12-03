@@ -91,6 +91,7 @@ export default function CheckoutPage() {
             if (!session?.data?.user.id) return;
             const u = await fetchUser(session.data.user.id);
             setUser(u);
+            console.log('user: ', user);
         }
 
         async function loadPromos() {
@@ -126,7 +127,7 @@ export default function CheckoutPage() {
         if (promo !== '' && enteredPromoCode === undefined) {
             setPromoMessage('Invalid promo code!');
             return;
-        } 
+        }
         const [endMonth, endDay, endYear] = enteredPromoCode?.endDate.split("/").map(Number) ?? [1, 1, 1];
         const endDate = new Date(endYear, endMonth - 1, endDay);
         const [startMonth, startDay, startYear] = enteredPromoCode?.startDate.split('/').map(Number) ?? [1, 1, 1];
@@ -324,7 +325,7 @@ export default function CheckoutPage() {
                                 const orderTotal = ((childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice)) * promoMultiplier;
 
                                 const promoID = enteredPromoCode?._id ?? '';
-                                const userID: string = user.id || '';
+                                const userID: string = user._id || '';
                                 const date = String(new Date());
 
                                 if (adultPrice == 0 || childPrice == 0 || seniorPrice == 0) {
@@ -368,13 +369,13 @@ export default function CheckoutPage() {
 
                                     // Create a new PaymentCard instance
                                     const newCard = new PaymentCard({
-                                        cardType: cardTypeInput.value,      
-                                        cardNumber: rawCardNumber,          
+                                        cardType: cardTypeInput.value,
+                                        cardNumber: rawCardNumber,
                                         expMonth: expMonthInput.value,
                                         expYear: expYearInput.value,
                                         lastFour,
-                                        isNew: true,                        
-                                        _tempId: crypto.randomUUID(),       
+                                        isNew: true,
+                                        _tempId: crypto.randomUUID(),
                                     });
                                     const newCardsList = [...user.paymentCard, newCard];
                                     const userUpdateData = {
@@ -397,13 +398,13 @@ export default function CheckoutPage() {
 
                                 const bookingData = {
                                     movieID: String(id),
-                                    promoCode: promo,
+                                    promoCode: promo ?? '',
                                     promoCodeID: promoID,
                                     showID: showId,
                                     userID: userID,
                                     paymentCardUsed: cardLastFour,
                                     bookingDate: date,
-                                    orderTotal: Math.trunc((orderTotal*100)/100),
+                                    orderTotal: orderTotal,
                                     seats: selectedSeats,
                                     tickets: ticketCount
                                 }
@@ -431,8 +432,8 @@ export default function CheckoutPage() {
                                         method: 'PUT',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                        showId: showId,
-                                        seatReservationArray: updatedReservations,
+                                            showId: showId,
+                                            seatReservationArray: updatedReservations,
                                         }),
                                     });
                                     if (!seatUpdateRes.ok) {
@@ -440,18 +441,35 @@ export default function CheckoutPage() {
                                     }
                                 } catch (seatError) {
                                     console.error('Error updating seat reservations after booking:', seatError);
-                                    
+
                                 }
+
+                                // add the booking to the db
+                                console.log("Attempting to add booking with payload:", bookingData);
+
+                                const response = await fetch('/api/booking', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(bookingData),
+                                });
+
+                                const data = await response.json();
+
+                                if (response.ok) {
+                                    console.log("Registration successful!", data);
+                                } else {
+                                    console.error("Registration failed:", data.message);
+                                    throw new Error(data.message || "Registration failed due to an unknown error.");
+                                }
+
                                 router.push('/');
 
-                                /* TODO: if everything is successful, update the seats array in the DB
-                                - this is currently done in movie/[id]/booking/seats (PUT request)
-                                - the way it's done is kind of funky, but make sure that this has the same result
-                                - when you add it here, make sure you remove it from there */
                             }
-                            catch (e) {
-                                console.error(e);
-                                return null;
+                        catch (e) {
+                            console.error(e);
+                        return null;
                             }
                         }}
                         style={{
