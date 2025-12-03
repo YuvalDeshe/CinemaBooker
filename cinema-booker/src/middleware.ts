@@ -10,7 +10,7 @@ export async function middleware(req: NextRequest) {
   const publicPaths = ["/", "/login", "/register", "/verify-email"];
   const unauthenticatedPaths = ["/login", "/register"];
   const verificationRequiredPaths = ["/booking"];
-  const adminPaths = ["/admin", "/admin/addmovie"]
+  const adminPaths = ["/admin"]
 
   const isAuthenticated = !!token;
   const isEmailVerified = token?.isEmailVerified ?? false;
@@ -40,62 +40,38 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  // this if for the admin page
-  if (pathname.startsWith("/admin")) {
-    // when a user is not logged in and tries to access admin page, It will send them to the log in page
-    // with a callback url meaning if they log in and they are a admin it will take the to the page
-    // if they are a regular user it will send them to the homepage
-    if (!isAuthenticated) {
-      const url = new URL("/login", req.url);
-      url.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(url);
-    }
-
-    const role = String(
-      (token as any)?.role ?? (token as any)?.userType ?? "USER"
-    ).toUpperCase();
-
-    if (role !== "ADMIN") {
-      console.log(`Non-admin attempted to access admin page: '${pathname}'`);
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-
-  // this is for protecting edit profile pages
+  // this is for protecting profile pages
   // when a user who is not logged in tries to access someone’s edit page directly,
   // they will be redirected to the homepage (no callback)
   // if they log in and are that same user (or an admin), they can continue
   // otherwise, they’ll be redirected to the homepage
-  const editMatch = pathname.match(/^\/user\/([^/]+)\/profile\/edit\/?$/);
-  if (editMatch) {
-    const pathUserId = editMatch[1];
+  // Protect /user/:id/profile/edit
+  const match = pathname.match(/^\/user\/([^/]+)\/profile(\/edit\/?)?$/);
 
-    // 1) Require authentication → send to /
+  if (match) {
+    const pathUserId = match[1];
+    const isEditPage = Boolean(match[2]); // true if URL ends with /edit
+
+    // Require authentication for both view + edit
     if (!isAuthenticated) {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    // 2) Allow only the owner or admin
-    const role = String(
-      (token as any)?.role ?? (token as any)?.userType ?? "USER"
-    ).toUpperCase();
+    // Extract user + role from token
+    const t = (token as any) ?? {};
+    const tokenUserId = String(t.id ?? t.userId ?? t.sub ?? t.email);
 
-    const tokenUserId =
-      (token as any)?.id ??
-      (token as any)?.userId ??
-      (token as any)?.sub ??
-      (token as any)?.email;
+    const isOwner = tokenUserId === pathUserId;
 
-    const isOwner = String(tokenUserId) === String(pathUserId);
-    const isAdmin = role === "ADMIN";
-
-    if (!isOwner && !isAdmin) {
+    // Only owner may view or edit
+    if (!isOwner) {
       console.log(
-        `Blocked edit access for user '${tokenUserId}' to '${pathname}'`
+        `Blocked ${isEditPage ? "edit" : "view"} access for user '${tokenUserId}' to '${pathname}'`
       );
       return NextResponse.redirect(new URL("/", req.url));
     }
   }
+
 
   // Check email verification for booking pages
   if (isAuthenticated && !isEmailVerified && verificationRequiredPaths.some(path => pathname.startsWith(path))) {
