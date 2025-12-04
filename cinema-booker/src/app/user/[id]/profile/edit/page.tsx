@@ -70,7 +70,8 @@ export default function EditProfile() {
 
     if (success) {
       alert("✅ Profile updated successfully!");
-      router.push(`/`);
+      if (session) router.push(`/user/${session.user.id}/profile`);
+      else router.push('/')
     } else {
       alert("❌ Error updating profile.");
     }
