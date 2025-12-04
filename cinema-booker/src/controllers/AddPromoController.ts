@@ -68,7 +68,7 @@ export const submitPromo = async (
   // Build promo model instance
   const promo = new PromoCode({
     name,
-    discountMultiplier,
+    priceMultiplier : discountMultiplier,
     startDate: normalizedStart,
     endDate: normalizedEnd,
   });
@@ -127,7 +127,7 @@ export const useAddPromoController = () => {
       // Create model instance
       const newPromo = new PromoCode({
         name,
-        discountMultiplier: multiplier,
+        priceMultiplier: multiplier,
         startDate: normalizedStart,
         endDate: normalizedEnd,
       });
