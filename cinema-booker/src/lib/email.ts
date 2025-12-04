@@ -1,4 +1,11 @@
 import nodemailer from 'nodemailer';
+import { 
+  EmailBuilder, 
+  BookingConfirmationEmailBuilder, 
+  PromotionalEmailBuilder,
+  VerificationEmailBuilder,
+  PasswordResetEmailBuilder
+} from '@/builders/EmailBuilder';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail', // Use Gmail service
@@ -1021,4 +1028,142 @@ Booking made on ${new Date(bookingDate).toLocaleString()}
 Cinema Booker © 2025. All rights reserved.
 This is an automated confirmation email.
   `;
+}
+
+// ====================================================================
+// BUILDER PATTERN HELPER FUNCTIONS
+// ====================================================================
+// These functions demonstrate the Builder Design Pattern for email creation
+// They provide a clean, fluent interface for constructing complex email objects
+
+/**
+ * Creates a booking confirmation email using the Builder pattern
+ * 
+ * Example usage:
+ * const email = buildBookingConfirmationEmail(userEmail, userName, bookingDetails);
+ * await sendEmail(email);
+ */
+export function buildBookingConfirmationEmail(
+  userEmail: string,
+  userName: string,
+  bookingDetails: {
+    bookingId: string;
+    movieTitle: string;
+    showtime: string;
+    date: string;
+    auditorium: string;
+    seats: string[];
+    adultTickets: number;
+    childTickets: number;
+    seniorTickets: number;
+    orderTotal: number;
+    promoCode?: string;
+    bookingDate: string;
+  }
+) {
+  return new BookingConfirmationEmailBuilder()
+    .setRecipient(userEmail)
+    .setBookingDetails(
+      userName,
+      bookingDetails,
+      generateBookingConfirmationEmailHtml,
+      generateBookingConfirmationEmailText
+    )
+    .build();
+}
+
+/**
+ * Creates a promotional email using the Builder pattern
+ * 
+ * Example usage:
+ * const email = buildPromotionalEmail(userEmail, userName, promoCode, discount, startDate, endDate);
+ * await sendEmail(email);
+ */
+export function buildPromotionalEmail(
+  userEmail: string,
+  userName: string,
+  promoCode: string,
+  discountPercent: number,
+  startDate: string,
+  endDate: string
+) {
+  return new PromotionalEmailBuilder()
+    .setRecipient(userEmail)
+    .setPromoDetails(
+      userName,
+      promoCode,
+      discountPercent,
+      startDate,
+      endDate,
+      generatePromotionalEmailHtml,
+      generatePromotionalEmailText
+    )
+    .build();
+}
+
+/**
+ * Creates a verification email using the Builder pattern
+ * 
+ * Example usage:
+ * const email = buildVerificationEmail(userEmail, verificationUrl);
+ * await sendEmail(email);
+ */
+export function buildVerificationEmail(
+  userEmail: string,
+  verificationUrl: string
+) {
+  return new VerificationEmailBuilder()
+    .setRecipient(userEmail)
+    .setVerificationDetails(
+      userEmail,
+      verificationUrl,
+      generateVerificationEmailHtml,
+      generateVerificationEmailText
+    )
+    .build();
+}
+
+/**
+ * Creates a password reset email using the Builder pattern
+ * 
+ * Example usage:
+ * const email = buildPasswordResetEmail(userEmail, resetUrl);
+ * await sendEmail(email);
+ */
+export function buildPasswordResetEmail(
+  userEmail: string,
+  resetUrl: string
+) {
+  return new PasswordResetEmailBuilder()
+    .setRecipient(userEmail)
+    .setResetDetails(
+      userEmail,
+      resetUrl,
+      generatePasswordResetEmailHtml,
+      generatePasswordResetEmailText
+    )
+    .build();
+}
+
+/**
+ * Creates a profile update notification email using the Builder pattern
+ * 
+ * Example usage:
+ * const email = buildProfileUpdateEmail(userEmail, userName, ['email', 'password']);
+ * await sendEmail(email);
+ */
+export function buildProfileUpdateEmail(
+  userEmail: string,
+  userName: string,
+  updatedFields: string[]
+) {
+  const html = generateProfileUpdateEmailHtml(userName, updatedFields);
+  const text = generateProfileUpdateEmailText(userName, updatedFields);
+  
+  return new EmailBuilder()
+    .setRecipient(userEmail)
+    .setSubject('Profile Updated - Cinema Booker')
+    .setType('profile-update')
+    .setContent(text, html)
+    .build();
 }

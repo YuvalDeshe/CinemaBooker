@@ -3,12 +3,15 @@ import BookingModel from "@/models/BookingModel";
 import { PromoCode } from "@/models/PromoCodeModel";
 import { Ticket } from "@/models/TicketModel";
 import User from "@/models/UserModel";
+import { BookingBuilder } from "@/builders/BookingBuilder";
 
 /*
     I am writing this mostly for my own benefit
     This facade decouples checkout\page.ts from components like api endpoints, data models,
     or the sequence of steps required to complete a booking. All related api operations can now be
     easily found in the facade and this lowers the complexity of checkout\page.ts.
+    
+    Now uses Builder Design Pattern for constructing complex Booking objects.
  */
 
 export class BookingFacade {
@@ -193,31 +196,26 @@ export class BookingFacade {
         const initialOrderTotal = (childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice);
         const finalOrderTotal = Math.trunc((initialOrderTotal * promoMultiplier) * 100) / 100;
 
-        const bookingDate = new Date().toISOString();
-
-        const bookingData = {
-            movieID: movieId,
-            promoCode: promoCode ?? '',
-            promoCodeID: promo?._id ?? '',
-            showID: showId,
-            userID: user._id,
-            paymentCardUsed: cardLastFour,
-            bookingDate: bookingDate,
-            orderTotal: finalOrderTotal,
-            seats: selectedSeats,
-            tickets: {
-                child: childTickets,
-                adult: adultTickets,
-                senior: seniorTickets
-            },
-            // Additional fields for email
-            userEmail: user.email,
-            userName: user.firstName || user.username || 'Customer',
-            movieTitle: movieTitle,
-            showtime: showtime,
-            date: date,
-            auditorium: auditorium
-        };
+        // Using Builder Design Pattern to construct the booking object
+        // This provides a clean, fluent interface and ensures all required fields are set
+        const bookingData = new BookingBuilder()
+            .setMovieId(movieId)
+            .setShowId(showId)
+            .setUserId(user._id)
+            .setPromoCode(promoCode ?? '', promo?._id ?? '')
+            .setPaymentCard(cardLastFour)
+            .setBookingDate(new Date().toISOString())
+            .setOrderTotal(finalOrderTotal)
+            .setSeats(selectedSeats)
+            .setTickets(adultTickets, childTickets, seniorTickets)
+            // Additional fields for email and confirmation
+            .setUserEmail(user.email)
+            .setUserName(user.firstName || user.username || 'Customer')
+            .setMovieTitle(movieTitle || '')
+            .setShowtime(showtime || '')
+            .setDate(date || '')
+            .setAuditorium(auditorium || '')
+            .build();
 
         await this.updateShowSeatReservations(showId, movieId, selectedSeats);
 
