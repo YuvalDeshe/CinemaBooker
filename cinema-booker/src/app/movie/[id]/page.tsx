@@ -13,9 +13,9 @@ import {
   formatSelectedDate,
   getShowTimesForDate,
   ShowTime
-} from "@/controllers/MovieInfoController";
+} from "@/models/MovieInfoModel";
 import { Movie } from "@/models/MovieModel";
-import { useMoviePageController } from "@/controllers/MovieInfoController";
+import { useMoviePageController } from "@/models/MovieInfoModel";
 
 export default function MoviePage() {
     const c = useMoviePageController(useParams(), useSession());

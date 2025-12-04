@@ -39,7 +39,7 @@ export interface BookingData {
 export class BookingBuilder {
     private booking: Partial<BookingData>;
 
-    constructor() {
+    private constructor() {
         this.booking = {
             promoCode: '',
             promoCodeID: '',

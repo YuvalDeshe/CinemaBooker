@@ -3,7 +3,7 @@
 import React, { FormEvent } from "react";
 import { useRouter, useParams } from "next/navigation";           
 import { useSession } from "next-auth/react";
-import { useMoviePageController } from "@/controllers/MovieInfoController";
+import { useMoviePageModel } from "@/models/MovieInfoModel";
 import { useCheckoutController } from "@/controllers/CheckoutController";  
 import styles from "@/app/movie/[id]/styles.module.css";
 
@@ -12,14 +12,14 @@ export default function CheckoutPage() {
     const params = useParams();                                    
     const session = useSession();                                  
 
-    const movieController = useMoviePageController(params, session);  
+    const model = useMoviePageModel(params, session);  
     const c = useCheckoutController();                             
 
-    if (movieController.loading || c.loadingInitial || !movieController.movie) {
+    if (model.loading || c.loadingInitial || !model.movie) {
         return <div className={styles.mainDiv}>Loading...</div>;
     }
 
-    const movie = movieController.movie;                           
+    const movie = model.movie;                           
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {  
         c.handleSubmit(event, movie.title);

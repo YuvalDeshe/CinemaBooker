@@ -111,7 +111,7 @@ export function filterAvailableDates(todaysDate : string, dateList : string[]) :
   return updatedDateList;
 }
 
-export function useMoviePageController(params: any, sessionData: any) {
+export function useMoviePageModel(params: any, sessionData: any) {
   const { id } = params;
   const session = sessionData?.data;
   const router = useRouter();
