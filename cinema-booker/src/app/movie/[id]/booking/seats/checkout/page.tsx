@@ -1,166 +1,29 @@
 "use client";
 
-import { useSearchParams, useParams, useRouter } from "next/navigation";
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { FormEvent } from "react";
+import { useRouter, useParams } from "next/navigation";           
 import { useSession } from "next-auth/react";
 import { useMoviePageController } from "@/controllers/MovieInfoController";
-import styles from "@/app/movie/[id]/styles.module.css"
-import PaymentCard from "@/models/PaymentCardModel";
-import { PromoCode } from "@/models/PromoCodeModel";
-import { Ticket } from "@/models/TicketModel";
-import User from "@/models/UserModel";
-
-import { bookingFacade } from "@/facades/BookingFacade";
-
+import { useCheckoutController } from "@/controllers/CheckoutController";  
+import styles from "@/app/movie/[id]/styles.module.css";
 
 export default function CheckoutPage() {
-    const [user, setUser] = useState<User | any>(); // Using 'any' for User until full User model is defined
-    const [selectedCard, setSelectedCard] = useState('');
-    const [promo, setPromo] = useState('');
-    const [promos, setPromos] = useState<PromoCode[]>([]);
-    const [promoApplied, setPromoApplied] = useState<{ isApplied: boolean, multiplier: number }>({ isApplied: false, multiplier: 1 });
-    const [promoMessage, setPromoMessage] = useState('');
-    const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [isProcessing, setIsProcessing] = useState(false);
-
-
-    const session = useSession();
-    const c = useMoviePageController(useParams(), useSession());
-    const searchParams = useSearchParams();
-    const { id: movieId } = useParams();
     const router = useRouter();
+    const params = useParams();                                    
+    const session = useSession();                                  
 
-    // --- Extracted Booking Data ---
-    const adultTickets = Number.parseInt(searchParams.get("adultTickets") || "0");
-    const childTickets = Number.parseInt(searchParams.get("childTickets") || "0");
-    const seniorTickets = Number.parseInt(searchParams.get("seniorTickets") || "0");
-    const showtime = searchParams.get("showtime") || "";
-    const showId = searchParams.get("showId") || "";
-    const date = searchParams.get("date") || "";
-    const auditorium = searchParams.get("auditorium") || "";
-    const selectedSeatsParam = searchParams.get("selectedSeats") || "";
-    const selectedSeats = selectedSeatsParam.split(",").filter(s => s.trim().length > 0);
-    const totalTickets = adultTickets + childTickets + seniorTickets;
+    const movieController = useMoviePageController(params, session);  
+    const c = useCheckoutController();                             
 
-    // --- Computed Data ---
-    const adultTicket = tickets.find(t => t.ticketType === 'ADULT');
-    const childTicket = tickets.find(t => t.ticketType === 'CHILD');
-    const seniorTicket = tickets.find(t => t.ticketType === 'SENIOR');
+    if (movieController.loading || c.loadingInitial || !movieController.movie) {
+        return <div className={styles.mainDiv}>Loading...</div>;
+    }
 
-    const adultPrice = adultTicket?.ticketPrice ?? 0;
-    const childPrice = childTicket?.ticketPrice ?? 0;
-    const seniorPrice = seniorTicket?.ticketPrice ?? 0;
-    const initialOrderTotal = (childTickets * childPrice) + (adultTickets * adultPrice) + (seniorTickets * seniorPrice);
+    const movie = movieController.movie;                           
 
-    const cardsList: PaymentCard[] = user?.paymentCard || [];
-    const finalOrderTotal = Math.trunc((initialOrderTotal * promoApplied.multiplier) * 100) / 100;
-
-    // --- Data Loading Effect (using Facade) ---
-    useEffect(() => {
-        async function loadData() {
-            if (!session?.data?.user.id) return;
-
-            // Facade calls replace the individual fetch functions
-            const [u, p, t] = await Promise.all([
-                bookingFacade.fetchUser(session.data.user.id),
-                bookingFacade.fetchPromos(),
-                bookingFacade.fetchTickets(),
-            ]);
-
-            setUser(u);
-            setPromos(p);
-            setTickets(t);
-        }
-        loadData();
-    }, [session]);
-
-    // --- Handlers ---
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedCard(event.target.value);
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {  
+        c.handleSubmit(event, movie.title);
     };
-
-    const changePromo = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPromo(event.target.value);
-        setPromoMessage(''); // Clear message on input change
-        setPromoApplied({ isApplied: false, multiplier: 1 }); // Reset discount
-    }
-
-    const applyPromo = () => {
-        const validation = bookingFacade.validatePromo(promo, promos);
-        setPromoMessage(validation.message);
-        setPromoApplied({
-            isApplied: validation.isValid && !!validation.promo,
-            multiplier: validation.multiplier
-        });
-    }
-
-    const handleConfirmAndPay = async (event: FormEvent) => {
-        event.preventDefault(); // Prevent default form submission
-
-        if (isProcessing || !user || !movieId || !showId) return;
-
-        setIsProcessing(true);
-        setPromoMessage('');
-
-        try {
-            const validation = bookingFacade.validatePromo(promo, promos);
-            if (!validation.isValid && validation.message) {
-                setPromoMessage(validation.message);
-                setIsProcessing(false);
-                return;
-            }
-
-            const formData = new FormData(event.currentTarget as HTMLFormElement);
-
-            const result = await bookingFacade.confirmAndPay(
-                formData,
-                user,
-                selectedCard,
-                cardsList,
-                {
-                    movieId: String(movieId),
-                    showId,
-                    promoCode: promo,
-                    promo: validation.promo,
-                    adultTickets, childTickets, seniorTickets,
-                    adultPrice, childPrice, seniorPrice,
-                    selectedSeats,
-                    movieTitle: c.movie?.title,
-                    showtime: showtime,
-                    date: date,
-                    auditorium: auditorium
-                }
-            );
-
-            // Redirect to confirmation page with booking details
-            const confirmationParams = new URLSearchParams({
-                bookingId: result.bookingId,
-                movieTitle: c.movie?.title || '',
-                showtime: showtime,
-                date: date,
-                auditorium: auditorium,
-                seats: selectedSeats.join(','),
-                adultTickets: adultTickets.toString(),
-                childTickets: childTickets.toString(),
-                seniorTickets: seniorTickets.toString(),
-                orderTotal: finalOrderTotal.toString(),
-                userEmail: user.email || '',
-                promoCode: promo,
-                bookingDate: result.bookingData.bookingDate
-            });
-
-            router.push(`/movie/${movieId}/booking/confirmation?${confirmationParams.toString()}`);
-
-        } catch (e: any) {
-            console.error("Booking Error:", e);
-            setPromoMessage(e.message || 'An unexpected error occurred during booking.');
-        } finally {
-            setIsProcessing(false);
-        }
-    }
-
-    // --- Render ---
-    if (c.loading || !c.movie) return <div className={styles.mainDiv}>Loading...</div>;
 
     return (
         <div style={{
@@ -169,7 +32,7 @@ export default function CheckoutPage() {
             padding: "24px",
             color: "white"
         }}>
-            <form onSubmit={handleConfirmAndPay} style={{ maxWidth: 800, margin: "0 auto" }}>
+            <form onSubmit={handleSubmit} style={{ maxWidth: 800, margin: "0 auto" }}>
                 <h1 style={{ fontSize: "1.8rem", marginBottom: 20 }}>
                     Checkout
                 </h1>
@@ -188,62 +51,63 @@ export default function CheckoutPage() {
                         gap: 20,
                     }}
                 >
-                    {/* LEFT COLUMN (Summary & Payment) */}
                     <div style={{ flex: 1, display: "grid", gap: 12 }}>
                         <h2 style={{ margin: 0, fontSize: "1.3rem" }}>Booking Summary</h2>
 
-                        <div><strong>User:</strong> {session?.data?.user.email}</div>
-                        <div><strong>Movie:</strong> {c.movie.title}</div>
-                        <div><strong>Showtime:</strong> {date} at {showtime}</div>
-                        <div><strong>Auditorium:</strong> {auditorium}</div>
+                        <div><strong>User:</strong> {c.user?.email ?? session.data?.user?.email}</div> 
+                        <div><strong>Movie:</strong> {movie.title}</div>                               
+                        <div><strong>Showtime:</strong> {c.date} at {c.showtime}</div>                
+                        <div><strong>Auditorium:</strong> {c.auditorium}</div>                         
 
                         <hr style={{ borderColor: "#334155" }} />
 
-                        <div><strong>Total Tickets:</strong> {totalTickets}</div>
-                        <div><strong>Adult Tickets:</strong> {adultTickets}</div>
-                        <div><strong>Child Tickets:</strong> {childTickets}</div>
-                        <div><strong>Senior Tickets:</strong> {seniorTickets}</div>
+                        <div><strong>Total Tickets:</strong> {c.totalTickets}</div>                    
+                        <div><strong>Adult Tickets:</strong> {c.adultTickets}</div>                    
+                        <div><strong>Child Tickets:</strong> {c.childTickets}</div>                    
+                        <div><strong>Senior Tickets:</strong> {c.seniorTickets}</div>                  
 
                         <hr style={{ borderColor: "#334155" }} />
 
                         <div><strong>Selected Seats:</strong></div>
                         <div>
-                            {selectedSeats.length > 0 ? selectedSeats.join(", ") : "None"}
+                            {c.selectedSeats.length > 0 ? c.selectedSeats.join(", ") : "None"}         
                         </div>
 
                         <hr style={{ borderColor: "#334155" }} />
 
                         <div>
                             <strong>Order total:</strong>
-                            <div>{`Adult tickets: $${adultPrice} * ${adultTickets}`}</div>
-                            <div>{`Child tickets: $${childPrice} * ${childTickets}`}</div>
-                            <div className='mb-4'>{`Senior tickets: $${seniorPrice} * ${seniorTickets}`}</div>
-                            <div>Promotion discount: {`${(1 - promoApplied.multiplier) * 100}%`}</div>
-                            <div><strong>Final total: </strong>{`$${finalOrderTotal}`}</div>
+                            <div>{`Adult tickets: $${c.adultPrice} * ${c.adultTickets}`}</div>         
+                            <div>{`Child tickets: $${c.childPrice} * ${c.childTickets}`}</div>         
+                            <div className='mb-4'>{`Senior tickets: $${c.seniorPrice} * ${c.seniorTickets}`}</div> 
+                            <div>Promotion discount: {`${(1 - c.promoApplied.multiplier) * 100}%`}</div> 
+                            <div><strong>Final total: </strong>{`$${c.finalOrderTotal.toFixed(2)}`}</div> 
                         </div>
 
                         <hr style={{ borderColor: "#334155" }} />
 
                         <label htmlFor="cardSelector"><strong>Select a payment card:</strong></label>
                         <select
-                            defaultValue='default'
+                            id="cardSelector"
                             name="cardSelector"
                             className="bg-white text-black rounded-md p-1"
-                            onChange={handleChange}
+                            value={c.selectedCard}                             
+                            onChange={c.handleCardChange}                       
                             required
                         >
-                            <option disabled hidden value='default'>Select a card</option>
-                            {cardsList?.map((card: PaymentCard, index) =>
-                                <option value={`${index}`} key={`${card.lastFour}`}
-                                        className="text-black">●●●● ●●●● ●●●● {card.lastFour}</option>
-                            )}
-                            {cardsList?.length < 3 ?
-                                (
-                                    <option value='new-card' key='new-card'>New card</option>
-                                ) : null}
+                            <option disabled hidden value=''>Select a card</option> /* CHANGED default */
+                            {c.cardsList?.map((card, index) => (                
+                                <option value={`${index}`} key={`${card.lastFour}-${index}`}
+                                        className="text-black">
+                                    ●●●● ●●●● ●●●● {card.lastFour}
+                                </option>
+                            ))}
+                            {c.cardsList?.length < 3 &&
+                                <option value='new-card' key='new-card'>New card</option>
+                            }
                         </select>
 
-                        {selectedCard === 'new-card' && (
+                        {c.selectedCard === 'new-card' && (                    
                             <div className="rounded-xl border border-gray-700/60 bg-[#22283b]/50 p-4">
                                 <div className="flex gap-6 flex-wrap">
                                     <label className="inline-flex items-center gap-2 text-gray-200">
@@ -287,27 +151,30 @@ export default function CheckoutPage() {
 
                         <div>
                             Enter a promo code:
-                            <br></br>
+                            <br />
                             <input
                                 type='text'
                                 id='promo'
                                 className='p-1 bg-white rounded-md text-black'
-                                onChange={changePromo}
-                                value={promo}
-                            ></input>
+                                value={c.promo}                                  
+                                onChange={c.handlePromoChange}                   
+                            />
                             <button
-                                type="button" // Important: use type="button" to prevent form submission
+                                type="button"
                                 className='m-2 bg-emerald-800 rounded-md p-2'
-                                onClick={applyPromo}
-                                disabled={isProcessing}
+                                onClick={c.handleApplyPromo}                     
+                                disabled={c.isProcessing}                        
                             >
                                 Apply Promo
                             </button>
-                            {promoMessage !== '' && <div className={promoApplied.isApplied ? 'text-green-500' : 'text-red-500'}>{promoMessage}</div>}
+                            {c.promoMessage !== '' && (
+                                <div className={c.promoApplied.isApplied ? 'text-green-500' : 'text-red-500'}>
+                                    {c.promoMessage}
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN — MOVIE POSTER */}
                     <div
                         style={{
                             width: 180,
@@ -318,8 +185,8 @@ export default function CheckoutPage() {
                         }}
                     >
                         <img
-                            src={c.movie.png || "/fallback.jpg"}
-                            alt={c.movie.title}
+                            src={movie.png || "/fallback.jpg"}                 
+                            alt={movie.title}                                    
                             style={{
                                 width: "100%",
                                 borderRadius: 8,
@@ -329,7 +196,6 @@ export default function CheckoutPage() {
                         />
                     </div>
                 </div>
-
 
                 <div style={{ marginTop: 24, display: "flex", gap: 12 }}>
                     <button
@@ -342,7 +208,7 @@ export default function CheckoutPage() {
                             border: "1px solid #475569",
                             cursor: "pointer"
                         }}
-                        disabled={isProcessing}
+                        disabled={c.isProcessing}                               
                     >
                         Back
                     </button>
@@ -357,9 +223,9 @@ export default function CheckoutPage() {
                             cursor: "pointer",
                             fontWeight: 600
                         }}
-                        disabled={isProcessing}
+                        disabled={c.isProcessing}                               
                     >
-                        {isProcessing ? 'Processing...' : 'Confirm & Pay'}
+                        {c.isProcessing ? 'Processing...' : 'Confirm & Pay'}    
                     </button>
                 </div>
             </form>
