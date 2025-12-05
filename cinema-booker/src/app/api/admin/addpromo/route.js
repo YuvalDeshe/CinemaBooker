@@ -81,7 +81,7 @@ export async function POST(request) {
 
         const codeToInsert = {
             codeString: newCode.name,
-            priceMultiplier: newCode.discountMultiplier,
+            priceMultiplier: newCode.priceMultiplier,
             startDate: newCode.startDate,
             endDate: newCode.endDate,
         };

@@ -19,10 +19,15 @@ export default function CardInfoForum({ card, onDelete, onChange }: Props) {
   }, [stateCard]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    const updated = controller.updateCard({ ...stateCard }, name, value);
-    setStateCard(updated);
-  };
+  const { name, value } = e.target;
+
+  // Extract the real field name before the dash
+  const field = name.split("-")[0]; // "cardType"
+
+  const updated = controller.updateCard({ ...stateCard }, field, value);
+  setStateCard(updated);
+};
+
 
   return (
     <div className={styles.mainDiv}>
@@ -38,21 +43,24 @@ export default function CardInfoForum({ card, onDelete, onChange }: Props) {
 
       <div>
         <label>Card Type:</label>
+
         <input
           type="radio"
           checked={stateCard.cardType === 'debit'}
           onChange={handleChange}
-          name="cardType"
+          name={`cardType-${stateCard._tempId}`}
           value="debit"
         /> Debit
+
         <input
           type="radio"
           checked={stateCard.cardType === 'credit'}
           onChange={handleChange}
-          name="cardType"
+          name={`cardType-${stateCard._tempId}`}
           value="credit"
         /> Credit
       </div>
+
 
       <div>
         <label>Exp. Date:</label>

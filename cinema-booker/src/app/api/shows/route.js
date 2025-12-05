@@ -81,18 +81,35 @@ export async function POST(request) {
         const { db } = await connectToDatabase();
         const showsCollection = db.collection('ShowCollection');
 
-        const newShow = await request.json();
+        let newShow;
+        try {
+            newShow = await request.json();
+        } catch (error_) {
+            console.warn('Failed to parse JSON body for /api/shows POST', error_);
+            return new Response(JSON.stringify({ message: "Invalid or missing JSON body." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
 
-        if (!newShow.movieID || !newShow.showRoomID || !newShow.time || !newShow.date || !newShow.seatReservationArray) {
+        if (!newShow || !newShow.movieID || !newShow.showRoomID || newShow.time === undefined || !newShow.date || !newShow.seatReservationArray) {
             return new Response(JSON.stringify({ message: "Missing required show fields." }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
 
+        // Validate IDs
+        if (!ObjectId.isValid(newShow.movieID) || !ObjectId.isValid(newShow.showRoomID)) {
+            return new Response(JSON.stringify({ message: "Invalid movieID or showRoomID format." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const showToInsert = {
-            movieID: ObjectId.createFromHexString(newShow.movieID),
-            showRoomID: ObjectId.createFromHexString(newShow.showRoomID),
+            movieID: new ObjectId(newShow.movieID),
+            showRoomID: new ObjectId(newShow.showRoomID),
             movieTitle: newShow.movieTitle,
             showRoomName: newShow.showRoomName,
             time: newShow.time,
@@ -104,13 +121,13 @@ export async function POST(request) {
 
         const responseShow = {
             _id: result.insertedId,
-            movieID: result.movieID,
-            showRoomID: result.showRoomID,
-            movieTitle: result.movieTitle,
-            showRoomName: result.showRoomName,
-            time: result.time,
-            date: result.date,
-            seatReservationArray: result.seatReservationArray,
+            movieID: showToInsert.movieID,
+            showRoomID: showToInsert.showRoomID,
+            movieTitle: showToInsert.movieTitle,
+            showRoomName: showToInsert.showRoomName,
+            time: showToInsert.time,
+            date: showToInsert.date,
+            seatReservationArray: showToInsert.seatReservationArray,
             message: 'Show scheduling successful!',
         };
 
@@ -122,6 +139,72 @@ export async function POST(request) {
     } catch (error) {
         console.error("Failed to add new show:", error);
         return new Response(JSON.stringify({ message: "An error occurred while creating the show.", error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
+
+export async function PUT(request) {
+    try {
+        const { db } = await connectToDatabase();
+        const showsCollection = db.collection('ShowCollection');
+
+        let updateData;
+        try {
+            updateData = await request.json();
+        } catch (error_) {
+            console.warn('Failed to parse JSON body for /api/shows PUT', error_);
+            return new Response(JSON.stringify({ message: "Invalid or missing JSON body." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const { showId, seatReservationArray } = updateData;
+
+        if (!showId || !seatReservationArray) {
+            return new Response(JSON.stringify({ message: "Missing showId or seatReservationArray." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Validate showId
+        if (!ObjectId.isValid(showId)) {
+            return new Response(JSON.stringify({ message: "Invalid showId format." }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Update the show's seat reservation array
+        const result = await showsCollection.updateOne(
+            { _id: new ObjectId(showId) },
+            { $set: { seatReservationArray: seatReservationArray } }
+        );
+
+        if (result.matchedCount === 0) {
+            return new Response(JSON.stringify({ message: "Show not found." }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        // Fetch the updated show
+        const updatedShow = await showsCollection.findOne({ _id: new ObjectId(showId) });
+
+        return new Response(JSON.stringify({ 
+            message: 'Seat reservations updated successfully!',
+            show: updatedShow
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+    } catch (error) {
+        console.error("Failed to update seat reservations:", error);
+        return new Response(JSON.stringify({ message: "An error occurred while updating seat reservations.", error: error.message }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });

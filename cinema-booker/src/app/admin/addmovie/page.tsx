@@ -20,12 +20,13 @@ export default function AddMovie() {
         <input value={c.title} onChange={(e) => c.setTitle(e.target.value)} required placeholder="e.g. The Godfather" className={styles.inputField} name="title" type="text"/>
         <label className={styles.label}>Description</label>
         <textarea value={c.description} onChange={(e) => c.setDescription(e.target.value)} maxLength={1500} required placeholder={sampleText} className={styles.textArea} rows={10} cols={10}></textarea>
+        <hr className={styles.hr}/>
         <label className={styles.label}>Genre</label>
         <CustomDropdown options={genreArray} value={c.genre} onChange={value => c.setGenre(value)}/>
         <label className={styles.label}>Runtime</label>
         <div className={styles.runTimeContainer}>
-          <input value={c.runTimeHours} minLength={2} onChange={(e) => c.setRunTimeHours(e.target.value)} required placeholder="HH" maxLength={2} className={styles.runTimeInput} name="hour" type="text"/>
-          <input value={c.runTimeMinutes} minLength={2} onChange={(e) => c.setRunTimeMinutes(e.target.value)} required placeholder="MM" maxLength={2} className={styles.runTimeInput} name="mins" type="text"/>
+          <input value={c.runTimeHours} onChange={(e) => c.setRunTimeHours(e.target.value)} required placeholder="HH" maxLength={2} className={styles.runTimeInput} name="hour" type="text"/>
+          <input value={c.runTimeMinutes} onChange={(e) => c.setRunTimeMinutes(e.target.value)} required placeholder="MM" maxLength={2} className={styles.runTimeInput} name="mins" type="text"/>
         </div>
         <label className={styles.label}>Rating</label>
         <CustomDropdown options={MPAARatingArray} value={c.rating} onChange={value => c.setRating(value)}/>

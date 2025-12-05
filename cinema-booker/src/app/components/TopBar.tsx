@@ -59,12 +59,11 @@ export default function TopBar() {
     router.push('/admin');
   }
 
-  //**NOTE**: Edit the URL of this to reflect the User ID of the currently logged-in user.
-  const editProfileHandler = () => {
+  const viewProfileHandler = () => {
     console.log('Edit Profile clicked. Session:', session);
     console.log('User ID:', session?.user?.id);
     if (session?.user?.id) {
-      const profileUrl = `/user/${session.user.id}/profile/edit`;
+      const profileUrl = `/user/${session.user.id}/profile/`;
       console.log('Navigating to:', profileUrl);
       router.push(profileUrl);
     } else {
@@ -126,8 +125,8 @@ export default function TopBar() {
             {isAdmin && (<button className={styles.dropdownMenuButtons} onClick={adminPageHandler}>
               <p>Admin Controls</p>
             </button>)}
-            <button className={styles.dropdownMenuButtons} onClick={editProfileHandler}>
-              <p>Edit Profile</p>
+            <button className={styles.dropdownMenuButtons} onClick={viewProfileHandler}>
+              <p>View Profile</p>
             </button>
             <button className={styles.dropdownMenuButtons} onClick={logoutHandler}>
               <p>Logout</p>

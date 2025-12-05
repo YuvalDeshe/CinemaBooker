@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styles from "./styles.module.css";
 import CardInfoForum from "@/app/components/CardInfoForum";
 import AddressInfoForum from "@/app/components/AddressInfoForum";
@@ -8,10 +8,8 @@ import ExistingCard from "@/app/components/ExistingCard";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import EditProfileModel from "@/models/EditProfileModel";
-import EditProfileController from "@/controllers/EditProfileController";
-import PaymentCard from "@/models/PaymentCardModel";
+import { useEditProfileController } from "@/controllers/EditProfileController";
 import Address from "@/models/AddressModel";
-import User from "@/models/UserModel";
 import ExistingCardModel from "@/models/ExistingCardModel";
 import CardModel from "@/models/CardModel";
 
@@ -20,52 +18,35 @@ export default function EditProfile() {
   const params = useParams();
   const router = useRouter();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [homeAddress, setHomeAddress] = useState<Address>({ street: "", city: "", state: "", zip: "" });
-  const [cardsList, setCardsList] = useState<PaymentCard[]>([]);
-  const [isRegisteredForPromos, setIsRegisteredForPromos] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [addressForumVisible, setAddressForumVisible] = useState(false);
-
   const model = new EditProfileModel();
-  const controller = new EditProfileController(model);
+  const {
+    controller,
+    user,
+    loading,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    homeAddress,
+    setHomeAddress,
+    cardsList,
+    setCardsList,
+    isRegisteredForPromos,
+    setIsRegisteredForPromos,
+    oldPassword,
+    setOldPassword,
+    newPassword,
+    setNewPassword,
+    addressForumVisible,
+    setAddressForumVisible,
+  } = useEditProfileController(model, params?.id ? String(params.id) : undefined, session, router);
 
-  // Only allow users to edit their own profiles
-  useEffect(() => {
-    if (session?.user && session.user.id !== params.id) {
-      router.push(`/user/${session.user.id}/profile/edit`);
-    }
-  }, [session, params, router]);
-
-  // Fetch user data
-  useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
-      const data = await model.fetchUser(String(params.id!));
-      if (data) {
-        setUser(data);
-        setFirstName(data.firstName);
-        setLastName(data.lastName);
-        setHomeAddress(data.homeAddress);
-        setCardsList(data.paymentCard.map((card) => ({
-          ...card,
-          _tempId: crypto.randomUUID(),
-        })));
-        setIsRegisteredForPromos(data.isRegisteredForPromos);
-        setAddressForumVisible(!!data.homeAddress?.street);
-      }
-      setLoading(false);
-    };
-
-    if (params.id) fetchUser();
-  }, [params.id]);
+  // State, redirect and fetching are handled by `useEditProfileController` in the controller file.
 
   // Handle form submission
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    let confirmation = confirm("Are you sure you want to edit your profile?");
+    if (confirmation == false) return;
     e.preventDefault();
     if (!user) return;
 
@@ -89,7 +70,8 @@ export default function EditProfile() {
 
     if (success) {
       alert("✅ Profile updated successfully!");
-      router.push(`/`);
+      if (session) router.push(`/user/${session.user.id}/profile`);
+      else router.push('/')
     } else {
       alert("❌ Error updating profile.");
     }

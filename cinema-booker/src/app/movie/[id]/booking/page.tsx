@@ -3,12 +3,9 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import styles from "../styles.module.css";
+import { Movie } from "@/models/MovieModel";
 
 // Only fetch the relevant info for the booking page
-type Movie = {
-  title: string;
-  posterUrl?: string;
-}
 
 function BookingContent() {
   const router = useRouter();
@@ -53,7 +50,7 @@ function BookingContent() {
   const [agree, setAgree] = useState(false);
 
   const isValid =
-    name.trim().length > 1 && /\S+@\S+\.\S+/.test(email) && (adultTickets + childTickets + seniorTickets > 0) && agree;
+    (adultTickets + childTickets + seniorTickets > 0) && agree;
 
   // fetch movie information
   React.useEffect(() => {
@@ -110,8 +107,8 @@ function BookingContent() {
                 border: "1px solid #374151",
               }}
             >
-              {movie.posterUrl ? (
-                <img src={movie.posterUrl} alt={`${movie.title} poster`} className="w-full h-full object-cover rounded" />
+              {movie.png ? (
+                <img src={movie.png} alt={`${movie.title} poster`} className="w-full h-full object-cover rounded" />
               ) : (
                 <span className="text-gray-500">No Image</span>
               )}
@@ -173,46 +170,6 @@ function BookingContent() {
                 gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
               }}
             >
-              <div style={{ display: "grid", gap: 6 }}>
-                <label htmlFor="name" style={{ fontWeight: 600 }}>
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={name}
-                  placeholder="Your name"
-                  onChange={(e) => setName(e.target.value)}
-                  style={{
-                    background: "#111827",
-                    color: "#f9fafb",
-                    border: "1px solid #4b5563",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                  }}
-                />
-              </div>
-
-              <div style={{ display: "grid", gap: 6 }}>
-                <label htmlFor="email" style={{ fontWeight: 600 }}>
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  placeholder="you@example.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    background: "#111827",
-                    color: "#f9fafb",
-                    border: "1px solid #4b5563",
-                    borderRadius: 8,
-                    padding: "10px 12px",
-                  }}
-                />
-              </div>
-
               <div style={{ display: "grid", gap: 6 }}>
                 <label htmlFor="tickets" style={{ fontWeight: 600 }}>
                   Child Tickets
