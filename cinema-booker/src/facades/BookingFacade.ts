@@ -210,7 +210,7 @@ export class BookingFacade {
             .setTickets(adultTickets, childTickets, seniorTickets)
             // Additional fields for email and confirmation
             .setUserEmail(user.email)
-            .setUserName(user.firstName || user.username || 'Customer')
+            .setUserName(user.firstName || 'Customer')
             .setMovieTitle(movieTitle || '')
             .setShowtime(showtime || '')
             .setDate(date || '')

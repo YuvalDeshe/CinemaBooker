@@ -39,7 +39,7 @@ export interface BookingData {
 export class BookingBuilder {
     private booking: Partial<BookingData>;
 
-    private constructor() {
+    constructor() {
         this.booking = {
             promoCode: '',
             promoCodeID: '',
@@ -212,7 +212,7 @@ export class BookingBuilder {
     private validate(): void {
         const required = ['movieID', 'showID', 'userID', 'paymentCardUsed', 'bookingDate', 'orderTotal'];
         const missing = required.filter(field => !this.booking[field as keyof BookingData]);
-        
+
         if (missing.length > 0) {
             throw new Error(`Missing required booking fields: ${missing.join(', ')}`);
         }
